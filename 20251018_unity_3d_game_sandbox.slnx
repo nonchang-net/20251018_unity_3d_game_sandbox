@@ -1,0 +1,10 @@
+﻿<Solution>
+  <Project Path="ClothWarp.csproj" />
+  <Project Path="GltfViewer.csproj" />
+  <Project Path="ClothViewer.csproj" />
+  <Project Path="ZString.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="VRM10.Samples.VRM10Viewer.csproj" />
+  <Project Path="VRM10.Samples.VRM10FirstPersonSample.csproj" />
+  <Project Path="ClothWarp.Editor.csproj" />
+</Solution>

@@ -1,0 +1,68 @@
+# 参考：
+# http://qiita.com/hkomo746/items/432ed5b3a3395a804f5f
+# http://naichilab.blogspot.jp/2014/01/git-6sourcetreegitunitygit.html
+# https://github.com/github/gitignore/blob/master/Unity.gitignore
+
+
+# ---------------[ Unity generated ]------------------ #
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+UnityGenerated/
+#ProjectSettings/*.asset #レイヤ情報が消えてしまうことを確認。
+[Ll]ogs/
+
+Assets/AssetStoreTools*
+
+# Unity3D generated meta files
+*.pidb.meta
+
+# Unity3D Generated File On Crash Reports
+sysinfo.txt
+
+# 20160528、SoomlaがiOSビルドの度に更新してるのが気になったので除外。今後はUnityIAPに切り替えるだろうから、深くは調査しない方向。
+Assets/Soomla/Editor/build-tools/mod_pbxproj.pyc
+Assets/Soomla/Editor/build-tools/mod_pbxproj.pyc.meta
+# メモ：追加したら
+# git rm --cached Assets/Soomla/Editor/build-tools/mod_pbxproj.pyc
+# git rm --cached Assets/Soomla/Editor/build-tools/mod_pbxproj.pyc.meta
+# でキャッシュから削除しないとgit statusに出てくるので注意。参考:<http://qiita.com/white_aspara25/items/64eafa107b61c6568f01>
+
+# 20160529 スクショがふくまれているフォルダが生成されていたので除外。なんだろこれ？
+Heapshots/
+
+# ----[ Visual Studio / MonoDevelop generated ]------- #
+
+ExportedObj/
+*.svd
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln
+*.user
+*.unityproj
+*.booproj
+
+*.tmp
+
+# -------------[ OS generated ]------------------------ #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# -------------[ Build ]------------------------ #
+*.html
+*.unity3d
+
+*.apk
+*.unitypackage
+
+.vscode/*

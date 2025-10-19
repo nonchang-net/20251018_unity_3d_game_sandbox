@@ -12,8 +12,8 @@ using System;
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-    const string version = "0.0.1";
-    const long versionCode = 20251013;
+    const string version = "0.0.2";
+    const long versionCode = 20251019;
 
 
     [Header("ログ制御")]

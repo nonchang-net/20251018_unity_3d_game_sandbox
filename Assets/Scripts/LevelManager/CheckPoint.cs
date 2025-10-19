@@ -25,13 +25,13 @@ public class CheckPoint : MonoBehaviour
     /// <summary>アクティブ化済みかどうか</summary>
     [SerializeField] private bool activated = false;
 
-    /// <summary>チェックポイント名</summary>
+    /// <summary>チェックポイント名 (TODO: 未使用 ファストトラベル時に利用を想定)</summary>
     public string CheckPointName => checkPointName;
 
     /// <summary>リスポーン位置</summary>
     public Transform SpawnPosition => spawnPosition;
 
-    /// <summary>サムネイル画像</summary>
+    /// <summary>サムネイル画像 (TODO: 未実装 ファストトラベル時に利用を想定)</summary>
     public Sprite Thumbnail => thumbnail;
 
     /// <summary>アクティブ化済みかどうか</summary>
@@ -78,7 +78,7 @@ public class CheckPoint : MonoBehaviour
             nonActivatedParticles.SetActive(false);
         }
 
-        Debug.Log($"CheckPoint '{checkPointName}' がアクティブ化されました。");
+        // Debug.Log($"CheckPoint '{checkPointName}' がアクティブ化されました。");
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class CheckPoint : MonoBehaviour
             nonActivatedParticles.SetActive(true);
         }
 
-        Debug.Log($"CheckPoint '{checkPointName}' がリセットされました。");
+        // Debug.Log($"CheckPoint '{checkPointName}' がリセットされました。");
     }
 
     void OnValidate()

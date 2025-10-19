@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using System;
 using R3;
 
@@ -15,7 +16,7 @@ using R3;
 /// 2. 制御対象のキャラクターを設定
 /// 3. GameManagerまたは手動でSetTargetCharacter()を呼び出す
 /// </summary>
-public class GameInputManager : MonoBehaviour
+public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerActions
 {
     [Header("制御対象")]
     [Tooltip("制御対象のキャラクター")]
@@ -56,6 +57,10 @@ public class GameInputManager : MonoBehaviour
     /// 詳細ログを有効にするかどうか（GameManagerから設定される）
     /// </summary>
     public static bool EnableVerboseLog { get; set; } = false;
+
+    // Input System
+    InputSystem_Actions inputSystemActions;
+    private InputSystem_Actions.PlayerActions inputSystemActionMap;
 
     // キャラクターの実装タイプ
     private enum CharacterImplementationType
@@ -98,6 +103,33 @@ public class GameInputManager : MonoBehaviour
     private IDisposable damageSubscription;
     private IDisposable deadSubscription;
     private IDisposable highJumpSubscription;
+
+    void Awake()
+    {
+        inputSystemActions = new InputSystem_Actions();
+        inputSystemActionMap = inputSystemActions.Player;
+        inputSystemActionMap.AddCallbacks(this);
+    }
+
+    void OnEnable()
+    {
+        inputSystemActions?.Enable();
+    }
+
+    void OnDisable()
+    {
+        inputSystemActions?.Disable();
+    }
+
+    void OnDestroy()
+    {
+        inputSystemActions?.Dispose();
+
+        // R3購読の解放
+        damageSubscription?.Dispose();
+        deadSubscription?.Dispose();
+        highJumpSubscription?.Dispose();
+    }
 
     void Start()
     {
@@ -156,6 +188,37 @@ public class GameInputManager : MonoBehaviour
 
         // Debug.LogError($"GameInputManager.cs Start() Finished.");
     }
+
+    /// <summary>
+    /// Input Systemコールバック
+    /// </summary>
+
+    #region Interface implementation of InputSystem_Actions.IPlayerActions
+
+        public void OnMove(InputAction.CallbackContext context)
+        {
+            Debug.Log($"OnMove: {context.ReadValue<Vector2>()}");
+        }
+
+        public void OnLook(InputAction.CallbackContext context)
+        {
+            Debug.Log($"OnLook: {context.ReadValue<Vector2>()}");
+        }
+        public void OnJump(InputAction.CallbackContext context)
+        {
+            Debug.Log($"OnJump: {context.ReadValue<float>()}");
+        }
+        public void OnSprint(InputAction.CallbackContext context)
+        {
+            Debug.Log($"OnSprint: {context.ReadValue<float>()}");
+        }
+
+        public void OnChangeCharacter(InputAction.CallbackContext context)
+        {
+            Debug.Log($"OnChangeCharacter: {context.ReadValue<float>()}");
+        }
+
+    #endregion
 
     /// <summary>
     /// キャラクターを初期化して実装タイプを判定
@@ -935,13 +998,5 @@ public class GameInputManager : MonoBehaviour
 
         // 次フレーム用にプラットフォームの位置を記録
         previousPlatformPosition = currentPlatform.position;
-    }
-
-    void OnDestroy()
-    {
-        // R3購読の解放
-        damageSubscription?.Dispose();
-        deadSubscription?.Dispose();
-        highJumpSubscription?.Dispose();
     }
 }

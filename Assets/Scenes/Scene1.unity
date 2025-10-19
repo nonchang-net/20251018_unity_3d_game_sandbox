@@ -6228,12 +6228,52 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: jump.m_Name
+      value: Jump
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: jump.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: move.m_Name
+      value: Move
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: move.m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: playerInput
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: cameraTracker
       value: 
       objectReference: {fileID: 961739754}
     - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: targetCharacter
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: jump.m_ExpectedControlType
+      value: Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: move.m_ExpectedControlType
+      value: Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: move.m_SingletonActionBindings.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: move.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 9373e010-2ebc-4809-8a2f-10cc8b7d2aea
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: move.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Move
       objectReference: {fileID: 0}
     - target: {fileID: 1197364800033483862, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: postProcessVolume

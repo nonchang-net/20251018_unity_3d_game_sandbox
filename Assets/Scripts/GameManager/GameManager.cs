@@ -7,8 +7,7 @@ using System;
 
 /// <summary>
 /// ゲーム全体を管理するマネージャークラス
-/// - アクティブキャラクターの管理
-/// - カメラとキャラクター操作の自動連携
+/// - TODO: アクティブキャラクターの管理責務はrepository側に集約すべきか検討中
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -22,16 +21,13 @@ public class GameManager : MonoBehaviour
     [Tooltip("GameInputManagerの詳細ログを表示する")]
     [SerializeField] private bool enableInputManagerVerboseLog = false;
 
-    // note: GameManagerがGameUIManagerの参照を必要とするかどうか現状不明なのでコメントアウトで様子見中。Reactive Property経由で十分説明できるなら最終的に削除する予定
-    // [Header("UI設定")]
-    // [Tooltip("GameUIManager")]
-    // [SerializeField] private GameUIManager uiManager;
-
     [Header("参照")]
     [SerializeField] private GameInputManager inputManager;
     public GameInputManager InputManager => inputManager;
+    [SerializeField] private GameUIManager gameUIManager;
+    public GameUIManager UIManager => gameUIManager;
     [SerializeField] private GameCharacterManager characterManager;
-    
+    public GameCharacterManager CharacterManager => characterManager;
 
     [Header("キャラクター管理")]
     [Tooltip("プレイ可能なキャラクターを管理するリポジトリ")]
@@ -40,6 +36,7 @@ public class GameManager : MonoBehaviour
     [Header("カメラ設定")]
     [Tooltip("メインカメラのCharacterTracker")]
     [SerializeField] private CharacterTracker characterTracker;
+    public CharacterTracker CharacterTracker => characterTracker;
 
     [Header("リスポーン設定")]
     [Tooltip("レベルのチェックポイント管理（設定されている場合はこちらを優先使用）")]
@@ -76,23 +73,28 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        // ログ設定を初期化
-        GameInputManager.EnableVerboseLog = enableVerboseLog && enableInputManagerVerboseLog;
+        // ログ設定を初期化: 20251020: InputManagerが特にverbose logが必要なくなったので一旦コメントアウト。TODO: 後日ログ設定周りを見直す
+        // GameInputManager.EnableVerboseLog = enableVerboseLog && enableInputManagerVerboseLog;
 
         // 参照確認
         if (inputManager == null)
         {
-            Debug.LogError("GameManager: GameInputManagerが設定されていません。");
+            Debug.LogError("GameManager: GameInputManager が設定されていません。");
+            return;
+        }
+        if( gameUIManager == null)
+        {
+            Debug.LogError("GameManager: GameUIManager が設定されていません。");
             return;
         }
         if (characterManager == null)
         {
-            Debug.LogError("GameManager: GameCharacterManagerが設定されていません。");
+            Debug.LogError("GameManager: GameCharacterManager が設定されていません。");
             return;
         }
         if (characterTracker == null)
         {
-            Debug.LogError("GameManager: CharacterTrackerが設定されていません。メインカメラに付与して参照を設定してください。");
+            Debug.LogError("GameManager: CharacterTracker が設定されていません。メインカメラに付与して参照を設定してください。");
             return;
         }
 
@@ -259,15 +261,8 @@ public class GameManager : MonoBehaviour
         activeCharacter = character;
         character.SetActive(true);
 
-        // キャラクターを設定
+        // キャラクターを設定（カメラ追跡対象もGameCharacterManager内で自動設定される）
         characterManager.SetTargetCharacter(character);
-
-        // カメラの追跡対象を設定
-        if (characterTracker != null)
-        {
-            characterTracker.SetTarget(character.transform);
-            inputManager.SetCameraTracker(characterTracker);
-        }
 
         if (enableVerboseLog)
         {

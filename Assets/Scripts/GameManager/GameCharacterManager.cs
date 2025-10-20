@@ -23,9 +23,6 @@ public class GameCharacterManager : MonoBehaviour
     [Header("制御対象")]
     [SerializeField] private GameObject targetCharacter;
 
-    [Header("参照")]
-    [SerializeField] private CharacterTracker cameraTracker;
-
     [Header("移動設定")]
     [SerializeField] private string animatorSpeedKey = "Speed";
     [SerializeField] private float walkSpeed = 3f;
@@ -112,9 +109,9 @@ public class GameCharacterManager : MonoBehaviour
             return;
         }
 
-        if (cameraTracker == null)
+        if (gameManager.CharacterTracker == null)
         {
-            Debug.LogWarning($"GameCharacterManager: CharacterTracker参照が設定されていません。v0.0.2現在ではcameraTracker未指定時の動作は検証対象外です。");
+            Debug.LogWarning($"GameCharacterManager: CharacterTracker参照が設定されていません。v0.0.2現在ではCharacterTracker未指定時の動作は検証対象外です。");
             return;
         }
 
@@ -305,10 +302,10 @@ public class GameCharacterManager : MonoBehaviour
             Vector3 cameraForward = Vector3.forward;
             Vector3 cameraRight = Vector3.right;
 
-            if (cameraTracker != null)
+            if (gameManager != null && gameManager.CharacterTracker != null)
             {
-                cameraForward = cameraTracker.GetCameraForward();
-                cameraRight = cameraTracker.GetCameraRight();
+                cameraForward = gameManager.CharacterTracker.GetCameraForward();
+                cameraRight = gameManager.CharacterTracker.GetCameraRight();
             }
 
             // カメラの向きを基準に移動方向を計算
@@ -395,10 +392,10 @@ public class GameCharacterManager : MonoBehaviour
             Vector3 cameraForward = Vector3.forward;
             Vector3 cameraRight = Vector3.right;
 
-            if (cameraTracker != null)
+            if (gameManager != null && gameManager.CharacterTracker != null)
             {
-                cameraForward = cameraTracker.GetCameraForward();
-                cameraRight = cameraTracker.GetCameraRight();
+                cameraForward = gameManager.CharacterTracker.GetCameraForward();
+                cameraRight = gameManager.CharacterTracker.GetCameraRight();
             }
 
             // カメラの向きを基準に移動方向を計算
@@ -555,18 +552,6 @@ public class GameCharacterManager : MonoBehaviour
     }
 
     /// <summary>
-    /// カメラトラッカーを設定
-    /// </summary>
-    public void SetCameraTracker(CharacterTracker tracker)
-    {
-        cameraTracker = tracker;
-        if (tracker != null && targetCharacter != null)
-        {
-            tracker.SetTarget(targetCharacter.transform);
-        }
-    }
-
-    /// <summary>
     /// 制御対象のキャラクターを設定
     /// </summary>
     public void SetTargetCharacter(GameObject character)
@@ -579,9 +564,9 @@ public class GameCharacterManager : MonoBehaviour
             InitializeCharacter();
 
             // カメラトラッカーが既に設定されている場合、ターゲットを更新
-            if (cameraTracker != null)
+            if (gameManager != null && gameManager.CharacterTracker != null)
             {
-                cameraTracker.SetTarget(targetCharacter.transform);
+                gameManager.CharacterTracker.SetTarget(targetCharacter.transform);
             }
 
             // コンポーネントを有効化

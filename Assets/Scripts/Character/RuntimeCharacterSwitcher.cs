@@ -15,10 +15,6 @@ public class RuntimeCharacterSwitcher : MonoBehaviour
     [Tooltip("PlayableCharacterRepository")]
     [SerializeField] private PlayableCharacterRepository characterRepository;
 
-    [Header("入力設定")]
-    [Tooltip("キャラクター切り替えキー")]
-    [SerializeField] private KeyCode switchCharacterKey = KeyCode.Tab;
-
     [Header("デバッグ設定")]
     [Tooltip("詳細ログを表示する")]
     [SerializeField] private bool enableVerboseLog = false;
@@ -43,15 +39,6 @@ public class RuntimeCharacterSwitcher : MonoBehaviour
             {
                 Debug.LogWarning("RuntimeCharacterSwitcher: PlayableCharacterRepositoryが見つかりません。キャラクター切り替え機能が動作しません。");
             }
-        }
-    }
-
-    void Update()
-    {
-        // キャラクター切り替え入力を検出
-        if (Input.GetKeyDown(switchCharacterKey))
-        {
-            SwitchToNextCharacter();
         }
     }
 

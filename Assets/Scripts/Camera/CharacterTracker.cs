@@ -12,8 +12,6 @@ public class CharacterTracker : MonoBehaviour
     [Header("カメラ設定")]
     [SerializeField] private float cameraDistance = 6f;
     [SerializeField] private float cameraHeight = 2f;
-    [SerializeField] private float mouseSensitivity = 2f;
-    [SerializeField] private float gamepadSensitivity = 100f;
     [SerializeField] private bool invertVerticalAxis = false;
 
     [Header("カメラ制限")]
@@ -84,19 +82,11 @@ public class CharacterTracker : MonoBehaviour
     /// </summary>
     void HandleCameraRotation()
     {
-        // マウス入力
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
-
-        // ゲームパッド右スティック入力
-        float gamepadX = Input.GetAxis("RightStickHorizontal") * gamepadSensitivity * Time.deltaTime;
-        float gamepadY = Input.GetAxis("RightStickVertical") * gamepadSensitivity * Time.deltaTime;
-
-        // 外部からの入力も考慮（将来の拡張用）
-        float lookX = mouseX + gamepadX + lookInput.x;
-        float lookY = mouseY + gamepadY + lookInput.y;
+        float lookX = lookInput.x;
+        float lookY = lookInput.y;
 
         // 上下反転の適用
+        // マウスとgamepadで感覚が逆な気がする？
         float verticalMultiplier = invertVerticalAxis ? 1f : -1f;
 
         // 入力を合成
@@ -211,7 +201,7 @@ public class CharacterTracker : MonoBehaviour
     }
 
     /// <summary>
-    /// 外部から視点入力を設定（オプション）
+    /// 外部から視点入力を設定
     /// </summary>
     public void SetLookInput(Vector2 input)
     {
@@ -224,14 +214,6 @@ public class CharacterTracker : MonoBehaviour
     public void SetCameraDistance(float distance)
     {
         cameraDistance = Mathf.Max(1f, distance);
-    }
-
-    /// <summary>
-    /// カメラ感度を設定
-    /// </summary>
-    public void SetMouseSensitivity(float sensitivity)
-    {
-        mouseSensitivity = Mathf.Max(0.1f, sensitivity);
     }
 
     /// <summary>

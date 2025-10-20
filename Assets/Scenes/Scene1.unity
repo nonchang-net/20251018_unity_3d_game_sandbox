@@ -499,6 +499,17 @@ Transform:
   - {fileID: 1991344247}
   m_Father: {fileID: 1365701290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &163342868 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+  m_PrefabInstance: {fileID: 1607662224}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 320da482cee934ac4894ff04949d1bf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!4 &168205121 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5666784144062272329, guid: bf119e184e33c45d4bc57b9b2b96a985, type: 3}
@@ -3776,9 +3787,7 @@ MonoBehaviour:
   targetTransform: {fileID: 2030898926}
   cameraDistance: 2.5
   cameraHeight: 1
-  mouseSensitivity: 2
-  gamepadSensitivity: 100
-  invertVerticalAxis: 0
+  invertVerticalAxis: 1
   minPitch: -80
   maxPitch: 50
   initialPitch: -20
@@ -6219,6 +6228,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 715468918}
   m_SourcePrefab: {fileID: 100100000, guid: bf119e184e33c45d4bc57b9b2b96a985, type: 3}
+--- !u!114 &1600627733 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2617058705226619591, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+  m_PrefabInstance: {fileID: 1607662224}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b6fc0dd07d874e869ee475744669086, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RuntimeCharacterSwitcher
 --- !u!1001 &1607662224
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6227,6 +6247,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: gameManager
+      value: 
+      objectReference: {fileID: 2118547840}
     - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: jump.m_Name
       value: Jump
@@ -6252,9 +6276,21 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 961739754}
     - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: gameUIManager
+      value: 
+      objectReference: {fileID: 163342868}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: vrmLoadManager
+      value: 
+      objectReference: {fileID: 1794403923}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: targetCharacter
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: runtimeCharacterSwitcher
+      value: 
+      objectReference: {fileID: 1600627733}
     - target: {fileID: 1100991995452334661, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: jump.m_ExpectedControlType
       value: Button
@@ -6298,6 +6334,10 @@ PrefabInstance:
     - target: {fileID: 4406867628601610656, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: enableInputManagerVerboseLog
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5318421489682998248, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: m_Name
+      value: RuntimeCharacterSwitcher
       objectReference: {fileID: 0}
     - target: {fileID: 5318421489682998248, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: m_IsActive
@@ -7057,6 +7097,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ef93f302a0e13420c997be259a01b0bb, type: 3}
+--- !u!114 &1794403923 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5375626753690090565, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+  m_PrefabInstance: {fileID: 1607662224}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb7f3dc7a6534bbd9eceb501cc0a7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VRMLoadManager
 --- !u!1001 &1800424831
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8302,6 +8353,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 604712594}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2118547840 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4406867628601610656, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+  m_PrefabInstance: {fileID: 1607662224}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e0cecad0420403495e5566628cdb8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
 --- !u!1001 &2125254666
 PrefabInstance:
   m_ObjectHideFlags: 0

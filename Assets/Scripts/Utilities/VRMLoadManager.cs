@@ -20,10 +20,6 @@ public class VRMLoadManager : MonoBehaviour
     [Tooltip("PlayableCharacterRepository")]
     [SerializeField] private PlayableCharacterRepository characterRepository;
 
-    [Header("ランタイムVRM読み込み設定")]
-    [Tooltip("VRMロードキー")]
-    [SerializeField] private KeyCode vrmLoadKey = KeyCode.L;
-
     [Header("VRM設定")]
     [Tooltip("VRMキャラクターに適用するアニメーションコントローラー")]
     [SerializeField] private RuntimeAnimatorController vrmAnimatorController;
@@ -63,11 +59,9 @@ public class VRMLoadManager : MonoBehaviour
         }
     }
 
-
-    void Update()
+    public void OpenLoadVrmFileDialog()
     {
-        // VRMファイル選択・ロード
-        if (Input.GetKeyDown(vrmLoadKey) && !isLoadingVrm)
+        if (!isLoadingVrm)
         {
             StartCoroutine(LoadVrmFromFileDialog());
         }

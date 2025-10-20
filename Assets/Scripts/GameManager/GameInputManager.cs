@@ -22,18 +22,23 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     [SerializeField] private GameManager gameManager;
 
     [Header("制御対象")]
-    [Tooltip("制御対象のキャラクター")]
     [SerializeField] private GameObject targetCharacter;
 
     [Header("参照")]
-    [Tooltip("カメラトラッカー")]
-    [SerializeField] private CharacterTracker cameraTracker; // カメラトラッカーへの参照
+    [SerializeField] private CharacterTracker cameraTracker;
+    [SerializeField] private GameUIManager gameUIManager;
+    [SerializeField] private RuntimeCharacterSwitcher runtimeCharacterSwitcher;
+    [SerializeField] private VRMLoadManager vrmLoadManager;
 
     [Header("移動設定")]
+    [SerializeField] private string animatorSpeedKey = "Speed";
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float runSpeed = 10f;
-    [SerializeField] private float crouchedSpeed = 2f;
+    // [SerializeField] private float crouchedSpeed = 2f;
     [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private string animatorIsCrouchedKey = "isCrouched";
+    [SerializeField] private string animatorInAirKey = "inAir";
+    [SerializeField] private string animatorIsDeadKey = "isDead";
 
     [Header("ジャンプ設定")]
     [SerializeField] private float jumpHeight = 2f;
@@ -41,6 +46,7 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
     [Header("ノックバック設定")]
     [Tooltip("ノックバック時にキャラクターを弾け飛ばす")]
+    [SerializeField] private string animatorIsKnockbackKey = "isKnockback";
     [SerializeField] private bool enableKnockbackMovement = true;
 
     [Tooltip("ノックバック時の移動距離")]
@@ -105,6 +111,11 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
     void Awake()
     {
+        // Input SystemはIME有効状態でプレイ開始するとshiftキーが反応しない
+        // TODO: 以下では改善しなかった。制御方法など解決策を調査したい
+        // Input.imeCompositionMode = IMECompositionMode.Off;
+        // Keyboard.current?.SetIMEEnabled(false);
+
         inputSystemActions = new InputSystem_Actions();
         inputSystemActionMap = inputSystemActions.Player;
         inputSystemActionMap.AddCallbacks(this);
@@ -186,23 +197,29 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     /// </summary>
 
     #region Interface implementation of InputSystem_Actions.IPlayerActions
-
+    private Vector2 movement;
     public void OnMove(InputAction.CallbackContext context)
     {
-        Debug.Log($"OnMove: {context.ReadValue<Vector2>()}");
+        movement = context.ReadValue<Vector2>();
+        // Debug.Log($"OnMove: {context.ReadValue<Vector2>()}");
     }
 
     public void OnLook(InputAction.CallbackContext context)
     {
-        Debug.Log($"OnLook: {context.ReadValue<Vector2>()}");
+        cameraTracker?.SetLookInput(context.ReadValue<Vector2>());
+        // Debug.Log($"OnLook: {context.ReadValue<Vector2>()}");
     }
+    private bool requestJump = false;
     public void OnJump(InputAction.CallbackContext context)
     {
-        Debug.Log($"OnJump: {context.ReadValue<float>()}");
+        requestJump = context.performed;
+        // Debug.Log($"OnJump: performed {requestJump}");
     }
+    private bool requestSprint = false;
     public void OnSprint(InputAction.CallbackContext context)
     {
-        Debug.Log($"OnSprint: {context.ReadValue<float>()}");
+        requestSprint = context.ReadValue<float>() > 0.5f;
+        // Debug.Log($"OnSprint: {requestSprint}");
     }
     private bool requestResetCamera = false;
     public void OnResetCamera(InputAction.CallbackContext context)
@@ -212,9 +229,26 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     }
     public void OnChangeCharacter(InputAction.CallbackContext context)
     {
-        Debug.Log($"OnChangeCharacter: {context.ReadValue<float>()}");
+        if (context.ReadValue<float>() > 0.5f)
+        {
+            runtimeCharacterSwitcher?.SwitchToNextCharacter();
+        }
     }
-
+    public void OnToggleFPSView(InputAction.CallbackContext context)
+    {
+        if (context.ReadValue<float>() > 0.5f)
+        {
+            gameUIManager.ToggleFpsCounterFrameActive();
+        }
+    }
+    public void OnLoadVRMFile(InputAction.CallbackContext context)
+    {
+        if (context.ReadValue<float>() > 0.5f)
+        {
+            vrmLoadManager.OpenLoadVrmFileDialog();
+        }
+    }
+    
     #endregion
 
     /// <summary>
@@ -351,14 +385,15 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
         HandlePlatformMovement();
 
         // ジャンプ処理（移動処理の前に実行）
-        if (Input.GetButtonDown("Jump") && characterController.isGrounded && !isCrouched)
+        if (requestJump && characterController.isGrounded && !isCrouched)
         {
+            requestJump = false; // 次のperformedまでtrueにさせない
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
         // WASD / ゲームパッド左スティック入力を取得
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float horizontal = movement.x;
+        float vertical = movement.y;
 
         Vector3 inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
 
@@ -379,15 +414,15 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
             // 移動速度を設定（Run/Crouch対応）
             float currentMoveSpeed = walkSpeed;
-            if (Input.GetButton("Run"))
+            if (requestSprint)
             {
                 currentMoveSpeed = runSpeed;
             }
-            else if (Input.GetButton("Crouch"))
-            {
-                currentMoveSpeed = crouchedSpeed;
-                isCrouched = true;
-            }
+            // else if (requestCrouched) // 未実装
+            // {
+            //     currentMoveSpeed = crouchedSpeed;
+            //     isCrouched = true;
+            // }
             else
             {
                 isCrouched = false;
@@ -411,7 +446,7 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
             playerSpeed = Mathf.Lerp(playerSpeed, currentMoveSpeed * inputDirection.magnitude, Time.deltaTime * lerpSpeed);
 
             // 重力を適用
-            if (characterController.isGrounded && velocity.y < 0)
+            if (!characterController.isGrounded && velocity.y < 0)
             {
                 velocity.y = -0.5f;
             }
@@ -427,7 +462,7 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
             playerSpeed = Mathf.Lerp(playerSpeed, 0f, Time.deltaTime * 10f);
 
             // 重力処理（停止時も含む）
-            if (characterController.isGrounded && velocity.y < 0)
+            if (!characterController.isGrounded && velocity.y < 0)
             {
                 velocity.y = -0.5f;
             }
@@ -445,14 +480,15 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
         HandlePlatformMovement();
 
         // ジャンプ処理
-        if (Input.GetButtonDown("Jump") && isGroundedRigidbody && !isCrouched)
+        if (requestJump && isGroundedRigidbody && !isCrouched)
         {
+            requestJump = false; // 次のperformedまでtrueにさせない
             characterRigidbody.AddForce(Vector3.up * Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y), ForceMode.VelocityChange);
         }
 
         // WASD / ゲームパッド左スティック入力を取得
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float horizontal = movement.x;
+        float vertical = movement.y;
 
         Vector3 inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
 
@@ -473,15 +509,15 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
             // 移動速度を設定（Run/Crouch対応）
             float currentMoveSpeed = walkSpeed;
-            if (Input.GetButton("Run"))
+            if (requestSprint)
             {
                 currentMoveSpeed = runSpeed;
             }
-            else if (Input.GetButton("Crouch"))
-            {
-                currentMoveSpeed = crouchedSpeed;
-                isCrouched = true;
-            }
+            // else if (requestCrouch) // しゃがみは未実装
+            // {
+            //     currentMoveSpeed = crouchedSpeed;
+            //     isCrouched = true;
+            // }
             else
             {
                 isCrouched = false;
@@ -596,9 +632,9 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     {
         if (animator != null && animator.runtimeAnimatorController != null && animator.isInitialized)
         {
-            animator.SetFloat("Speed", playerSpeed);
-            animator.SetBool("inAir", !IsGrounded());
-            animator.SetBool("isCrouched", isCrouched);
+            animator.SetFloat(animatorSpeedKey, playerSpeed);
+            animator.SetBool(animatorInAirKey, !IsGrounded());
+            animator.SetBool(animatorIsCrouchedKey, isCrouched);
         }
     }
 
@@ -673,15 +709,15 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     {
         if (EnableVerboseLog)
         {
-            Debug.Log($"GameInputManager: 死亡しました。アニメーション遷移。");
+            Debug.Log($"GameInputManager: 死亡しました。アニメーション遷移");
         }
 
         // 死亡アニメーション遷移
         if (animator != null && animator.runtimeAnimatorController != null && animator.isInitialized)
         {
-            animator.SetBool("inAir", false);
-            animator.SetBool("isKnockback", false);
-            animator.SetBool("isDead", true);
+            animator.SetBool(animatorInAirKey, false);
+            animator.SetBool(animatorIsKnockbackKey, false);
+            animator.SetBool(animatorIsDeadKey, true);
         }
 
         // 入力を無効化
@@ -695,13 +731,13 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     {
         if (EnableVerboseLog)
         {
-            Debug.Log($"GameInputManager: リスポーンしました。アニメーション復帰。");
+            Debug.Log($"GameInputManager: リスポーンしました。アニメーション復帰");
         }
 
         // 死亡アニメーションを解除
         if (animator != null && animator.runtimeAnimatorController != null && animator.isInitialized)
         {
-            animator.SetBool("isDead", false);
+            animator.SetBool(animatorIsDeadKey, false);
         }
 
         // 入力を再有効化
@@ -743,13 +779,13 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
         if (EnableVerboseLog)
         {
-            Debug.Log($"GameInputManager: ダメージを受けました。ノックバックアニメーション開始。");
+            Debug.Log($"GameInputManager: ダメージを受けました。ノックバックアニメーション開始");
         }
 
         // ノックバックアニメーション遷移
         if (animator != null && animator.runtimeAnimatorController != null && animator.isInitialized)
         {
-            animator.SetBool("isKnockback", true);
+            animator.SetBool(animatorIsKnockbackKey, true);
             isKnockback = true;
 
             // ノックバック移動が有効な場合、方向を計算
@@ -826,14 +862,14 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
         if (animator != null && animator.runtimeAnimatorController != null && animator.isInitialized)
         {
-            animator.SetBool("isKnockback", false);
+            animator.SetBool(animatorIsKnockbackKey, false);
         }
 
         isKnockback = false;
 
         if (EnableVerboseLog)
         {
-            Debug.Log($"GameInputManager: ノックバック終了。");
+            Debug.Log($"GameInputManager: ノックバック終了");
         }
     }
 

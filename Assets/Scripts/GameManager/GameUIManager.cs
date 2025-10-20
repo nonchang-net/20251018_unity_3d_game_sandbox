@@ -41,10 +41,6 @@ public class GameUIManager : MonoBehaviour
     [Tooltip("メッセージのフェードアウト時間（秒）")]
     [SerializeField] private float staticMessageFadeOutDuration = 0.3f;
 
-    [Header("入力設定")]
-    [Tooltip("FPS表示切り替えキー")]
-    [SerializeField] private KeyCode switchFPSKey = KeyCode.F;
-
     private FPSCounter fpsCounter = new();
 
     /// <summary>現在実行中のメッセージフェードコルーチン</summary>
@@ -107,18 +103,17 @@ public class GameUIManager : MonoBehaviour
 
     void Update()
     {
-        // FPS切り替え入力を検出
-        if (Input.GetKeyDown(switchFPSKey))
-        {
-            fpsCounterFrame.SetActive(!fpsCounterFrame.activeSelf);
-        }
-
         // FPS Counter更新
         if (fpsCounterFrame != null && fpsCounterFrame.activeSelf)
         {
             var result = fpsCounter.UpdateMeasure();
             fpsText.SetTextFormat("FPS:{0} (ave:{1}) ", result.fps, result.average);
         }
+    }
+
+    public void ToggleFpsCounterFrameActive()
+    {
+        fpsCounterFrame.SetActive(!fpsCounterFrame.activeSelf);
     }
 
     void OnDestroy()

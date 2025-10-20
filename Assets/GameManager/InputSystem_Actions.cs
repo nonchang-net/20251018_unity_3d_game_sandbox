@@ -145,6 +145,24 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Toggle FPS View"",
+                    ""type"": ""Button"",
+                    ""id"": ""46a03b31-0879-42be-9baf-e5f997e967af"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LoadVRMFile"",
+                    ""type"": ""Button"",
+                    ""id"": ""bcb226df-78bd-4a04-b7ce-5dc636663575"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -285,7 +303,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""id"": ""c1f7a91b-d0fd-4a62-997e-7fb9b69bf235"",
                     ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""ScaleVector2(x=5,y=5)"",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
@@ -296,7 +314,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""id"": ""8c8e490b-c610-4785-884f-f04217b23ca4"",
                     ""path"": ""<Pointer>/delta"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""ScaleVector2(x=0.6,y=0.6)"",
                     ""groups"": "";Keyboard&Mouse;Touch"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
@@ -383,7 +401,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""d4961a2e-6b13-4bc7-ab3a-736ef0680318"",
                     ""path"": ""<Keyboard>/tab"",
-                    ""interactions"": """",
+                    ""interactions"": ""Tap"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Change Character"",
@@ -394,7 +412,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""76a26120-7430-4595-be1a-589a812e0afa"",
                     ""path"": ""<Gamepad>/rightShoulder"",
-                    ""interactions"": """",
+                    ""interactions"": ""Tap"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Change Character"",
@@ -420,6 +438,39 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Reset Camera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aa6b6466-509b-4c5c-a673-e5990211f2e6"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": ""Tap"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle FPS View"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d3970f59-a8db-4022-9a00-83ce4feb2aa0"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": ""Tap"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle FPS View"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""81d27379-d091-4a57-b2af-a0b64e432f9a"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": ""Tap"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LoadVRMFile"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1013,6 +1064,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_ChangeCharacter = m_Player.FindAction("Change Character", throwIfNotFound: true);
         m_Player_ResetCamera = m_Player.FindAction("Reset Camera", throwIfNotFound: true);
+        m_Player_ToggleFPSView = m_Player.FindAction("Toggle FPS View", throwIfNotFound: true);
+        m_Player_LoadVRMFile = m_Player.FindAction("LoadVRMFile", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1112,6 +1165,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_ChangeCharacter;
     private readonly InputAction m_Player_ResetCamera;
+    private readonly InputAction m_Player_ToggleFPSView;
+    private readonly InputAction m_Player_LoadVRMFile;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1147,6 +1202,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ResetCamera".
         /// </summary>
         public InputAction @ResetCamera => m_Wrapper.m_Player_ResetCamera;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleFPSView".
+        /// </summary>
+        public InputAction @ToggleFPSView => m_Wrapper.m_Player_ToggleFPSView;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/LoadVRMFile".
+        /// </summary>
+        public InputAction @LoadVRMFile => m_Wrapper.m_Player_LoadVRMFile;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1191,6 +1254,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ResetCamera.started += instance.OnResetCamera;
             @ResetCamera.performed += instance.OnResetCamera;
             @ResetCamera.canceled += instance.OnResetCamera;
+            @ToggleFPSView.started += instance.OnToggleFPSView;
+            @ToggleFPSView.performed += instance.OnToggleFPSView;
+            @ToggleFPSView.canceled += instance.OnToggleFPSView;
+            @LoadVRMFile.started += instance.OnLoadVRMFile;
+            @LoadVRMFile.performed += instance.OnLoadVRMFile;
+            @LoadVRMFile.canceled += instance.OnLoadVRMFile;
         }
 
         /// <summary>
@@ -1220,6 +1289,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ResetCamera.started -= instance.OnResetCamera;
             @ResetCamera.performed -= instance.OnResetCamera;
             @ResetCamera.canceled -= instance.OnResetCamera;
+            @ToggleFPSView.started -= instance.OnToggleFPSView;
+            @ToggleFPSView.performed -= instance.OnToggleFPSView;
+            @ToggleFPSView.canceled -= instance.OnToggleFPSView;
+            @LoadVRMFile.started -= instance.OnLoadVRMFile;
+            @LoadVRMFile.performed -= instance.OnLoadVRMFile;
+            @LoadVRMFile.canceled -= instance.OnLoadVRMFile;
         }
 
         /// <summary>
@@ -1562,6 +1637,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnResetCamera(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Toggle FPS View" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleFPSView(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LoadVRMFile" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLoadVRMFile(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

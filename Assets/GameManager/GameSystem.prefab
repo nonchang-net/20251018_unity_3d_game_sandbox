@@ -85,7 +85,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5498643431068914714}
+  - {fileID: 3711597741370065368}
+  - {fileID: 3044043380177141877}
   m_Father: {fileID: 97597563953885659}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4564789217582180564
@@ -115,7 +118,6 @@ MonoBehaviour:
   enableKnockbackMovement: 1
   knockbackDistance: 2
   knockbackSpeed: 10
-  postProcessing: {fileID: 1197364800033483862}
 --- !u!1 &2808328784366468482
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,16 +384,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   enableVerboseLog: 0
-  enableInputManagerVerboseLog: 0
   inputManager: {fileID: 1100991995452334661}
   gameUIManager: {fileID: 7735405747927799303}
   characterManager: {fileID: 4564789217582180564}
+  postProcessingManager: {fileID: 7203813829266587389}
   characterRepository: {fileID: 8739791108814853656}
   characterTracker: {fileID: 0}
   levelCheckPointManager: {fileID: 0}
   defaultSpawnPoint: {fileID: 0}
   respawnDelay: 3
-  postProcessManager: {fileID: 7203813829266587389}
 --- !u!1 &3444342154737227951
 GameObject:
   m_ObjectHideFlags: 0
@@ -469,16 +470,12 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1163183428484965454}
-  - {fileID: 8216243629409799823}
-  - {fileID: 4035910003202523930}
-  - {fileID: 8004583389442922688}
   - {fileID: 1135073706948990633}
-  - {fileID: 5498643431068914714}
-  - {fileID: 3711597741370065368}
-  - {fileID: 3044043380177141877}
+  - {fileID: 8004583389442922688}
+  - {fileID: 4035910003202523930}
+  - {fileID: 4318560818874437930}
   - {fileID: 7491416803585323292}
   - {fileID: 3146327697624874619}
-  - {fileID: 4318560818874437930}
   m_Father: {fileID: 6495682116857349641}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5048819340174903228
@@ -506,12 +503,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5048819340174903228}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 97597563953885659}
+  m_Father: {fileID: 4318560818874437930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5375626753690090565
 MonoBehaviour:
@@ -554,12 +551,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5318421489682998248}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 97597563953885659}
+  m_Father: {fileID: 4318560818874437930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2617058705226619591
 MonoBehaviour:
@@ -601,12 +598,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6209645801080156742}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 97597563953885659}
+  m_Father: {fileID: 4318560818874437930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8739791108814853656
 MonoBehaviour:
@@ -808,65 +805,6 @@ MonoBehaviour:
   highJumpSound: {fileID: 8300000, guid: 9c486447353a9431182827ccd23a95bf, type: 3}
   damagedSound: {fileID: 8300000, guid: 978c5c90d261245058837530c67e379c, type: 3}
   cautionSound: {fileID: 8300000, guid: 12a7b41a5af3f45759f2871279bbbfe4, type: 3}
---- !u!1 &8775771034581327546
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8216243629409799823}
-  - component: {fileID: 1197364800033483862}
-  m_Layer: 0
-  m_Name: GameSpeedBasedPostProcess
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8216243629409799823
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8775771034581327546}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 97597563953885659}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1197364800033483862
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8775771034581327546}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be0bef59ebbed4696887dff3fd319f98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpeedBasedPostProcessing
-  postProcessVolume: {fileID: 0}
-  volumeProfile: {fileID: 0}
-  normalSpeed: 4
-  dashSpeed: 8
-  transitionSpeed: 5
-  enableLensDistortion: 1
-  maxDistortionIntensity: -0.7
-  distortionScale: 1.2
-  enableVignette: 1
-  normalVignetteIntensity: 0.2
-  maxVignetteIntensity: 0.8
-  enableMotionBlur: 1
-  maxMotionBlurIntensity: 3
-  enableChromaticAberration: 1
-  maxChromaticIntensity: 10
 --- !u!1001 &9073606613225287622
 PrefabInstance:
   m_ObjectHideFlags: 0

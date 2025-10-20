@@ -47,9 +47,6 @@ public class GameCharacterManager : MonoBehaviour
     [Tooltip("ノックバック移動の速度")]
     [SerializeField] private float knockbackSpeed = 10f;
 
-    [Header("ポストプロセッシング連携")]
-    [SerializeField] private SpeedBasedPostProcessing postProcessing;
-
     /// <summary>
     /// 詳細ログを有効にするかどうか（GameManagerから設定される）
     /// </summary>
@@ -241,7 +238,9 @@ public class GameCharacterManager : MonoBehaviour
         }
 
         UpdateAnimator();
-        UpdatePostProcessing();
+
+        // ポストプロセッシングを更新
+        gameManager.PostProcessingManager.SetCurrentSpeed(playerSpeed);
     }
 
     void FixedUpdate()
@@ -524,17 +523,6 @@ public class GameCharacterManager : MonoBehaviour
             animator.SetFloat(animatorSpeedKey, playerSpeed);
             animator.SetBool(animatorInAirKey, !IsGrounded());
             animator.SetBool(animatorIsCrouchedKey, isCrouched);
-        }
-    }
-
-    /// <summary>
-    /// ポストプロセッシングを更新
-    /// </summary>
-    void UpdatePostProcessing()
-    {
-        if (postProcessing != null)
-        {
-            postProcessing.SetCurrentSpeed(playerSpeed);
         }
     }
 

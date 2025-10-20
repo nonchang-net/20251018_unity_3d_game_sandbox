@@ -150,12 +150,12 @@ public class GamePostProcessManager : MonoBehaviour
     {
         if (postProcessVolume == null)
         {
-            Debug.LogWarning("SpeedBasedPostProcessing: Post Process Volume が未設定です。");
+            Debug.LogWarning("GamePostProcessManager: Post Process Volume が未設定です。");
             return;
         }
         if (postProcessVolume.profile == null)
         {
-            Debug.LogWarning("SpeedBasedPostProcessing: Post Process Volume profile が未設定です。");
+            Debug.LogWarning("GamePostProcessManager: Post Process Volume profile が未設定です。");
             return;
         }
 
@@ -194,7 +194,6 @@ public class GamePostProcessManager : MonoBehaviour
             }
         }
 
-        // ColorAdjustments（ダメージフラッシュ用）
         if (enableDamageFlash)
         {
             if (!volumeProfile.TryGet(out colorAdjustments))

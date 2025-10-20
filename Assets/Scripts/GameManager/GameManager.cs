@@ -18,8 +18,9 @@ public class GameManager : MonoBehaviour
     [Header("ログ制御")]
     [Tooltip("詳細ログを表示する")]
     [SerializeField] private bool enableVerboseLog = false;
-    [Tooltip("GameInputManagerの詳細ログを表示する")]
-    [SerializeField] private bool enableInputManagerVerboseLog = false;
+
+    // [Tooltip("GameInputManagerの詳細ログを表示する")]
+    // [SerializeField] private bool enableInputManagerVerboseLog = false;
 
     [Header("参照")]
     [SerializeField] private GameInputManager inputManager;
@@ -28,6 +29,8 @@ public class GameManager : MonoBehaviour
     public GameUIManager UIManager => gameUIManager;
     [SerializeField] private GameCharacterManager characterManager;
     public GameCharacterManager CharacterManager => characterManager;
+    [SerializeField] private GamePostProcessManager postProcessingManager;
+    public GamePostProcessManager PostProcessingManager => postProcessingManager;
 
     [Header("キャラクター管理")]
     [Tooltip("プレイ可能なキャラクターを管理するリポジトリ")]
@@ -47,10 +50,6 @@ public class GameManager : MonoBehaviour
 
     [Tooltip("死亡後リスポーンまでの待機時間（秒）\n※暗転開始ディレイ + 暗転時間 を考慮して設定してください")]
     [SerializeField] private float respawnDelay = 3f;
-
-    [Header("ポストプロセス管理")]
-    [Tooltip("GamePostProcessManager（暗転制御用）")]
-    [SerializeField] private GamePostProcessManager postProcessManager;
 
     /// <summary>現在操作中のキャラクター</summary>
     private GameObject activeCharacter;
@@ -97,6 +96,11 @@ public class GameManager : MonoBehaviour
             Debug.LogError("GameManager: CharacterTracker が設定されていません。メインカメラに付与して参照を設定してください。");
             return;
         }
+        if (postProcessingManager == null)
+        {
+            Debug.LogError("GameManager: postProcessingManager が設定されていません。");
+            return;
+        }
 
         // PlayableCharacterRepositoryの自動検出
         if (characterRepository == null)
@@ -105,16 +109,6 @@ public class GameManager : MonoBehaviour
             if (characterRepository == null)
             {
                 Debug.LogWarning("GameManager: PlayableCharacterRepositoryが見つかりません。キャラクター切り替え機能が制限されます。");
-            }
-        }
-
-        // GamePostProcessManagerの自動検出
-        if (postProcessManager == null)
-        {
-            postProcessManager = FindFirstObjectByType<GamePostProcessManager>();
-            if (postProcessManager == null)
-            {
-                Debug.LogWarning("GameManager: GamePostProcessManagerが見つかりません。暗転制御が無効になります。");
             }
         }
 
@@ -374,14 +368,10 @@ public class GameManager : MonoBehaviour
         }
 
         // 暗転を解除
-        if (postProcessManager != null)
+        postProcessingManager?.ClearDeadFade();
+        if (enableVerboseLog)
         {
-            postProcessManager.ClearDeadFade();
-
-            if (enableVerboseLog)
-            {
-                Debug.Log("GameManager: 暗転を解除しました。");
-            }
+            Debug.Log("GameManager: 暗転を解除しました。");
         }
 
         if (enableVerboseLog)

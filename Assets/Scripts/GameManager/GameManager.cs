@@ -272,8 +272,7 @@ public class GameManager : MonoBehaviour
 
         if (enableVerboseLog)
         {
-            Debug.Log($"GameManager: 操作キャラクターを {character.name} に切り替えました。" +
-            $" (実装タイプ: {inputManager.GetImplementationType()})");
+            Debug.Log($"GameManager: 操作キャラクターを {character.name} に切り替えました。");
         }
     }
 

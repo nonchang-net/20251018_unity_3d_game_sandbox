@@ -4,7 +4,7 @@ using System;
 using R3;
 
 /// <summary>
-/// ゲーム全体の入力を管理する汎用マネージャー
+/// ゲーム全体の入力管理 + キャラ操作、カメラ制御連携
 /// シーン内に1つだけ配置して使用
 ///
 /// キャラクター実装の要件:
@@ -18,12 +18,15 @@ using R3;
 /// </summary>
 public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerActions
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("制御対象")]
     [Tooltip("制御対象のキャラクター")]
     [SerializeField] private GameObject targetCharacter;
 
     [Header("参照")]
-    [Tooltip("カメラトラッカー（GameManagerが自動設定します）")]
+    [Tooltip("カメラトラッカー")]
     [SerializeField] private CharacterTracker cameraTracker; // カメラトラッカーへの参照
 
     [Header("移動設定")]
@@ -49,14 +52,13 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     [Header("ポストプロセッシング連携")]
     [SerializeField] private SpeedBasedPostProcessing postProcessing;
 
-    [Header("GameManager連携")]
-    [Tooltip("GameManagerによる管理を有効化（推奨）")]
-    [SerializeField] private bool managedByGameManager = true;
-
     /// <summary>
     /// 詳細ログを有効にするかどうか（GameManagerから設定される）
     /// </summary>
     public static bool EnableVerboseLog { get; set; } = false;
+
+    // R3購読用disposable
+    IDisposable disposable;
 
     // Input System
     InputSystem_Actions inputSystemActions;
@@ -99,10 +101,6 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     private Vector3 knockbackStartPosition = Vector3.zero;
     private Vector3 knockbackTargetPosition = Vector3.zero;
 
-    // R3購読管理
-    private IDisposable damageSubscription;
-    private IDisposable deadSubscription;
-    private IDisposable highJumpSubscription;
 
     void Awake()
     {
@@ -124,67 +122,60 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     void OnDestroy()
     {
         inputSystemActions?.Dispose();
-
-        // R3購読の解放
-        damageSubscription?.Dispose();
-        deadSubscription?.Dispose();
-        highJumpSubscription?.Dispose();
+        disposable?.Dispose();
     }
 
     void Start()
     {
         // Debug.LogError($"GameInputManager.cs Start() called.");
 
-        // 初期化
+        if (gameManager == null)
+        {
+            Debug.LogError($"GameManager参照が設定さrていません。修正してください。");
+            return;
+        }
+
+        if (cameraTracker == null)
+        {
+            Debug.LogWarning($"GameInputManager.csにGameManager参照が設定さrていません。v0.0.2現在ではcameraTracker未指定時の動作は検証対象外です。");
+            return;
+        }
+
+        // targetCharacter初期化
         if (targetCharacter != null)
         {
             InitializeCharacter();
         }
 
-        // GameManager管理下の場合は、GameManagerが設定するまで待機
-        if (managedByGameManager)
+        // イベント購読
+        var damageSubscription = UserDataManager.Data.OnDamageReceived.Subscribe(damageInfo =>
         {
-            GameManager gameManager = FindFirstObjectByType<GameManager>();
-            if (gameManager == null)
-            {
-                Debug.LogWarning($"GameInputManager: GameManagerが見つかりません。" +
-                    "手動設定モードに切り替えるか、GameManagerを追加してください。");
-                managedByGameManager = false;
-            }
+            OnDamageReceived(damageInfo);
+        });
 
-            // TODO: 初期状態でtargetCharacterが入ってないのはVRM読み込み時などでの正常系なので初期化フロー見直しが必要そう。一旦コメントアウト
-            // else if (targetCharacter == null)
-            // {
-            //     Debug.LogError($"GameInputManager.cs Start() target character == null.");
-
-            //     // GameManagerが管理する場合で、キャラクター未設定なら無効化
-            //     enabled = false;
-            //     return;
-            // }
-        }
-
-        // 手動設定モード: カメラトラッカーが未設定の場合、自動検索
-        if (!managedByGameManager && cameraTracker == null)
+        var deadSubscription = UserDataManager.Data.IsDead.Subscribe(isDead =>
         {
-            cameraTracker = FindFirstObjectByType<CharacterTracker>();
-            if (cameraTracker != null && targetCharacter != null)
+            if (isDead)
             {
-                cameraTracker.SetTarget(targetCharacter.transform);
+                OnDead();
             }
             else
             {
-                Debug.LogWarning($"GameInputManager: CharacterTrackerが見つかりません。");
+                OnRespawn();
             }
-        }
+        });
 
-        // ダメージイベントを購読
-        SubscribeDamageEvents();
+        var highJumpSubscription = UserDataManager.Data.OnHighJump.Subscribe(highJumpInfo =>
+        {
+            OnHighJump(highJumpInfo);
+        });
 
-        // 死亡イベントを購読
-        SubscribeDeadEvents();
-
-        // ハイジャンプイベントを購読
-        SubscribeHighJumpEvents();
+        // disposable登録
+        disposable = Disposable.Combine(
+            damageSubscription,
+            deadSubscription,
+            highJumpSubscription
+        );
 
         // Debug.LogError($"GameInputManager.cs Start() Finished.");
     }
@@ -304,8 +295,11 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
         {
             HandleKnockbackMovement();
         }
+        else
+        {
+            HandlePlayerMovement();        
+        }
 
-        HandlePlayerMovement();
         UpdateAnimator();
         UpdatePostProcessing();
     }
@@ -635,25 +629,9 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     }
 
     /// <summary>
-    /// 現在の移動速度を取得
-    /// </summary>
-    public float GetCurrentSpeed()
-    {
-        return playerSpeed;
-    }
-
-    /// <summary>
-    /// 移動方向を取得
-    /// </summary>
-    public Vector3 GetMoveDirection()
-    {
-        return moveDirection;
-    }
-
-    /// <summary>
     /// 地面に接地しているか
     /// </summary>
-    public bool IsGrounded()
+    private bool IsGrounded()
     {
         return implementationType switch
         {
@@ -709,63 +687,6 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
             Debug.LogWarning("GameInputManager: targetCharacterがnullです。");
             enabled = false;
         }
-    }
-
-    /// <summary>
-    /// 現在の制御対象キャラクターを取得
-    /// </summary>
-    public GameObject GetTargetCharacter()
-    {
-        return targetCharacter;
-    }
-
-    /// <summary>
-    /// 現在の実装タイプを取得
-    /// </summary>
-    public string GetImplementationType()
-    {
-        return implementationType.ToString();
-    }
-
-    /// <summary>
-    /// ダメージイベントを購読
-    /// </summary>
-    void SubscribeDamageEvents()
-    {
-        // Debug.LogError($"DUMP: SubscribeDamageEvents() called");
-        damageSubscription = UserDataManager.Data.OnDamageReceived.Subscribe(damageInfo =>
-        {
-            OnDamageReceived(damageInfo);
-        });
-    }
-
-    /// <summary>
-    /// 死亡イベントを購読
-    /// </summary>
-    void SubscribeDeadEvents()
-    {
-        deadSubscription = UserDataManager.Data.IsDead.Subscribe(isDead =>
-        {
-            if (isDead)
-            {
-                OnDead();
-            }
-            else
-            {
-                OnRespawn();
-            }
-        });
-    }
-
-    /// <summary>
-    /// ハイジャンプイベントを購読
-    /// </summary>
-    void SubscribeHighJumpEvents()
-    {
-        highJumpSubscription = UserDataManager.Data.OnHighJump.Subscribe(highJumpInfo =>
-        {
-            OnHighJump(highJumpInfo);
-        });
     }
 
     /// <summary>

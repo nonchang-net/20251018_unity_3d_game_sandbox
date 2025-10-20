@@ -85,6 +85,7 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     private Vector3 moveDirection;
     private float playerSpeed;
     private bool isCrouched = false;
+    public bool IsCrouched => isCrouched;
 
     // 地面判定（Rigidbody実装用）
     private bool isGroundedRigidbody = false;
@@ -131,13 +132,13 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
         if (gameManager == null)
         {
-            Debug.LogError($"GameManager参照が設定さrていません。修正してください。");
+            Debug.LogError($"GameManager参照が設定されていません。修正してください。");
             return;
         }
 
         if (cameraTracker == null)
         {
-            Debug.LogWarning($"GameInputManager.csにGameManager参照が設定さrていません。v0.0.2現在ではcameraTracker未指定時の動作は検証対象外です。");
+            Debug.LogWarning($"GameInputManager.csにGameManager参照が設定されていません。v0.0.2現在ではcameraTracker未指定時の動作は検証対象外です。");
             return;
         }
 
@@ -186,28 +187,33 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
     #region Interface implementation of InputSystem_Actions.IPlayerActions
 
-        public void OnMove(InputAction.CallbackContext context)
-        {
-            Debug.Log($"OnMove: {context.ReadValue<Vector2>()}");
-        }
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        Debug.Log($"OnMove: {context.ReadValue<Vector2>()}");
+    }
 
-        public void OnLook(InputAction.CallbackContext context)
-        {
-            Debug.Log($"OnLook: {context.ReadValue<Vector2>()}");
-        }
-        public void OnJump(InputAction.CallbackContext context)
-        {
-            Debug.Log($"OnJump: {context.ReadValue<float>()}");
-        }
-        public void OnSprint(InputAction.CallbackContext context)
-        {
-            Debug.Log($"OnSprint: {context.ReadValue<float>()}");
-        }
-
-        public void OnChangeCharacter(InputAction.CallbackContext context)
-        {
-            Debug.Log($"OnChangeCharacter: {context.ReadValue<float>()}");
-        }
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        Debug.Log($"OnLook: {context.ReadValue<Vector2>()}");
+    }
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        Debug.Log($"OnJump: {context.ReadValue<float>()}");
+    }
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        Debug.Log($"OnSprint: {context.ReadValue<float>()}");
+    }
+    private bool requestResetCamera = false;
+    public void OnResetCamera(InputAction.CallbackContext context)
+    {
+        requestResetCamera = context.ReadValue<float>() > 0.5f;
+        // Debug.Log($"OnResetCamera: {context.ReadValue<float>()}");
+    }
+    public void OnChangeCharacter(InputAction.CallbackContext context)
+    {
+        Debug.Log($"OnChangeCharacter: {context.ReadValue<float>()}");
+    }
 
     #endregion
 
@@ -284,10 +290,11 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
         if (implementationType == CharacterImplementationType.None || targetCharacter == null)
             return;
 
-        // カメラリセット入力（Rキー または PS4コントローラーL1ボタン）
-        if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.JoystickButton4))
+        // カメラリセット処理
+        if (requestResetCamera)
         {
-            HandleCameraReset();
+            cameraTracker.ResetCamera();
+            requestResetCamera = false;
         }
 
         // ノックバック移動処理（入力処理より優先）
@@ -607,28 +614,6 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     }
 
     /// <summary>
-    /// カメラリセット処理
-    /// </summary>
-    void HandleCameraReset()
-    {
-        if (cameraTracker == null)
-        {
-            if (EnableVerboseLog)
-            {
-                Debug.LogWarning("GameInputManager: CameraTrackerが設定されていません。カメラリセットできません。");
-            }
-            return;
-        }
-
-        cameraTracker.ResetCamera();
-
-        if (EnableVerboseLog)
-        {
-            Debug.Log("GameInputManager: カメラをリセットしました。");
-        }
-    }
-
-    /// <summary>
     /// 地面に接地しているか
     /// </summary>
     private bool IsGrounded()
@@ -639,14 +624,6 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
             CharacterImplementationType.RigidbodyAndCollider => isGroundedRigidbody,
             _ => false
         };
-    }
-
-    /// <summary>
-    /// しゃがんでいるか
-    /// </summary>
-    public bool IsCrouched()
-    {
-        return isCrouched;
     }
 
     /// <summary>

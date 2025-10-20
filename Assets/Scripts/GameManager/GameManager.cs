@@ -27,17 +27,19 @@ public class GameManager : MonoBehaviour
     // [Tooltip("GameUIManager")]
     // [SerializeField] private GameUIManager uiManager;
 
-    [Header("入力管理")]
-    [Tooltip("GameInputManager")]
+    [Header("参照")]
     [SerializeField] private GameInputManager inputManager;
+    public GameInputManager InputManager => inputManager;
+    [SerializeField] private GameCharacterManager characterManager;
+    
 
     [Header("キャラクター管理")]
     [Tooltip("プレイ可能なキャラクターを管理するリポジトリ")]
     [SerializeField] private PlayableCharacterRepository characterRepository;
 
     [Header("カメラ設定")]
-    [Tooltip("メインカメラのCharacterTracker（通常は自動検出されます）")]
-    [SerializeField] private CharacterTracker cameraTracker;
+    [Tooltip("メインカメラのCharacterTracker")]
+    [SerializeField] private CharacterTracker characterTracker;
 
     [Header("リスポーン設定")]
     [Tooltip("レベルのチェックポイント管理（設定されている場合はこちらを優先使用）")]
@@ -77,24 +79,21 @@ public class GameManager : MonoBehaviour
         // ログ設定を初期化
         GameInputManager.EnableVerboseLog = enableVerboseLog && enableInputManagerVerboseLog;
 
-        // GameInputManagerの自動検出
+        // 参照確認
         if (inputManager == null)
         {
-            inputManager = FindFirstObjectByType<GameInputManager>();
-            if (inputManager == null)
-            {
-                Debug.LogError("GameManager: GameInputManagerが見つかりません。シーン内に配置してください。");
-            }
+            Debug.LogError("GameManager: GameInputManagerが設定されていません。");
+            return;
         }
-
-        // カメラトラッカーの自動検出
-        if (cameraTracker == null)
+        if (characterManager == null)
         {
-            cameraTracker = FindFirstObjectByType<CharacterTracker>();
-            if (cameraTracker == null)
-            {
-                Debug.LogWarning("GameManager: CharacterTrackerが見つかりません。Main Cameraに追加してください。");
-            }
+            Debug.LogError("GameManager: GameCharacterManagerが設定されていません。");
+            return;
+        }
+        if (characterTracker == null)
+        {
+            Debug.LogError("GameManager: CharacterTrackerが設定されていません。メインカメラに付与して参照を設定してください。");
+            return;
         }
 
         // PlayableCharacterRepositoryの自動検出
@@ -260,14 +259,14 @@ public class GameManager : MonoBehaviour
         activeCharacter = character;
         character.SetActive(true);
 
-        // GameInputManagerにキャラクターを設定
-        inputManager.SetTargetCharacter(character);
+        // キャラクターを設定
+        characterManager.SetTargetCharacter(character);
 
         // カメラの追跡対象を設定
-        if (cameraTracker != null)
+        if (characterTracker != null)
         {
-            cameraTracker.SetTarget(character.transform);
-            inputManager.SetCameraTracker(cameraTracker);
+            characterTracker.SetTarget(character.transform);
+            inputManager.SetCameraTracker(characterTracker);
         }
 
         if (enableVerboseLog)

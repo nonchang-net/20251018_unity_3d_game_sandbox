@@ -77,6 +77,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Toggle Pause",
+                    "type": "Button",
+                    "id": "e4580a2b-a80d-46aa-9ed0-d66e1a89eea8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Toggle SlowMotion",
+                    "type": "Button",
+                    "id": "7168cd26-724b-4ede-9909-c238db7a42a9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -385,6 +403,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "LoadVRMFile",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "75766bd7-a024-417c-a9c8-378adaec0c26",
+                    "path": "<Keyboard>/p",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "edea965e-31f3-4ef9-a2f0-956550b851a4",
+                    "path": "<Keyboard>/o",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle SlowMotion",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

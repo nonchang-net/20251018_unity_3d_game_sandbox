@@ -163,6 +163,24 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Toggle Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""e4580a2b-a80d-46aa-9ed0-d66e1a89eea8"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Toggle SlowMotion"",
+                    ""type"": ""Button"",
+                    ""id"": ""7168cd26-724b-4ede-9909-c238db7a42a9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -471,6 +489,28 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""LoadVRMFile"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""75766bd7-a024-417c-a9c8-378adaec0c26"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": ""Tap"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""edea965e-31f3-4ef9-a2f0-956550b851a4"",
+                    ""path"": ""<Keyboard>/o"",
+                    ""interactions"": ""Tap"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle SlowMotion"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1066,6 +1106,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_ResetCamera = m_Player.FindAction("Reset Camera", throwIfNotFound: true);
         m_Player_ToggleFPSView = m_Player.FindAction("Toggle FPS View", throwIfNotFound: true);
         m_Player_LoadVRMFile = m_Player.FindAction("LoadVRMFile", throwIfNotFound: true);
+        m_Player_TogglePause = m_Player.FindAction("Toggle Pause", throwIfNotFound: true);
+        m_Player_ToggleSlowMotion = m_Player.FindAction("Toggle SlowMotion", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1167,6 +1209,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ResetCamera;
     private readonly InputAction m_Player_ToggleFPSView;
     private readonly InputAction m_Player_LoadVRMFile;
+    private readonly InputAction m_Player_TogglePause;
+    private readonly InputAction m_Player_ToggleSlowMotion;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1210,6 +1254,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/LoadVRMFile".
         /// </summary>
         public InputAction @LoadVRMFile => m_Wrapper.m_Player_LoadVRMFile;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/TogglePause".
+        /// </summary>
+        public InputAction @TogglePause => m_Wrapper.m_Player_TogglePause;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleSlowMotion".
+        /// </summary>
+        public InputAction @ToggleSlowMotion => m_Wrapper.m_Player_ToggleSlowMotion;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1260,6 +1312,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @LoadVRMFile.started += instance.OnLoadVRMFile;
             @LoadVRMFile.performed += instance.OnLoadVRMFile;
             @LoadVRMFile.canceled += instance.OnLoadVRMFile;
+            @TogglePause.started += instance.OnTogglePause;
+            @TogglePause.performed += instance.OnTogglePause;
+            @TogglePause.canceled += instance.OnTogglePause;
+            @ToggleSlowMotion.started += instance.OnToggleSlowMotion;
+            @ToggleSlowMotion.performed += instance.OnToggleSlowMotion;
+            @ToggleSlowMotion.canceled += instance.OnToggleSlowMotion;
         }
 
         /// <summary>
@@ -1295,6 +1353,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @LoadVRMFile.started -= instance.OnLoadVRMFile;
             @LoadVRMFile.performed -= instance.OnLoadVRMFile;
             @LoadVRMFile.canceled -= instance.OnLoadVRMFile;
+            @TogglePause.started -= instance.OnTogglePause;
+            @TogglePause.performed -= instance.OnTogglePause;
+            @TogglePause.canceled -= instance.OnTogglePause;
+            @ToggleSlowMotion.started -= instance.OnToggleSlowMotion;
+            @ToggleSlowMotion.performed -= instance.OnToggleSlowMotion;
+            @ToggleSlowMotion.canceled -= instance.OnToggleSlowMotion;
         }
 
         /// <summary>
@@ -1651,6 +1715,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLoadVRMFile(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Toggle Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTogglePause(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Toggle SlowMotion" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleSlowMotion(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

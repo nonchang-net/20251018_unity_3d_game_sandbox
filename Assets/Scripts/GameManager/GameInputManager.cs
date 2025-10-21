@@ -99,6 +99,33 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
         gameManager.CharacterTracker.ResetCamera();
     }
 
+    // -----
+    // ゲームシステム
+    public void OnTogglePause(InputAction.CallbackContext context)
+    {
+        if (context.ReadValue<float>() > 0.5f)
+        {
+            gameManager.TimeManager.TogglePause();
+        }
+    }
+
+
+    // -----
+    // 以下はテスト機能類
+    public void OnToggleSlowMotion(InputAction.CallbackContext context)
+    {
+        if (context.ReadValue<float>() > 0.5f)
+        {
+        if (gameManager.TimeManager.IsNormalSpeed)
+        {
+            gameManager.TimeManager.StartSlowMotion(0.2f);
+            return;
+        }
+        
+        gameManager.TimeManager.ResetToNormalSpeed();
+        }
+    }
+
     public void OnChangeCharacter(InputAction.CallbackContext context)
     {
         if (context.ReadValue<float>() > 0.5f)

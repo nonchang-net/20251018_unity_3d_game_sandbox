@@ -253,6 +253,39 @@ public static class UserDataManager
         // Debug.Log($"UserDataManager: コインが{count}枚生成されました。総数: {newTotal}");
     }
 
+    /// <summary>
+    /// ゲームをポーズする
+    /// </summary>
+    public static void Pause()
+    {
+        userData.IsPaused.Value = true;
+    }
+
+    /// <summary>
+    /// ゲームのポーズを解除する
+    /// </summary>
+    public static void Unpause()
+    {
+        userData.IsPaused.Value = false;
+    }
+
+    /// <summary>
+    /// ポーズ状態をトグルする
+    /// </summary>
+    public static void TogglePause()
+    {
+        userData.IsPaused.Value = !userData.IsPaused.CurrentValue;
+    }
+
+    /// <summary>
+    /// タイムスケールを設定する
+    /// </summary>
+    /// <param name="timeScale">設定するタイムスケール</param>
+    public static void SetTimeScale(float timeScale)
+    {
+        userData.CurrentTimeScale.Value = Mathf.Max(0f, timeScale);
+    }
+
 }
 
 /// <summary>
@@ -310,6 +343,16 @@ public class UserData
     /// </summary>
     public System.Collections.Generic.List<CheckPoint> ActivatedCheckPoints { get; private set; }
 
+    /// <summary>
+    /// ゲームがポーズ状態かどうか
+    /// </summary>
+    public ReactiveProperty<bool> IsPaused { get; private set; }
+
+    /// <summary>
+    /// 現在のタイムスケール（Time.timeScale）
+    /// </summary>
+    public ReactiveProperty<float> CurrentTimeScale { get; private set; }
+
     public UserData(int initialHp)
     {
         CurrentCoin = new ReactiveProperty<int>(0);
@@ -324,5 +367,7 @@ public class UserData
         OnCheckPointActivated = new Subject<CheckPointActivatedInfo>();
         OnHighJump = new Subject<HighJumpInfo>();
         ActivatedCheckPoints = new System.Collections.Generic.List<CheckPoint>();
+        IsPaused = new ReactiveProperty<bool>(false);
+        CurrentTimeScale = new ReactiveProperty<float>(1f);
     }
 }

@@ -2,6 +2,7 @@
   <Project Path="ClothWarp.csproj" />
   <Project Path="GltfViewer.csproj" />
   <Project Path="ClothViewer.csproj" />
+  <Project Path="yorozu.flat-ui.csproj" />
   <Project Path="ZString.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="VRM10.Samples.VRM10Viewer.csproj" />

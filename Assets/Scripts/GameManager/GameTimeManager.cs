@@ -8,7 +8,7 @@ using System;
 ///
 /// 使い方:
 /// 1. GameManagerの参照に設定
-/// 2. UserDataManager経由でポーズ状態やタイムスケールを制御
+/// 2. gameManager.StateManager経由でポーズ状態やタイムスケールを制御
 /// </summary>
 public class GameTimeManager : MonoBehaviour
 {
@@ -43,16 +43,16 @@ public class GameTimeManager : MonoBehaviour
 
         // 初期タイムスケールを設定
         Time.timeScale = normalTimeScale;
-        UserDataManager.SetTimeScale(normalTimeScale);
+        gameManager.StateManager.SetTimeScale(normalTimeScale);
 
         // ポーズ状態の購読
-        var pauseSubscription = UserDataManager.Data.IsPaused.Subscribe(isPaused =>
+        var pauseSubscription = gameManager.StateManager.State.IsPaused.Subscribe(isPaused =>
         {
             OnPauseChanged(isPaused);
         });
 
         // タイムスケール変更の購読
-        var timeScaleSubscription = UserDataManager.Data.CurrentTimeScale.Subscribe(timeScale =>
+        var timeScaleSubscription = gameManager.StateManager.State.CurrentTimeScale.Subscribe(timeScale =>
         {
             OnTimeScaleChanged(timeScale);
         });
@@ -84,7 +84,7 @@ public class GameTimeManager : MonoBehaviour
 
             // ポーズ時のタイムスケールを適用
             Time.timeScale = pausedTimeScale;
-            UserDataManager.SetTimeScale(pausedTimeScale);
+            gameManager.StateManager.SetTimeScale(pausedTimeScale);
 
             if (EnableVerboseLog)
             {
@@ -95,7 +95,7 @@ public class GameTimeManager : MonoBehaviour
         {
             // ポーズ解除時は保存していたタイムスケールを復元
             Time.timeScale = timeScaleBeforePause;
-            UserDataManager.SetTimeScale(timeScaleBeforePause);
+            gameManager.StateManager.SetTimeScale(timeScaleBeforePause);
 
             if (EnableVerboseLog)
             {
@@ -110,7 +110,7 @@ public class GameTimeManager : MonoBehaviour
     void OnTimeScaleChanged(float timeScale)
     {
         // ポーズ中はタイムスケールを変更しない
-        if (UserDataManager.Data.IsPaused.CurrentValue)
+        if (gameManager.StateManager.State.IsPaused.CurrentValue)
         {
             return;
         }
@@ -129,7 +129,7 @@ public class GameTimeManager : MonoBehaviour
     /// </summary>
     public void TogglePause()
     {
-        UserDataManager.TogglePause();
+        gameManager.StateManager.TogglePause();
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ public class GameTimeManager : MonoBehaviour
     /// </summary>
     public void Pause()
     {
-        UserDataManager.Pause();
+        gameManager.StateManager.Pause();
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ public class GameTimeManager : MonoBehaviour
     /// </summary>
     public void Unpause()
     {
-        UserDataManager.Unpause();
+        gameManager.StateManager.Unpause();
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ public class GameTimeManager : MonoBehaviour
     /// </summary>
     public void SetTimeScale(float timeScale)
     {
-        UserDataManager.SetTimeScale(timeScale);
+        gameManager.StateManager.SetTimeScale(timeScale);
     }
 
     /// <summary>
@@ -162,13 +162,13 @@ public class GameTimeManager : MonoBehaviour
     /// <param name="slowMotionScale">スローモーションのタイムスケール（例: 0.5f = 半分の速度）</param>
     public void StartSlowMotion(float slowMotionScale)
     {
-        if (UserDataManager.Data.IsPaused.CurrentValue)
+        if (gameManager.StateManager.State.IsPaused.CurrentValue)
         {
             Debug.LogWarning("GameTimeManager: ポーズ中はスローモーションを開始できません。");
             return;
         }
 
-        UserDataManager.SetTimeScale(Mathf.Clamp(slowMotionScale, 0f, 1f));
+        gameManager.StateManager.SetTimeScale(Mathf.Clamp(slowMotionScale, 0f, 1f));
 
         if (EnableVerboseLog)
         {
@@ -181,7 +181,7 @@ public class GameTimeManager : MonoBehaviour
     /// </summary>
     public void ResetToNormalSpeed()
     {
-        UserDataManager.SetTimeScale(normalTimeScale);
+        gameManager.StateManager.SetTimeScale(normalTimeScale);
 
         if (EnableVerboseLog)
         {
@@ -189,5 +189,5 @@ public class GameTimeManager : MonoBehaviour
         }
     }
 
-    public bool IsNormalSpeed => UserDataManager.Data.CurrentTimeScale. CurrentValue == normalTimeScale;
+    public bool IsNormalSpeed => gameManager.StateManager.State.CurrentTimeScale. CurrentValue == normalTimeScale;
 }

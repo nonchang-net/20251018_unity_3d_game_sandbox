@@ -18,9 +18,13 @@ public class GameUIManager : MonoBehaviour
 {
     IDisposable disposable;
 
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
+    [Header("UI")]
+
     [Tooltip("ハート表示配列")]
     [SerializeField] private Image[] hearts;
-
 
     [Tooltip("コイン数表示テキスト")]
     [SerializeField] private TextMeshProUGUI currentCoinText;
@@ -57,33 +61,33 @@ public class GameUIManager : MonoBehaviour
             staticMessageCanvasGroup.alpha = 0f;
         }
 
-        // UserDataManagerのreactive property購読・更新
+        // gameManager.StateManagerのreactive property購読・更新
 
         // Coin変動購読
-        var coinSubscriber = UserDataManager.Data.CurrentCoin.Subscribe(x =>
+        var coinSubscriber = gameManager.StateManager.State.CurrentCoin.Subscribe(x =>
         {
             // Debug.Log($"Coin変動検知: {x}");
-            int totalCoin = UserDataManager.Data.TotalCoinCount.CurrentValue;
+            int totalCoin = gameManager.StateManager.State.TotalCoinCount.CurrentValue;
             currentCoinText.SetText($"{x}/{totalCoin}");
         });
 
         // TotalCoinCount変動購読（コイン生成時に総数を更新）
-        var totalCoinSubscriber = UserDataManager.Data.TotalCoinCount.Subscribe(totalCoin =>
+        var totalCoinSubscriber = gameManager.StateManager.State.TotalCoinCount.Subscribe(totalCoin =>
         {
             // Debug.Log($"TotalCoin変動検知: {totalCoin}");
-            int currentCoin = UserDataManager.Data.CurrentCoin.CurrentValue;
+            int currentCoin = gameManager.StateManager.State.CurrentCoin.CurrentValue;
             currentCoinText.SetText($"{currentCoin}/{totalCoin}");
         });
 
         // HP変動購読
-        var hitpointSubscriber = UserDataManager.Data.CurrentHp.Subscribe(x =>
+        var hitpointSubscriber = gameManager.StateManager.State.CurrentHp.Subscribe(x =>
         {
             // Debug.Log($"HP変動検知: {x}");
             UpdateHitpointGuage(x);
         });
 
         // ダメージイベント購読
-        var damageSubscriber = UserDataManager.Data.OnDamageReceived.Subscribe(damageInfo =>
+        var damageSubscriber = gameManager.StateManager.State.OnDamageReceived.Subscribe(damageInfo =>
         {
             // Debug.Log($"GameUIManager: ダメージを受けました！ " +
             //           $"ダメージ量: {damageInfo.Damage}, " +
@@ -118,7 +122,7 @@ public class GameUIManager : MonoBehaviour
 
     void OnDestroy()
     {
-        disposable.Dispose();
+        disposable?.Dispose();
     }
 
     /// <summary>

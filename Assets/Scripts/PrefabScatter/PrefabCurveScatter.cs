@@ -6,6 +6,9 @@ using UnityEngine;
 /// </summary>
 public class CoinCurveScatter : MonoBehaviour
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("コインプレハブ設定")]
     [Tooltip("配置するコインのプレハブ")]
     [SerializeField] private GameObject coinPrefab;
@@ -132,10 +135,12 @@ public class CoinCurveScatter : MonoBehaviour
                 position += perpendicular * rowOffset;
             }
 
-            // コインを生成
-            GameObject coin = Instantiate(coinPrefab, coinsParent.transform);
-            coin.transform.position = position;
-            coin.name = $"Coin_Row{rowIndex + 1}_Col{i + 1}";
+            // prefabを生成
+            GameObject prefab = Instantiate(coinPrefab, coinsParent.transform);
+            PrefabUtility.SetupGameManagedComponent(gameManager, prefab);
+
+            prefab.transform.position = position;
+            prefab.name = $"Coin_Row{rowIndex + 1}_Col{i + 1}";
         }
     }
 

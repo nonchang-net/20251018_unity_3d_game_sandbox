@@ -7,8 +7,10 @@ using UnityEngine;
 /// - ダメージソースとの衝突検知
 /// - DeadZone（落下死亡判定）
 /// </summary>
-public class GameCharacterCollisionTrigger : MonoBehaviour
+public class GameCharacterCollisionTrigger : MonoBehaviour, IGameManaged
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
 
     [Header("ダメージ設定")]
     [Tooltip("DamageSourceタグのオブジェクトから受けるダメージ量")]
@@ -34,6 +36,15 @@ public class GameCharacterCollisionTrigger : MonoBehaviour
             }
         }
     }
+
+    public void SetGameManager(GameManager gameManager)
+    {
+        this.gameManager = gameManager;
+
+        // コイン生成をgameManager.StateManagerに通知
+        gameManager.StateManager.AddGeneratedCoins(1, gameObject);
+    }
+
 
     /// <summary>
     /// トリガーコライダーに入ったときに呼ばれる
@@ -108,7 +119,7 @@ public class GameCharacterCollisionTrigger : MonoBehaviour
         // コインの取得アニメーションを開始（プレイヤーのTransformを渡す）
         coinScript.Collect(transform);
         // HP回復
-        UserDataManager.HealHp(1);
+        gameManager.StateManager.HealHp(1);
     }
 
     /// <summary>
@@ -117,8 +128,8 @@ public class GameCharacterCollisionTrigger : MonoBehaviour
     /// <param name="damageSource">ダメージソースのGameObject</param>
     void TakeDamageFromSource(GameObject damageSource)
     {
-        // UserDataManagerのダメージ処理を呼び出す
-        UserDataManager.TakeDamage(damageAmount, damageSource);
+        // gameManager.StateManagerのダメージ処理を呼び出す
+        gameManager.StateManager.TakeDamage(damageAmount, damageSource);
     }
 
     /// <summary>
@@ -128,7 +139,7 @@ public class GameCharacterCollisionTrigger : MonoBehaviour
     void EnterDeadZone(GameObject deadZone)
     {
         // 既に死亡している場合は処理しない
-        if (UserDataManager.Data.IsDead.CurrentValue)
+        if (gameManager.StateManager.State.IsDead.CurrentValue)
         {
             return;
         }
@@ -138,14 +149,14 @@ public class GameCharacterCollisionTrigger : MonoBehaviour
         if (instantDeathOnDeadZone)
         {
             // 即座に死亡（現在HPと同じダメージを与える）
-            int currentHp = UserDataManager.Data.CurrentHp.CurrentValue;
-            UserDataManager.TakeDamage(currentHp, deadZone);
+            int currentHp = gameManager.StateManager.State.CurrentHp.CurrentValue;
+            gameManager.StateManager.TakeDamage(currentHp, deadZone);
         }
         else
         {
             // MaxHP分のダメージを与える（通常は即死）
-            int maxHp = UserDataManager.Data.MaxHp.CurrentValue;
-            UserDataManager.TakeDamage(maxHp, deadZone);
+            int maxHp = gameManager.StateManager.State.MaxHp.CurrentValue;
+            gameManager.StateManager.TakeDamage(maxHp, deadZone);
         }
     }
 
@@ -210,8 +221,8 @@ public class GameCharacterCollisionTrigger : MonoBehaviour
             return;
         }
 
-        // UserDataManagerを通じてCheckPointをアクティブ化
-        UserDataManager.ActivateCheckPoint(checkPoint);
+        // gameManager.StateManagerを通じてCheckPointをアクティブ化
+        gameManager.StateManager.ActivateCheckPoint(checkPoint);
     }
 
     /// <summary>
@@ -228,7 +239,7 @@ public class GameCharacterCollisionTrigger : MonoBehaviour
             return;
         }
 
-        // UserDataManagerを通じてハイジャンプを発動
-        UserDataManager.TriggerHighJump(highJumper.JumpHeight, highJumper.JumpSpeed, highJumperObject);
+        // gameManager.StateManagerを通じてハイジャンプを発動
+        gameManager.StateManager.TriggerHighJump(highJumper.JumpHeight, highJumper.JumpSpeed, highJumperObject);
     }
 }

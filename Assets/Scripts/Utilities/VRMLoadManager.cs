@@ -272,6 +272,8 @@ public class VRMLoadManager : MonoBehaviour
     /// <param name="vrmCharacter">読み込まれたVRMキャラクター</param>
     private void OnVrmLoaded(GameObject vrmCharacter)
     {
+        PrefabUtility.SetupGameManagedComponent(gameManager, vrmCharacter);
+
         // リポジトリに登録
         if (characterRepository != null)
         {

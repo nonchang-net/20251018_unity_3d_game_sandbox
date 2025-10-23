@@ -6,6 +6,9 @@ using UnityEngine;
 /// </summary>
 public class CoinCircleScatter : MonoBehaviour
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("コインプレハブ設定")]
     [Tooltip("配置するコインのプレハブ")]
     [SerializeField] private GameObject coinPrefab;
@@ -92,10 +95,12 @@ public class CoinCircleScatter : MonoBehaviour
                 Mathf.Sin(angleRad) * radius
             );
 
-            // コインを生成
-            GameObject coin = Instantiate(coinPrefab, coinsParent.transform);
-            coin.transform.localPosition = localPosition;
-            coin.name = $"Coin_{i + 1}";
+            // prefabを生成
+            GameObject prefab = Instantiate(coinPrefab, coinsParent.transform);
+            PrefabUtility.SetupGameManagedComponent(gameManager, prefab);
+
+            prefab.transform.localPosition = localPosition;
+            prefab.name = $"Coin_{i + 1}";
         }
 
         //Debug.Log($"CoinCircleScatter ({gameObject.name}): {coinCount}個のコインを円形に配置しました。");

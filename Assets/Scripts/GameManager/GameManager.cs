@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
     // [SerializeField] private bool enableInputManagerVerboseLog = false;
 
     [Header("参照")]
+    [SerializeField] private GameStateManager stateManager;
+    public GameStateManager StateManager => stateManager;
     [SerializeField] private GameInputManager inputManager;
     public GameInputManager InputManager => inputManager;
     [SerializeField] private GameUIManager gameUIManager;
@@ -295,7 +297,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     void SubscribeDeadEvents()
     {
-        deadSubscription = UserDataManager.Data.IsDead.Subscribe(isDead =>
+        deadSubscription = StateManager.State.IsDead.Subscribe(isDead =>
         {
             if (isDead)
             {
@@ -310,7 +312,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     void SubscribeCheckPointEvents()
     {
-        checkPointActivatedSubscription = UserDataManager.Data.OnCheckPointActivated.Subscribe(checkPointInfo =>
+        checkPointActivatedSubscription = StateManager.State.OnCheckPointActivated.Subscribe(checkPointInfo =>
         {
             // 現在のチェックポイントを更新
             currentCheckPoint = checkPointInfo.CheckPoint;
@@ -342,7 +344,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(respawnDelay);
 
         // HPをリセット
-        UserDataManager.Respawn();
+        StateManager.Respawn();
 
         // キャラクターをリスポーン地点に移動
         if (activeCharacter != null && defaultSpawnPoint != null)

@@ -13,6 +13,9 @@ using System.Collections;
 /// </summary>
 public class GamePostProcessManager : MonoBehaviour
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("ポストプロセッシング設定")]
     [SerializeField] private Volume postProcessVolume;
     [SerializeField] private VolumeProfile volumeProfile;
@@ -102,7 +105,7 @@ public class GamePostProcessManager : MonoBehaviour
     /// </summary>
     void SubscribeDamageEvents()
     {
-        damageSubscription = UserDataManager.Data.OnDamageReceived.Subscribe(damageInfo =>
+        damageSubscription = gameManager.StateManager.State.OnDamageReceived.Subscribe(damageInfo =>
         {
             if (enableDamageFlash)
             {
@@ -116,7 +119,7 @@ public class GamePostProcessManager : MonoBehaviour
     /// </summary>
     void SubscribeCautionEvents()
     {
-        cautionSubscription = UserDataManager.Data.IsCaution.Subscribe(isCaution =>
+        cautionSubscription = gameManager.StateManager.State.IsCaution.Subscribe(isCaution =>
         {
             isCautionMode = isCaution;
             cautionBlinkTime = 0f;
@@ -134,7 +137,7 @@ public class GamePostProcessManager : MonoBehaviour
     /// </summary>
     void SubscribeDeadEvents()
     {
-        deadSubscription = UserDataManager.Data.IsDead.Subscribe(isDead =>
+        deadSubscription = gameManager.StateManager.State.IsDead.Subscribe(isDead =>
         {
             if (isDead && enableDeadFade)
             {

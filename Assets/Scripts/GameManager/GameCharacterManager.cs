@@ -119,12 +119,12 @@ public class GameCharacterManager : MonoBehaviour
         }
 
         // イベント購読
-        var damageSubscription = UserDataManager.Data.OnDamageReceived.Subscribe(damageInfo =>
+        var damageSubscription = gameManager.StateManager.State.OnDamageReceived.Subscribe(damageInfo =>
         {
             OnDamageReceived(damageInfo);
         });
 
-        var deadSubscription = UserDataManager.Data.IsDead.Subscribe(isDead =>
+        var deadSubscription = gameManager.StateManager.State.IsDead.Subscribe(isDead =>
         {
             if (isDead)
             {
@@ -136,7 +136,7 @@ public class GameCharacterManager : MonoBehaviour
             }
         });
 
-        var highJumpSubscription = UserDataManager.Data.OnHighJump.Subscribe(highJumpInfo =>
+        var highJumpSubscription = gameManager.StateManager.State.OnHighJump.Subscribe(highJumpInfo =>
         {
             OnHighJump(highJumpInfo);
         });
@@ -664,7 +664,7 @@ public class GameCharacterManager : MonoBehaviour
     /// </summary>
     void OnDamageReceived(DamageInfo damageInfo)
     {
-        if (UserDataManager.Data.IsDead.CurrentValue) return;
+        if (gameManager.StateManager.State.IsDead.CurrentValue) return;
 
         if (EnableVerboseLog)
         {

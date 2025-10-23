@@ -158,8 +158,8 @@ public class DebugCommands : MonoBehaviour
     void ExecuteDeath()
     {
         // 現在のHPと同じダメージを与えて死亡させる
-        int currentHp = UserDataManager.Data.CurrentHp.CurrentValue;
-        UserDataManager.TakeDamage(currentHp, gameObject);
+        int currentHp = gameManager.StateManager.State.CurrentHp.CurrentValue;
+        gameManager.StateManager.TakeDamage(currentHp, gameObject);
 
         if (enableDebugLog)
         {
@@ -172,7 +172,7 @@ public class DebugCommands : MonoBehaviour
     /// </summary>
     void ExecuteHeal()
     {
-        UserDataManager.HealHp(1);
+        gameManager.StateManager.HealHp(1);
 
         if (enableDebugLog)
         {

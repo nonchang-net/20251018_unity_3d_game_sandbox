@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 320da482cee934ac4894ff04949d1bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  gameManager: {fileID: 4406867628601610656}
   hearts:
   - {fileID: 0}
   - {fileID: 0}
@@ -276,6 +277,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24634f3d647e04f39aea310429ed67a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCoinTrigger
+  gameManager: {fileID: 4406867628601610656}
   damageAmount: 1
   instantDeathOnDeadZone: 1
   uiManager: {fileID: 0}
@@ -376,6 +378,7 @@ Transform:
   - {fileID: 7491416803585323292}
   - {fileID: 3146327697624874619}
   - {fileID: 6382480958882054056}
+  - {fileID: 44713379673457332}
   m_Father: {fileID: 6495682116857349641}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4406867628601610656
@@ -391,6 +394,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   enableVerboseLog: 0
+  stateManager: {fileID: 7598421414083989507}
   inputManager: {fileID: 1100991995452334661}
   gameUIManager: {fileID: 7735405747927799303}
   characterManager: {fileID: 4564789217582180564}
@@ -492,6 +496,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da547e5610c0944beb95719997fb58e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  gameManager: {fileID: 4406867628601610656}
+  pausedTimeScale: 0
+  normalTimeScale: 1
 --- !u!1 &5048819340174903228
 GameObject:
   m_ObjectHideFlags: 0
@@ -631,14 +638,58 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37023c055affb4962b781fb819ba58e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayableCharacterRepository
+  gameManager: {fileID: 4406867628601610656}
   initialCharacters:
   - {fileID: 1580536519028277664}
   - {fileID: 2898528193157309858}
-  loadStartupVrmCharacter: 0
-  startupVrmFileName: model5.vrm
+  loadStartupVrmCharacter: 1
+  startupVrmFileName: model4.vrm
   vrmAnimatorController: {fileID: 9100000, guid: d11b4df1626314443a5f0b59bb0b43a6, type: 2}
-  gameManager: {fileID: 4406867628601610656}
   enableVerboseLog: 0
+--- !u!1 &8034359250182224272
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 44713379673457332}
+  - component: {fileID: 7598421414083989507}
+  m_Layer: 0
+  m_Name: GameStateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &44713379673457332
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8034359250182224272}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1163183428484965454}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7598421414083989507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8034359250182224272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a16fba35c724ec8ad31548535b819e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &8487114350418593140
 GameObject:
   m_ObjectHideFlags: 0
@@ -742,6 +793,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a28ec2d3f2944252b7b847d3f02cdae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GamePostProcessManager
+  gameManager: {fileID: 4406867628601610656}
   postProcessVolume: {fileID: 0}
   volumeProfile: {fileID: 0}
   normalSpeed: 4
@@ -812,6 +864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d0806673e7314fdb9cf6590bd68fc48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  gameManager: {fileID: 4406867628601610656}
   bgms:
   - {fileID: 8300000, guid: 3a0b10bf22a994a5e9b939c974756a24, type: 3}
   coinGetSound: {fileID: 8300000, guid: a7f60d7acbd954e4da236fc4834aac89, type: 3}
@@ -958,6 +1011,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24634f3d647e04f39aea310429ed67a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameCharacterCollisionTrigger
+  gameManager: {fileID: 4406867628601610656}
   damageAmount: 1
   instantDeathOnDeadZone: 1
   uiManager: {fileID: 0}

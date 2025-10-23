@@ -6,6 +6,9 @@ using UnityEngine;
 /// </summary>
 public class CoinLineScatter : MonoBehaviour
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("コインプレハブ設定")]
     [Tooltip("配置するコインのプレハブ")]
     [SerializeField] private GameObject coinPrefab;
@@ -128,10 +131,12 @@ public class CoinLineScatter : MonoBehaviour
             // 最終位置 = 基本位置 + アーチオフセット + 列オフセット
             Vector3 finalPosition = basePosition + archOffset + rowOffsetVector;
 
-            // コインを生成
-            GameObject coin = Instantiate(coinPrefab, coinsParent.transform);
-            coin.transform.position = finalPosition;
-            coin.name = $"Coin_Row{rowIndex + 1}_Col{i + 1}";
+            // prefabを生成
+            GameObject prefab = Instantiate(coinPrefab, coinsParent.transform);
+            PrefabUtility.SetupGameManagedComponent(gameManager, prefab);
+
+            prefab.transform.position = finalPosition;
+            prefab.name = $"Coin_Row{rowIndex + 1}_Col{i + 1}";
         }
     }
 

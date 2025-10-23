@@ -12,6 +12,9 @@ using UnityEngine;
 /// </summary>
 public class PlayableCharacterRepository : MonoBehaviour
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("初期キャラクター設定")]
     [Tooltip("シーン起動時に登録する初期キャラクター")]
     [SerializeField] private GameObject[] initialCharacters;
@@ -26,10 +29,6 @@ public class PlayableCharacterRepository : MonoBehaviour
     [Header("VRM設定")]
     [Tooltip("VRMキャラクターに適用するアニメーションコントローラー")]
     [SerializeField] private RuntimeAnimatorController vrmAnimatorController;
-
-    [Header("GameManager参照")]
-    [Tooltip("GameManager（DefaultSpawnPoint参照用）")]
-    [SerializeField] private GameManager gameManager;
 
     [Header("デバッグ設定")]
     [Tooltip("詳細ログを表示する")]
@@ -122,6 +121,8 @@ public class PlayableCharacterRepository : MonoBehaviour
             vrmAnimatorController,
             onComplete: (vrmCharacter) =>
             {
+                PrefabUtility.SetupGameManagedComponent(gameManager, vrmCharacter);
+
                 // リストの先頭に登録
                 RegisterCharacterAtFront(vrmCharacter);
 

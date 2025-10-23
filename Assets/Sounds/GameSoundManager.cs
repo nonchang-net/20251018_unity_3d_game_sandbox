@@ -20,6 +20,8 @@ using System;
 
 public class GameSoundManager : MonoBehaviour
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
     private float masterVolume = 1.0f;
     private float sfxVolume = 0.5f;
     private float musicVolume = 0.5f;
@@ -74,13 +76,13 @@ public class GameSoundManager : MonoBehaviour
     private void Start()
     {
         // ダメージイベントを購読
-        damageSubscription = UserDataManager.Data.OnDamageReceived.Subscribe(damageInfo =>
+        damageSubscription = gameManager.StateManager.State.OnDamageReceived.Subscribe(damageInfo =>
         {
             PlayDamagedSound();
         });
 
         // HP警告状態を購読
-        cautionSubscription = UserDataManager.Data.IsCaution.Subscribe(isCaution =>
+        cautionSubscription = gameManager.StateManager.State.IsCaution.Subscribe(isCaution =>
         {
             if (isCaution)
             {
@@ -93,19 +95,19 @@ public class GameSoundManager : MonoBehaviour
         });
 
         // コイン取得イベントを購読
-        coinGetSubscription = UserDataManager.Data.OnCoinGetReceived.Subscribe(coinGetInfo =>
+        coinGetSubscription = gameManager.StateManager.State.OnCoinGetReceived.Subscribe(coinGetInfo =>
         {
             PlayCoinGetSound();
         });
 
         // チェックポイントアクティブ化イベントを購読
-        checkPointActivatedSubscription = UserDataManager.Data.OnCheckPointActivated.Subscribe(checkPointInfo =>
+        checkPointActivatedSubscription = gameManager.StateManager.State.OnCheckPointActivated.Subscribe(checkPointInfo =>
         {
             PlayCheckPointActivatedSound();
         });
 
         // ハイジャンプイベントを購読
-        highJumpSubscription = UserDataManager.Data.OnHighJump.Subscribe(highJumpInfo =>
+        highJumpSubscription = gameManager.StateManager.State.OnHighJump.Subscribe(highJumpInfo =>
         {
             PlayHighJumpSound();
         });

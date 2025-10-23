@@ -3,8 +3,11 @@ using UnityEngine;
 /// <summary>
 /// コインの回転とコレクションアニメーションを管理
 /// </summary>
-public class Coin : MonoBehaviour
+public class Coin : MonoBehaviour, IGameManaged
 {
+    [Header("GameManager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("回転設定")]
     [SerializeField] private float rotationSpeed = 100f;
 
@@ -34,12 +37,6 @@ public class Coin : MonoBehaviour
     private Collider coinCollider;
     private Transform playerTransform; // プレイヤーの位置
 
-    void Awake()
-    {
-        // コイン生成をUserDataManagerに通知
-        UserDataManager.AddGeneratedCoins(1, gameObject);
-    }
-
     void Start()
     {
         startPosition = transform.position;
@@ -59,6 +56,14 @@ public class Coin : MonoBehaviour
             // 取得アニメーション
             PlayCollectAnimation();
         }
+    }
+
+    public void SetGameManager(GameManager gameManager)
+    {
+        this.gameManager = gameManager;
+
+        // コイン生成をgameManager.StateManagerに通知
+        gameManager.StateManager.AddGeneratedCoins(1, gameObject);
     }
 
     /// <summary>
@@ -81,7 +86,7 @@ public class Coin : MonoBehaviour
         }
 
         // ユーザデータ更新（コイン取得イベントを発火）
-        UserDataManager.AddCoin(1, gameObject);
+        gameManager.StateManager.AddCoin(1, gameObject);
     }
 
     /// <summary>

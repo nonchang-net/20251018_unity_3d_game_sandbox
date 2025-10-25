@@ -11,7 +11,9 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using System.Linq;
+using System.Threading;
 using Cysharp.Text;
+using Cysharp.Threading.Tasks;
 using R3;
 
 public class GameUIManager : MonoBehaviour
@@ -45,10 +47,15 @@ public class GameUIManager : MonoBehaviour
     [Tooltip("メッセージのフェードアウト時間（秒）")]
     [SerializeField] private float staticMessageFadeOutDuration = 0.3f;
 
+
+    [Header("ポーズメニュー関連")]
+    [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private CanvasGroup pauseMenuCanvasGroup;
+
     private FPSCounter fpsCounter = new();
 
-    /// <summary>現在実行中のメッセージフェードコルーチン</summary>
-    private Coroutine currentMessageFadeCoroutine = null;
+    /// <summary>現在実行中のメッセージフェード処理のキャンセレーショントークン</summary>
+    private CancellationTokenSource messageFadeCts = null;
 
 
     void Start()
@@ -123,6 +130,8 @@ public class GameUIManager : MonoBehaviour
     void OnDestroy()
     {
         disposable?.Dispose();
+        messageFadeCts?.Cancel();
+        messageFadeCts?.Dispose();
     }
 
     /// <summary>
@@ -154,13 +163,12 @@ public class GameUIManager : MonoBehaviour
         staticMessageTMP.text = message;
 
         // 既存のフェードを停止
-        if (currentMessageFadeCoroutine != null)
-        {
-            StopCoroutine(currentMessageFadeCoroutine);
-        }
+        messageFadeCts?.Cancel();
+        messageFadeCts?.Dispose();
+        messageFadeCts = new CancellationTokenSource();
 
         // フェードインを開始
-        currentMessageFadeCoroutine = StartCoroutine(FadeInStaticMessage());
+        FadeInStaticMessageAsync(messageFadeCts.Token).Forget();
     }
 
     /// <summary>
@@ -174,53 +182,66 @@ public class GameUIManager : MonoBehaviour
         }
 
         // 既存のフェードを停止
-        if (currentMessageFadeCoroutine != null)
-        {
-            StopCoroutine(currentMessageFadeCoroutine);
-        }
+        messageFadeCts?.Cancel();
+        messageFadeCts?.Dispose();
+        messageFadeCts = new CancellationTokenSource();
 
         // フェードアウトを開始
-        currentMessageFadeCoroutine = StartCoroutine(FadeOutStaticMessage());
+        FadeOutStaticMessageAsync(messageFadeCts.Token).Forget();
     }
 
     /// <summary>
-    /// 静的メッセージをフェードインさせるコルーチン
+    /// 静的メッセージをフェードインさせる
     /// </summary>
-    private System.Collections.IEnumerator FadeInStaticMessage()
+    /// <param name="ct">キャンセルトークン</param>
+    private async UniTaskVoid FadeInStaticMessageAsync(CancellationToken ct)
     {
-        float elapsedTime = 0f;
-        float startAlpha = staticMessageCanvasGroup.alpha;
-
-        while (elapsedTime < staticMessageFadeInDuration)
+        try
         {
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / staticMessageFadeInDuration);
-            staticMessageCanvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
-            yield return null;
-        }
+            float elapsedTime = 0f;
+            float startAlpha = staticMessageCanvasGroup.alpha;
 
-        staticMessageCanvasGroup.alpha = 1f;
-        currentMessageFadeCoroutine = null;
+            while (elapsedTime < staticMessageFadeInDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / staticMessageFadeInDuration);
+                staticMessageCanvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
+                await UniTask.Yield(ct);
+            }
+
+            staticMessageCanvasGroup.alpha = 1f;
+        }
+        catch (Exception ex) when (!(ex is OperationCanceledException))
+        {
+            Debug.LogError($"GameUIManager: メッセージフェードイン中にエラーが発生しました: {ex}");
+        }
     }
 
     /// <summary>
-    /// 静的メッセージをフェードアウトさせるコルーチン
+    /// 静的メッセージをフェードアウトさせる
     /// </summary>
-    private System.Collections.IEnumerator FadeOutStaticMessage()
+    /// <param name="ct">キャンセルトークン</param>
+    private async UniTaskVoid FadeOutStaticMessageAsync(CancellationToken ct)
     {
-        float elapsedTime = 0f;
-        float startAlpha = staticMessageCanvasGroup.alpha;
-
-        while (elapsedTime < staticMessageFadeOutDuration)
+        try
         {
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / staticMessageFadeOutDuration);
-            staticMessageCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
-            yield return null;
-        }
+            float elapsedTime = 0f;
+            float startAlpha = staticMessageCanvasGroup.alpha;
 
-        staticMessageCanvasGroup.alpha = 0f;
-        currentMessageFadeCoroutine = null;
+            while (elapsedTime < staticMessageFadeOutDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / staticMessageFadeOutDuration);
+                staticMessageCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                await UniTask.Yield(ct);
+            }
+
+            staticMessageCanvasGroup.alpha = 0f;
+        }
+        catch (Exception ex) when (!(ex is OperationCanceledException))
+        {
+            Debug.LogError($"GameUIManager: メッセージフェードアウト中にエラーが発生しました: {ex}");
+        }
     }
 
 }

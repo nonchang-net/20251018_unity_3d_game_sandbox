@@ -9443,6 +9443,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 347267830}
     - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: pauseMenu
+      value: 
+      objectReference: {fileID: 1193456625}
+    - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: currentCoinText
       value: 
       objectReference: {fileID: 1587876835}
@@ -9466,6 +9470,10 @@ PrefabInstance:
       propertyPath: 'hearts.Array.data[2]'
       value: 
       objectReference: {fileID: 256224984}
+    - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: pauseMenuCanvasGroup
+      value: 
+      objectReference: {fileID: 1193456627}
     - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: staticMessageCanvasGroup
       value: 

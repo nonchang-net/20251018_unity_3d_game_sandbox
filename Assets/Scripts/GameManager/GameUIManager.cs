@@ -16,6 +16,10 @@ using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using R3;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class GameUIManager : MonoBehaviour
 {
     IDisposable disposable;
@@ -58,6 +62,34 @@ public class GameUIManager : MonoBehaviour
     [Tooltip("ポーズメニューのフェードアウト時間（秒）")]
     [SerializeField] private float pauseMenuFadeOutDuration = 0.2f;
 
+    [Header("ポーズメニューUI要素")]
+    [Tooltip("上下カメラ操作方向反転Toggle")]
+    [SerializeField] private Toggle cameraInvertYToggle;
+
+    [Tooltip("マウス感度調整スライダー")]
+    [SerializeField] private Slider mouseSensitivitySlider;
+
+    [Tooltip("マウス感度表示テキスト")]
+    [SerializeField] private TextMeshProUGUI mouseSensitivityText;
+
+    [Tooltip("BGMボリューム調整スライダー")]
+    [SerializeField] private Slider bgmVolumeSlider;
+
+    [Tooltip("BGMボリューム表示テキスト")]
+    [SerializeField] private TextMeshProUGUI bgmVolumeText;
+
+    [Tooltip("サウンドエフェクトボリューム調整スライダー")]
+    [SerializeField] private Slider seVolumeSlider;
+
+    [Tooltip("サウンドエフェクトボリューム表示テキスト")]
+    [SerializeField] private TextMeshProUGUI seVolumeText;
+
+    [Tooltip("デフォルトに戻すボタン")]
+    [SerializeField] private Button resetToDefaultButton;
+
+    [Tooltip("再開ボタン")]
+    [SerializeField] private Button resumeButton;
+
     private FPSCounter fpsCounter = new();
 
     /// <summary>現在実行中のメッセージフェード処理のキャンセレーショントークン</summary>
@@ -71,6 +103,9 @@ public class GameUIManager : MonoBehaviour
 
     /// <summary>ポーズメニューが表示されているかどうかを外部から参照可能にする</summary>
     public bool IsPauseMenuVisible => isPauseMenuVisible;
+
+    /// <summary>ゲーム設定</summary>
+    private GameSettings gameSettings;
 
 
     void Start()
@@ -92,6 +127,10 @@ public class GameUIManager : MonoBehaviour
         {
             pauseMenu.SetActive(false);
         }
+
+        // ゲーム設定の初期化とロード
+        gameSettings = new GameSettings();
+        InitializePauseMenuUI();
 
         // gameManager.StateManagerのreactive property購読・更新
 
@@ -398,6 +437,213 @@ public class GameUIManager : MonoBehaviour
             Debug.LogError($"GameUIManager: ポーズメニューフェードアウト中にエラーが発生しました: {ex}");
         }
     }
+
+    #region ポーズメニュー設定UI
+
+    /// <summary>
+    /// ポーズメニューUIの初期化
+    /// </summary>
+    private void InitializePauseMenuUI()
+    {
+        // スライダーの範囲設定
+        if (mouseSensitivitySlider != null)
+        {
+            mouseSensitivitySlider.minValue = 10f;   // 10%
+            mouseSensitivitySlider.maxValue = 300f;  // 300%
+            mouseSensitivitySlider.wholeNumbers = true;  // 整数値のみ
+            mouseSensitivitySlider.value = gameSettings.MouseSensitivity;
+            mouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
+        }
+
+        if (bgmVolumeSlider != null)
+        {
+            bgmVolumeSlider.minValue = 0f;
+            bgmVolumeSlider.maxValue = 1f;
+            bgmVolumeSlider.value = gameSettings.BGMVolume;
+            bgmVolumeSlider.onValueChanged.AddListener(OnBGMVolumeChanged);
+        }
+
+        if (seVolumeSlider != null)
+        {
+            seVolumeSlider.minValue = 0f;
+            seVolumeSlider.maxValue = 1f;
+            seVolumeSlider.value = gameSettings.SEVolume;
+            seVolumeSlider.onValueChanged.AddListener(OnSEVolumeChanged);
+        }
+
+        // Toggleの初期化
+        if (cameraInvertYToggle != null)
+        {
+            cameraInvertYToggle.isOn = gameSettings.CameraInvertY;
+            cameraInvertYToggle.onValueChanged.AddListener(OnCameraInvertYChanged);
+        }
+
+        // ボタンのイベント設定
+        if (resetToDefaultButton != null)
+        {
+            resetToDefaultButton.onClick.AddListener(OnResetToDefaultClicked);
+        }
+
+        if (resumeButton != null)
+        {
+            resumeButton.onClick.AddListener(OnResumeClicked);
+        }
+
+        // 初期値の表示更新
+        UpdateSettingsUI();
+    }
+
+    /// <summary>
+    /// 設定UIの表示を更新
+    /// </summary>
+    private void UpdateSettingsUI()
+    {
+        // マウス感度の表示更新
+        if (mouseSensitivitySlider != null)
+        {
+            mouseSensitivitySlider.value = gameSettings.MouseSensitivity;
+        }
+        if (mouseSensitivityText != null)
+        {
+            mouseSensitivityText.text = $"{gameSettings.MouseSensitivity:F0}%";
+        }
+
+        // BGMボリュームの表示更新
+        if (bgmVolumeSlider != null)
+        {
+            bgmVolumeSlider.value = gameSettings.BGMVolume;
+        }
+        if (bgmVolumeText != null)
+        {
+            bgmVolumeText.text = $"{gameSettings.BGMVolume * 100f:F0}%";
+        }
+
+        // サウンドエフェクトボリュームの表示更新
+        if (seVolumeSlider != null)
+        {
+            seVolumeSlider.value = gameSettings.SEVolume;
+        }
+        if (seVolumeText != null)
+        {
+            seVolumeText.text = $"{gameSettings.SEVolume * 100f:F0}%";
+        }
+
+        // カメラ反転の表示更新
+        if (cameraInvertYToggle != null)
+        {
+            cameraInvertYToggle.isOn = gameSettings.CameraInvertY;
+        }
+
+        // カメラ設定をCharacterTrackerに反映
+        ApplyCameraSettings();
+    }
+
+    /// <summary>
+    /// カメラ設定をCharacterTrackerに反映
+    /// </summary>
+    private void ApplyCameraSettings()
+    {
+        if (gameManager?.CharacterTracker != null)
+        {
+            gameManager.CharacterTracker.SetCameraInvertY(gameSettings.CameraInvertY);
+            gameManager.CharacterTracker.SetMouseSensitivity(gameSettings.MouseSensitivity / 100f);
+        }
+    }
+
+    /// <summary>
+    /// マウス感度スライダーが変更されたときの処理
+    /// </summary>
+    private void OnMouseSensitivityChanged(float value)
+    {
+        // 10%刻みに丸める
+        float roundedValue = Mathf.Round(value / 10f) * 10f;
+        gameSettings.SetMouseSensitivity(roundedValue);
+
+        // 表示を更新
+        if (mouseSensitivityText != null)
+        {
+            mouseSensitivityText.text = $"{roundedValue:F0}%";
+        }
+
+        // カメラに反映
+        ApplyCameraSettings();
+    }
+
+    /// <summary>
+    /// BGMボリュームスライダーが変更されたときの処理
+    /// </summary>
+    private void OnBGMVolumeChanged(float value)
+    {
+        gameSettings.SetBGMVolume(value);
+
+        // 表示を更新
+        if (bgmVolumeText != null)
+        {
+            bgmVolumeText.text = $"{value * 100f:F0}%";
+        }
+
+        // TODO: AudioManagerに反映
+        // gameManager.AudioManager.SetBGMVolume(value);
+    }
+
+    /// <summary>
+    /// サウンドエフェクトボリュームスライダーが変更されたときの処理
+    /// </summary>
+    private void OnSEVolumeChanged(float value)
+    {
+        gameSettings.SetSEVolume(value);
+
+        // 表示を更新
+        if (seVolumeText != null)
+        {
+            seVolumeText.text = $"{value * 100f:F0}%";
+        }
+
+        // TODO: AudioManagerに反映
+        // gameManager.AudioManager.SetSEVolume(value);
+    }
+
+    /// <summary>
+    /// カメラ反転Toggleが変更されたときの処理
+    /// </summary>
+    private void OnCameraInvertYChanged(bool value)
+    {
+        gameSettings.SetCameraInvertY(value);
+
+        // カメラに反映
+        ApplyCameraSettings();
+    }
+
+    /// <summary>
+    /// デフォルトに戻すボタンがクリックされたときの処理
+    /// </summary>
+    private void OnResetToDefaultClicked()
+    {
+        gameSettings.ResetToDefault();
+        UpdateSettingsUI();
+    }
+
+    /// <summary>
+    /// 再開ボタンがクリックされたときの処理
+    /// </summary>
+    private void OnResumeClicked()
+    {
+        gameManager.TimeManager.Unpause();
+        // note: GameInputManager.csに一元管理させた方が良いかもしれない? (OnTogglePauseとメソッドを分ける？)
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        HidePauseMenu();
+    }
+
+    /// <summary>
+    /// ゲーム設定を取得
+    /// </summary>
+    public GameSettings GetGameSettings()
+    {
+        return gameSettings;
+    }
+
+    #endregion
 
 }
 

@@ -13,6 +13,7 @@ public class CharacterTracker : MonoBehaviour
     [SerializeField] private float cameraDistance = 6f;
     [SerializeField] private float cameraHeight = 2f;
     [SerializeField] private bool invertVerticalAxis = false;
+    [SerializeField] private float mouseSensitivityMultiplier = 1f; // マウス感度倍率
 
     [Header("カメラ制限")]
     [SerializeField] private float minPitch = -30f;
@@ -82,8 +83,8 @@ public class CharacterTracker : MonoBehaviour
     /// </summary>
     void HandleCameraRotation()
     {
-        float lookX = lookInput.x;
-        float lookY = lookInput.y;
+        float lookX = lookInput.x * mouseSensitivityMultiplier;
+        float lookY = lookInput.y * mouseSensitivityMultiplier;
 
         // 上下反転の適用
         // マウスとgamepadで感覚が逆な気がする？
@@ -243,5 +244,23 @@ public class CharacterTracker : MonoBehaviour
         {
             cameraPitch = resetPitchAngle;
         }
+    }
+
+    /// <summary>
+    /// カメラの上下反転設定を変更
+    /// </summary>
+    /// <param name="invert">true: 反転、false: 通常</param>
+    public void SetCameraInvertY(bool invert)
+    {
+        invertVerticalAxis = invert;
+    }
+
+    /// <summary>
+    /// マウス感度倍率を設定
+    /// </summary>
+    /// <param name="multiplier">感度倍率（0.1 ～ 3.0）</param>
+    public void SetMouseSensitivity(float multiplier)
+    {
+        mouseSensitivityMultiplier = Mathf.Clamp(multiplier, 0.1f, 3.0f);
     }
 }

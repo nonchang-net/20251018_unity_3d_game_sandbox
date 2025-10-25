@@ -103,12 +103,26 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     // ゲームシステム
     public void OnTogglePause(InputAction.CallbackContext context)
     {
-        if (context.ReadValue<float>() > 0.5f)
-        {
-            gameManager.TimeManager.TogglePause();
-        }
-    }
+        if (context.ReadValue<float>() < 0.5f) return;
 
+        gameManager.TimeManager.TogglePause();
+        gameManager.UIManager.TogglePauseMenu();
+
+        // マウスカーソル制御
+        bool isMenuVisible = gameManager.UIManager.IsPauseMenuVisible;
+
+        if (isMenuVisible)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        
+    }
 
     // -----
     // 以下はテスト機能類

@@ -52,10 +52,25 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private CanvasGroup pauseMenuCanvasGroup;
 
+    [Tooltip("ポーズメニューのフェードイン時間（秒）")]
+    [SerializeField] private float pauseMenuFadeInDuration = 0.2f;
+
+    [Tooltip("ポーズメニューのフェードアウト時間（秒）")]
+    [SerializeField] private float pauseMenuFadeOutDuration = 0.2f;
+
     private FPSCounter fpsCounter = new();
 
     /// <summary>現在実行中のメッセージフェード処理のキャンセレーショントークン</summary>
     private CancellationTokenSource messageFadeCts = null;
+
+    /// <summary>現在実行中のポーズメニューフェード処理のキャンセレーショントークン</summary>
+    private CancellationTokenSource pauseMenuFadeCts = null;
+
+    /// <summary>ポーズメニューが表示されているかどうか</summary>
+    private bool isPauseMenuVisible = false;
+
+    /// <summary>ポーズメニューが表示されているかどうかを外部から参照可能にする</summary>
+    public bool IsPauseMenuVisible => isPauseMenuVisible;
 
 
     void Start()
@@ -66,6 +81,16 @@ public class GameUIManager : MonoBehaviour
         if (staticMessageCanvasGroup != null)
         {
             staticMessageCanvasGroup.alpha = 0f;
+        }
+
+        // ポーズメニューを初期状態で非表示
+        if (pauseMenuCanvasGroup != null)
+        {
+            pauseMenuCanvasGroup.alpha = 0f;
+        }
+        if (pauseMenu != null)
+        {
+            pauseMenu.SetActive(false);
         }
 
         // gameManager.StateManagerのreactive property購読・更新
@@ -132,6 +157,8 @@ public class GameUIManager : MonoBehaviour
         disposable?.Dispose();
         messageFadeCts?.Cancel();
         messageFadeCts?.Dispose();
+        pauseMenuFadeCts?.Cancel();
+        pauseMenuFadeCts?.Dispose();
     }
 
     /// <summary>
@@ -241,6 +268,134 @@ public class GameUIManager : MonoBehaviour
         catch (Exception ex) when (!(ex is OperationCanceledException))
         {
             Debug.LogError($"GameUIManager: メッセージフェードアウト中にエラーが発生しました: {ex}");
+        }
+    }
+
+    /// <summary>
+    /// ポーズメニューを表示する
+    /// </summary>
+    public void ShowPauseMenu()
+    {
+        if (pauseMenu == null || pauseMenuCanvasGroup == null)
+        {
+            Debug.LogWarning("GameUIManager: pauseMenuまたはpauseMenuCanvasGroupが設定されていません。");
+            return;
+        }
+
+        if (isPauseMenuVisible)
+        {
+            return; // 既に表示中
+        }
+
+        isPauseMenuVisible = true;
+
+        // ポーズメニューをアクティブ化
+        pauseMenu.SetActive(true);
+
+        // 既存のフェードを停止
+        pauseMenuFadeCts?.Cancel();
+        pauseMenuFadeCts?.Dispose();
+        pauseMenuFadeCts = new CancellationTokenSource();
+
+        // フェードインを開始
+        FadeInPauseMenuAsync(pauseMenuFadeCts.Token).Forget();
+    }
+
+    /// <summary>
+    /// ポーズメニューを非表示にする
+    /// </summary>
+    public void HidePauseMenu()
+    {
+        if (pauseMenu == null || pauseMenuCanvasGroup == null)
+        {
+            return;
+        }
+
+        if (!isPauseMenuVisible)
+        {
+            return; // 既に非表示
+        }
+
+        isPauseMenuVisible = false;
+
+        // 既存のフェードを停止
+        pauseMenuFadeCts?.Cancel();
+        pauseMenuFadeCts?.Dispose();
+        pauseMenuFadeCts = new CancellationTokenSource();
+
+        // フェードアウトを開始
+        FadeOutPauseMenuAsync(pauseMenuFadeCts.Token).Forget();
+    }
+
+    /// <summary>
+    /// ポーズメニューの表示状態をトグルする
+    /// </summary>
+    public void TogglePauseMenu()
+    {
+        if (isPauseMenuVisible)
+        {
+            HidePauseMenu();
+        }
+        else
+        {
+            ShowPauseMenu();
+        }
+    }
+
+    /// <summary>
+    /// ポーズメニューをフェードインさせる
+    /// </summary>
+    /// <param name="ct">キャンセルトークン</param>
+    private async UniTaskVoid FadeInPauseMenuAsync(CancellationToken ct)
+    {
+        try
+        {
+            float elapsedTime = 0f;
+            float startAlpha = pauseMenuCanvasGroup.alpha;
+
+            while (elapsedTime < pauseMenuFadeInDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / pauseMenuFadeInDuration);
+                pauseMenuCanvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
+                await UniTask.Yield(ct);
+            }
+
+            pauseMenuCanvasGroup.alpha = 1f;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Debug.LogError($"GameUIManager: ポーズメニューフェードイン中にエラーが発生しました: {ex}");
+        }
+    }
+
+    /// <summary>
+    /// ポーズメニューをフェードアウトさせる
+    /// </summary>
+    /// <param name="ct">キャンセルトークン</param>
+    private async UniTaskVoid FadeOutPauseMenuAsync(CancellationToken ct)
+    {
+        try
+        {
+            float elapsedTime = 0f;
+            float startAlpha = pauseMenuCanvasGroup.alpha;
+
+            while (elapsedTime < pauseMenuFadeOutDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / pauseMenuFadeOutDuration);
+                pauseMenuCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                await UniTask.Yield(ct);
+            }
+
+            pauseMenuCanvasGroup.alpha = 0f;
+
+            // フェードアウト完了後、GameObjectを非アクティブ化
+            pauseMenu.SetActive(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Debug.LogError($"GameUIManager: ポーズメニューフェードアウト中にエラーが発生しました: {ex}");
         }
     }
 

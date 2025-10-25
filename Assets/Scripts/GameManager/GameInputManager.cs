@@ -24,6 +24,9 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     private InputSystem_Actions inputSystemActions;
     private InputSystem_Actions.PlayerActions inputSystemActionMap;
 
+    /// <summary>前フレームのカーソルロック状態</summary>
+    private CursorLockMode previousCursorLockMode;
+
     void Awake()
     {
         // Input SystemはIME有効状態でプレイ開始するとshiftキーが反応しない
@@ -70,7 +73,55 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
             Debug.LogError($"GameInputManager: GameCharacterManager参照が設定されていません。修正してください。");
             return;
         }
+
+        // 初期カーソル状態を記録
+        previousCursorLockMode = Cursor.lockState;
     }
+
+    void Update()
+    {
+        // カーソルロック状態の変化を監視
+        // TODO: 正常動作を確認できなかったので一旦コメントアウト中。後日再調査
+        // MonitorCursorLockState();
+    }
+
+    /// <summary>
+    /// カーソルロック状態の変化を監視し、ポーズ状態と連動させる
+    /// TODO: 正常動作を確認できなかったので一旦コメントアウト中。後日再調査
+    /// </summary>
+    // private void MonitorCursorLockState()
+    // {
+    //     CursorLockMode currentLockMode = Cursor.lockState;
+
+    //     // カーソルロック状態が変化した場合
+    //     if (currentLockMode != previousCursorLockMode)
+    //     {
+    //         // ESCキーなどでカーソルがロック解除された場合、ポーズメニューを表示
+    //         if (previousCursorLockMode == CursorLockMode.Locked && currentLockMode == CursorLockMode.None)
+    //         {
+    //             // ポーズメニューが非表示の場合のみ表示する
+    //             if (!gameManager.UIManager.IsPauseMenuVisible)
+    //             {
+    //                 gameManager.TimeManager.Pause();
+    //                 gameManager.UIManager.ShowPauseMenu();
+    //                 Cursor.visible = true;
+    //             }
+    //         }
+    //         // カーソルがロックされた場合、ポーズメニューを非表示
+    //         else if (previousCursorLockMode == CursorLockMode.None && currentLockMode == CursorLockMode.Locked)
+    //         {
+    //             // ポーズメニューが表示中の場合のみ非表示にする
+    //             if (gameManager.UIManager.IsPauseMenuVisible)
+    //             {
+    //                 gameManager.TimeManager.Unpause();
+    //                 gameManager.UIManager.HidePauseMenu();
+    //                 Cursor.visible = false;
+    //             }
+    //         }
+
+    //         previousCursorLockMode = currentLockMode;
+    //     }
+    // }
 
     #region IPlayerActions implementation
 

@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour
     public GamePostProcessManager PostProcessingManager => postProcessingManager;
     [SerializeField] private GameTimeManager timeManager;
     public GameTimeManager TimeManager => timeManager;
+    [SerializeField] private GameSoundManager soundManager;
+    public GameSoundManager SoundManager => soundManager;
 
     [Header("キャラクター管理")]
     [Tooltip("プレイ可能なキャラクターを管理するリポジトリ")]

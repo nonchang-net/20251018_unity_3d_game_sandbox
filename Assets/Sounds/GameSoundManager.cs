@@ -2,9 +2,8 @@
 シンプルなサウンド管理
 
 - やること
-  - BGM/SFXの再生管理をsingletonでどこからでも呼べるようにする
-  - DontDestroyOnLoadしておく
-  - sound listenerもカメラから剥がしてこいつにおいておく
+  - BGM/SFXの再生管理
+  - sound listenerもカメラから剥がしてここに配置
 
 - やらないこと
 - - 3Dサウンド系の処理は一旦保留。あとで別枠で考えたい
@@ -17,14 +16,28 @@ using Unity.Collections;
 using UnityEngine;
 using R3;
 using System;
+using System.Collections.Generic;
+
+/// <summary>
+/// サウンドのカテゴリー分類
+/// </summary>
+public enum SoundCategory
+{
+    /// <summary>背景音楽</summary>
+    BGM,
+    /// <summary>サウンドエフェクト</summary>
+    SE
+}
 
 public class GameSoundManager : MonoBehaviour
 {
     [Header("GameManager")]
     [SerializeField] private GameManager gameManager;
+
+    [Header("ボリューム設定")]
     private float masterVolume = 1.0f;
-    private float sfxVolume = 0.5f;
-    private float musicVolume = 0.5f;
+    private float bgmVolume = 0.8f;
+    private float seVolume = 0.8f;
 
     [SerializeField] AudioClip[] bgms;
 
@@ -34,6 +47,10 @@ public class GameSoundManager : MonoBehaviour
 
     [SerializeField] AudioClip damagedSound;
     [SerializeField] AudioClip cautionSound;
+
+    // カテゴリー別AudioSource管理
+    private Dictionary<SoundCategory, List<AudioSource>> audioSourcesByCategory = new Dictionary<SoundCategory, List<AudioSource>>();
+
     private AudioSource bgmAudioSource;
     private AudioSource sfxAudioSource;
     private AudioSource cautionAudioSource;
@@ -47,10 +64,15 @@ public class GameSoundManager : MonoBehaviour
 
     private void Awake()
     {
+        // カテゴリー別辞書の初期化
+        audioSourcesByCategory[SoundCategory.BGM] = new List<AudioSource>();
+        audioSourcesByCategory[SoundCategory.SE] = new List<AudioSource>();
+
         // BGM用AudioSource
         bgmAudioSource = gameObject.AddComponent<AudioSource>();
         bgmAudioSource.loop = true;
-        bgmAudioSource.volume = musicVolume * masterVolume;
+        bgmAudioSource.volume = bgmVolume * masterVolume;
+        RegisterAudioSource(bgmAudioSource, SoundCategory.BGM);
 
         if (bgms != null && bgms.Length > 0)
         {
@@ -65,12 +87,14 @@ public class GameSoundManager : MonoBehaviour
         // SFX用AudioSource
         sfxAudioSource = gameObject.AddComponent<AudioSource>();
         sfxAudioSource.loop = false;
-        sfxAudioSource.volume = sfxVolume * masterVolume;
+        sfxAudioSource.volume = seVolume * masterVolume;
+        RegisterAudioSource(sfxAudioSource, SoundCategory.SE);
 
         // 警告サウンド用AudioSource
         cautionAudioSource = gameObject.AddComponent<AudioSource>();
         cautionAudioSource.loop = true;
-        cautionAudioSource.volume = sfxVolume * masterVolume;
+        cautionAudioSource.volume = seVolume * masterVolume;
+        RegisterAudioSource(cautionAudioSource, SoundCategory.SE);
     }
 
     private void Start()
@@ -114,13 +138,112 @@ public class GameSoundManager : MonoBehaviour
     }
 
     /// <summary>
+    /// AudioSourceをカテゴリーに登録
+    /// </summary>
+    /// <param name="audioSource">登録するAudioSource</param>
+    /// <param name="category">サウンドカテゴリー</param>
+    public void RegisterAudioSource(AudioSource audioSource, SoundCategory category)
+    {
+        if (audioSource == null) return;
+
+        if (!audioSourcesByCategory.ContainsKey(category))
+        {
+            audioSourcesByCategory[category] = new List<AudioSource>();
+        }
+
+        if (!audioSourcesByCategory[category].Contains(audioSource))
+        {
+            audioSourcesByCategory[category].Add(audioSource);
+        }
+    }
+
+    /// <summary>
+    /// AudioSourceをカテゴリーから登録解除
+    /// </summary>
+    /// <param name="audioSource">登録解除するAudioSource</param>
+    /// <param name="category">サウンドカテゴリー</param>
+    public void UnregisterAudioSource(AudioSource audioSource, SoundCategory category)
+    {
+        if (audioSource == null) return;
+
+        if (audioSourcesByCategory.ContainsKey(category))
+        {
+            audioSourcesByCategory[category].Remove(audioSource);
+        }
+    }
+
+    /// <summary>
+    /// 指定カテゴリーの全AudioSourceのボリュームを設定
+    /// </summary>
+    /// <param name="category">サウンドカテゴリー</param>
+    /// <param name="volume">ボリューム（0.0 ～ 1.0）</param>
+    public void SetCategoryVolume(SoundCategory category, float volume)
+    {
+        volume = Mathf.Clamp01(volume);
+
+        // カテゴリー別のボリューム変数を更新
+        switch (category)
+        {
+            case SoundCategory.BGM:
+                bgmVolume = volume;
+                break;
+            case SoundCategory.SE:
+                seVolume = volume;
+                break;
+        }
+
+        // 該当カテゴリーの全AudioSourceのボリュームを更新
+        if (audioSourcesByCategory.ContainsKey(category))
+        {
+            foreach (var audioSource in audioSourcesByCategory[category])
+            {
+                if (audioSource != null)
+                {
+                    audioSource.volume = volume * masterVolume;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// BGMボリュームを設定
+    /// </summary>
+    /// <param name="volume">ボリューム（0.0 ～ 1.0）</param>
+    public void SetBGMVolume(float volume)
+    {
+        SetCategoryVolume(SoundCategory.BGM, volume);
+    }
+
+    /// <summary>
+    /// SEボリュームを設定
+    /// </summary>
+    /// <param name="volume">ボリューム（0.0 ～ 1.0）</param>
+    public void SetSEVolume(float volume)
+    {
+        SetCategoryVolume(SoundCategory.SE, volume);
+    }
+
+    /// <summary>
+    /// マスターボリュームを設定
+    /// </summary>
+    /// <param name="volume">ボリューム（0.0 ～ 1.0）</param>
+    public void SetMasterVolume(float volume)
+    {
+        masterVolume = Mathf.Clamp01(volume);
+
+        // 全カテゴリーのボリュームを再適用
+        SetCategoryVolume(SoundCategory.BGM, bgmVolume);
+        SetCategoryVolume(SoundCategory.SE, seVolume);
+    }
+
+    /// <summary>
     /// ダメージサウンドを再生
     /// </summary>
     private void PlayDamagedSound()
     {
         if (damagedSound != null && sfxAudioSource != null)
         {
-            sfxAudioSource.PlayOneShot(damagedSound, sfxVolume * masterVolume);
+            sfxAudioSource.PlayOneShot(damagedSound, seVolume * masterVolume);
         }
     }
 
@@ -131,7 +254,7 @@ public class GameSoundManager : MonoBehaviour
     {
         if (coinGetSound != null && sfxAudioSource != null)
         {
-            sfxAudioSource.PlayOneShot(coinGetSound, sfxVolume * masterVolume);
+            sfxAudioSource.PlayOneShot(coinGetSound, seVolume * masterVolume);
         }
     }
 
@@ -142,7 +265,7 @@ public class GameSoundManager : MonoBehaviour
     {
         if (checkPointActivatedSound != null && sfxAudioSource != null)
         {
-            sfxAudioSource.PlayOneShot(checkPointActivatedSound, sfxVolume * masterVolume);
+            sfxAudioSource.PlayOneShot(checkPointActivatedSound, seVolume * masterVolume);
         }
     }
 
@@ -153,7 +276,7 @@ public class GameSoundManager : MonoBehaviour
     {
         if (highJumpSound != null && sfxAudioSource != null)
         {
-            sfxAudioSource.PlayOneShot(highJumpSound, sfxVolume * masterVolume);
+            sfxAudioSource.PlayOneShot(highJumpSound, seVolume * masterVolume);
         }
     }
 

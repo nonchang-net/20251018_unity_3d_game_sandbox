@@ -4796,6 +4796,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2132435545253609505, guid: ef93f302a0e13420c997be259a01b0bb, type: 3}
   m_PrefabInstance: {fileID: 745771169}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &746708958 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8133719991256797029, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+  m_PrefabInstance: {fileID: 1607662224}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0806673e7314fdb9cf6590bd68fc48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &794308410
 GameObject:
   m_ObjectHideFlags: 0
@@ -9689,6 +9700,10 @@ PrefabInstance:
       value: GameSystem
       objectReference: {fileID: 0}
     - target: {fileID: 4406867628601610656, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: soundManager
+      value: 
+      objectReference: {fileID: 746708958}
+    - target: {fileID: 4406867628601610656, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: characterTracker
       value: 
       objectReference: {fileID: 961739754}
@@ -9765,6 +9780,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1193456625}
     - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: resumeButton
+      value: 
+      objectReference: {fileID: 2047271438}
+    - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: seVolumeText
       value: 
       objectReference: {fileID: 550565882}
@@ -9816,6 +9835,10 @@ PrefabInstance:
       propertyPath: pauseMenuCanvasGroup
       value: 
       objectReference: {fileID: 1193456627}
+    - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: resetToDefaultButton
+      value: 
+      objectReference: {fileID: 899006145}
     - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: mouseSensitivitySlider
       value: 

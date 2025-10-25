@@ -536,6 +536,9 @@ public class GameUIManager : MonoBehaviour
 
         // カメラ設定をCharacterTrackerに反映
         ApplyCameraSettings();
+
+        // サウンド設定をSoundManagerに反映
+        ApplySoundSettings();
     }
 
     /// <summary>
@@ -547,6 +550,18 @@ public class GameUIManager : MonoBehaviour
         {
             gameManager.CharacterTracker.SetCameraInvertY(gameSettings.CameraInvertY);
             gameManager.CharacterTracker.SetMouseSensitivity(gameSettings.MouseSensitivity / 100f);
+        }
+    }
+
+    /// <summary>
+    /// サウンド設定をSoundManagerに反映
+    /// </summary>
+    private void ApplySoundSettings()
+    {
+        if (gameManager?.SoundManager != null)
+        {
+            gameManager.SoundManager.SetBGMVolume(gameSettings.BGMVolume);
+            gameManager.SoundManager.SetSEVolume(gameSettings.SEVolume);
         }
     }
 
@@ -582,8 +597,11 @@ public class GameUIManager : MonoBehaviour
             bgmVolumeText.text = $"{value * 100f:F0}%";
         }
 
-        // TODO: AudioManagerに反映
-        // gameManager.AudioManager.SetBGMVolume(value);
+        // SoundManagerに反映
+        if (gameManager?.SoundManager != null)
+        {
+            gameManager.SoundManager.SetBGMVolume(value);
+        }
     }
 
     /// <summary>
@@ -599,8 +617,11 @@ public class GameUIManager : MonoBehaviour
             seVolumeText.text = $"{value * 100f:F0}%";
         }
 
-        // TODO: AudioManagerに反映
-        // gameManager.AudioManager.SetSEVolume(value);
+        // SoundManagerに反映
+        if (gameManager?.SoundManager != null)
+        {
+            gameManager.SoundManager.SetSEVolume(value);
+        }
     }
 
     /// <summary>

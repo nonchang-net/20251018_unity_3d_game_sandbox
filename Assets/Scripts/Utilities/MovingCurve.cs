@@ -122,7 +122,7 @@ public class MovingCurve : MonoBehaviour
         UpdatePosition(currentPathPosition);
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // 待機中の処理（PingPongLoopモード時）
         if (isWaiting)

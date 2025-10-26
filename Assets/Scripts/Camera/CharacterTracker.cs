@@ -27,7 +27,7 @@ public class CharacterTracker : MonoBehaviour
     [SerializeField] private float collisionSmoothSpeed = 10f;
 
     [Header("カメラスムージング")]
-    [SerializeField] private float positionSmoothSpeed = 10f;
+    [SerializeField] private float positionSmoothSpeed = 15f;
     [SerializeField] private float minDistanceThreshold = 0.5f;
 
     [Header("カメラリセット設定")]
@@ -87,7 +87,6 @@ public class CharacterTracker : MonoBehaviour
         float lookY = lookInput.y * mouseSensitivityMultiplier;
 
         // 上下反転の適用
-        // マウスとgamepadで感覚が逆な気がする？
         float verticalMultiplier = invertVerticalAxis ? 1f : -1f;
 
         // 入力を合成
@@ -178,7 +177,11 @@ public class CharacterTracker : MonoBehaviour
 
         // カメラの位置と向きを設定
         transform.position = currentCameraPosition;
-        transform.LookAt(targetPosition);
+
+        // カメラの回転をスムージング（旧実装: transform.LookAt(targetPosition);）
+        Quaternion targetRotation = Quaternion.LookRotation(targetPosition - transform.position);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
+            Time.deltaTime * positionSmoothSpeed);
     }
 
     /// <summary>

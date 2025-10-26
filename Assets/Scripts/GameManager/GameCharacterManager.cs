@@ -245,6 +245,12 @@ public class GameCharacterManager : MonoBehaviour
 
     void FixedUpdate()
     {
+        // MovingPlatform追従処理（物理演算と同期させるためFixedUpdateで実行）
+        if (implementationType != CharacterImplementationType.None && targetCharacter != null)
+        {
+            HandlePlatformMovement();
+        }
+
         // Rigidbody実装の場合は地面判定を更新
         if (implementationType == CharacterImplementationType.RigidbodyAndCollider)
         {
@@ -279,8 +285,7 @@ public class GameCharacterManager : MonoBehaviour
     /// </summary>
     void HandleMovementCharacterController()
     {
-        // MovingPlatform追従処理
-        HandlePlatformMovement();
+        // MovingPlatform追従処理はFixedUpdate()で実行されるため、ここでは呼び出さない
 
         // ジャンプ処理（移動処理の前に実行）
         if (requestJump && characterController.isGrounded && !isCrouched)
@@ -369,8 +374,7 @@ public class GameCharacterManager : MonoBehaviour
     /// </summary>
     void HandleMovementRigidbody()
     {
-        // MovingPlatform追従処理
-        HandlePlatformMovement();
+        // MovingPlatform追従処理はFixedUpdate()で実行されるため、ここでは呼び出さない
 
         // ジャンプ処理
         if (requestJump && isGroundedRigidbody && !isCrouched)

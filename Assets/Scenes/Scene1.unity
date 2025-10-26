@@ -6437,23 +6437,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterTracker
   targetTransform: {fileID: 2030898926}
-  cameraDistance: 2.5
-  cameraHeight: 1
+  trackingSetting: {fileID: 0}
   invertVerticalAxis: 1
   mouseSensitivityMultiplier: 1
-  minPitch: -80
-  maxPitch: 50
-  initialPitch: -20
-  enableCollisionAvoidance: 1
-  cameraRadius: 0.3
-  collisionLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  collisionSmoothSpeed: 10
-  positionSmoothSpeed: 15
-  minDistanceThreshold: 0.5
-  resetPitchOnReset: 1
-  resetPitchAngle: -40
 --- !u!1 &988643876
 GameObject:
   m_ObjectHideFlags: 0
@@ -11913,6 +11899,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   gameManager: {fileID: 336688785}
   currentCamera: {fileID: 961739752}
+  togglableTrackingSettings:
+  - {fileID: 11400000, guid: 7a4cedd195242458899c3e0fc8869303, type: 2}
+  - {fileID: 11400000, guid: d5b58ca9ee6eb4b1f87062871ba73b6c, type: 2}
+  - {fileID: 11400000, guid: 7a4cedd195242458899c3e0fc8869303, type: 2}
+  - {fileID: 11400000, guid: 334054f1944634ead8f1ee3d6052e41d, type: 2}
 --- !u!1001 &2003142919
 PrefabInstance:
   m_ObjectHideFlags: 0

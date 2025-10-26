@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e298b26d0c4a741e7b054ffad2026204, type: 3}
   m_Name: TrackingSetting 2 Middle
   m_EditorClassIdentifier: Assembly-CSharp::TrackingSetting
-  cameraDistance: 1.6
+  cameraDistance: 3
   cameraHeight: 0.8
-  minPitch: -30
+  minPitch: -89
   maxPitch: 70
   initialPitch: -40
   enableCollisionAvoidance: 1

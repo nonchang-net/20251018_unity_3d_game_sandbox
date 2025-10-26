@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TrackingSetting
   cameraDistance: 1.6
   cameraHeight: 0.8
-  minPitch: -30
+  minPitch: -89
   maxPitch: 70
   initialPitch: -40
   enableCollisionAvoidance: 1

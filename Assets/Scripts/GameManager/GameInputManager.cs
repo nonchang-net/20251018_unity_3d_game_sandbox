@@ -156,13 +156,13 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     {
         if (context.ReadValue<float>() < 0.5f) return;
 
+        // ポーズ状態をトグル（UIは自動的に更新される）
         gameManager.TimeManager.TogglePause();
-        gameManager.UIManager.TogglePauseMenu();
 
-        // マウスカーソル制御
-        bool isMenuVisible = gameManager.UIManager.IsPauseMenuVisible;
+        // マウスカーソル制御（IsPausedの状態を直接参照）
+        bool isPaused = gameManager.StateManager.State.IsPaused.CurrentValue;
 
-        if (isMenuVisible)
+        if (isPaused)
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -172,7 +172,6 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
-        
     }
 
     // -----

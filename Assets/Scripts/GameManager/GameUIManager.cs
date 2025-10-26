@@ -98,11 +98,8 @@ public class GameUIManager : MonoBehaviour
     /// <summary>現在実行中のポーズメニューフェード処理のキャンセレーショントークン</summary>
     private CancellationTokenSource pauseMenuFadeCts = null;
 
-    /// <summary>ポーズメニューが表示されているかどうか</summary>
-    private bool isPauseMenuVisible = false;
-
-    /// <summary>ポーズメニューが表示されているかどうかを外部から参照可能にする</summary>
-    public bool IsPauseMenuVisible => isPauseMenuVisible;
+    /// <summary>ポーズメニューが表示されているかどうかを外部から参照可能にする（GameStateManager.IsPausedを参照）</summary>
+    public bool IsPauseMenuVisible => gameManager?.StateManager?.State?.IsPaused?.CurrentValue ?? false;
 
     /// <summary>ゲーム設定</summary>
     private GameSettings gameSettings;
@@ -167,12 +164,26 @@ public class GameUIManager : MonoBehaviour
             UpdateHitpointGuage(damageInfo.CurrentHp);
         });
 
+        // ポーズ状態変動購読（ポーズメニュー表示制御）
+        var pauseSubscriber = gameManager.StateManager.State.IsPaused.Subscribe(isPaused =>
+        {
+            if (isPaused)
+            {
+                ShowPauseMenuInternal();
+            }
+            else
+            {
+                HidePauseMenuInternal();
+            }
+        });
+
         // disposable登録
         disposable = Disposable.Combine(
             coinSubscriber,
             totalCoinSubscriber,
             hitpointSubscriber,
-            damageSubscriber
+            damageSubscriber,
+            pauseSubscriber
         );
     }
 
@@ -311,22 +322,15 @@ public class GameUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ポーズメニューを表示する
+    /// ポーズメニューを表示する（内部用：IsPaused購読から呼ばれる）
     /// </summary>
-    public void ShowPauseMenu()
+    private void ShowPauseMenuInternal()
     {
         if (pauseMenu == null || pauseMenuCanvasGroup == null)
         {
             Debug.LogWarning("GameUIManager: pauseMenuまたはpauseMenuCanvasGroupが設定されていません。");
             return;
         }
-
-        if (isPauseMenuVisible)
-        {
-            return; // 既に表示中
-        }
-
-        isPauseMenuVisible = true;
 
         // ポーズメニューをアクティブ化
         pauseMenu.SetActive(true);
@@ -341,21 +345,14 @@ public class GameUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ポーズメニューを非表示にする
+    /// ポーズメニューを非表示にする（内部用：IsPaused購読から呼ばれる）
     /// </summary>
-    public void HidePauseMenu()
+    private void HidePauseMenuInternal()
     {
         if (pauseMenu == null || pauseMenuCanvasGroup == null)
         {
             return;
         }
-
-        if (!isPauseMenuVisible)
-        {
-            return; // 既に非表示
-        }
-
-        isPauseMenuVisible = false;
 
         // 既存のフェードを停止
         pauseMenuFadeCts?.Cancel();
@@ -367,18 +364,11 @@ public class GameUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ポーズメニューの表示状態をトグルする
+    /// ポーズメニューの表示状態をトグルする（GameStateManager.TogglePause()を呼ぶ）
     /// </summary>
     public void TogglePauseMenu()
     {
-        if (isPauseMenuVisible)
-        {
-            HidePauseMenu();
-        }
-        else
-        {
-            ShowPauseMenu();
-        }
+        gameManager.StateManager.TogglePause();
     }
 
     /// <summary>
@@ -649,11 +639,12 @@ public class GameUIManager : MonoBehaviour
     /// </summary>
     private void OnResumeClicked()
     {
+        // ポーズ解除（UIは自動的に非表示になる）
         gameManager.TimeManager.Unpause();
-        // note: GameInputManager.csに一元管理させた方が良いかもしれない? (OnTogglePauseとメソッドを分ける？)
+
+        // マウスカーソルをロック
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        HidePauseMenu();
     }
 
     /// <summary>

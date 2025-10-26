@@ -145,6 +145,16 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
         gameManager.CharacterManager.SetSprintRequest(context.ReadValue<float>() > 0.5f);
     }
 
+    public void OnToggleZoomMode(InputAction.CallbackContext context)
+    {
+        if (context.ReadValue<float>() > 0.5f)
+        {
+            // カメラビュー切り替えをリクエスト
+            gameManager.StateManager.RequestNextCameraView();
+        }
+
+    }
+
     public void OnResetCamera(InputAction.CallbackContext context)
     {
         gameManager.CharacterTracker.ResetCamera();

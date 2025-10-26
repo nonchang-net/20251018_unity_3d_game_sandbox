@@ -190,6 +190,14 @@ public class GameStateManager : MonoBehaviour
     {
         state.CurrentCameraState.Value = cameraState;
     }
+
+    /// <summary>
+    /// カメラ切り替えをリクエストする
+    /// </summary>
+    public void RequestNextCameraView()
+    {
+        state.OnCameraViewChangeRequested.OnNext(Unit.Default);
+    }
 }
 
 
@@ -369,6 +377,11 @@ public class GameState
     /// </summary>
     public ReactiveProperty<CameraState> CurrentCameraState { get; private set; }
 
+    /// <summary>
+    /// カメラビュー切り替えがリクエストされたときに発火するSubject
+    /// </summary>
+    public Subject<Unit> OnCameraViewChangeRequested { get; private set; }
+
     public GameState(int initialHp)
     {
         CurrentCoin = new ReactiveProperty<int>(0);
@@ -382,6 +395,7 @@ public class GameState
         OnCoinGenerated = new Subject<CoinGeneratedInfo>();
         OnCheckPointActivated = new Subject<CheckPointActivatedInfo>();
         OnHighJump = new Subject<HighJumpInfo>();
+        OnCameraViewChangeRequested = new Subject<Unit>();
         ActivatedCheckPoints = new System.Collections.Generic.List<CheckPoint>();
         IsPaused = new ReactiveProperty<bool>(false);
         CurrentTimeScale = new ReactiveProperty<float>(1f);

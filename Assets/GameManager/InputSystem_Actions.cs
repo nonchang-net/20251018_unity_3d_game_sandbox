@@ -181,6 +181,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Toggle Zoom Mode"",
+                    ""type"": ""Button"",
+                    ""id"": ""669a909a-d1cb-4ea9-9400-df1f99fa7305"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -511,6 +520,39 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Toggle SlowMotion"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0ea1e037-ac26-4fee-822a-190e59b4328f"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle Zoom Mode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a6218946-9b46-495e-960f-fa74c196212d"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle Zoom Mode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cb35bfa0-3e6c-4fd6-8c21-fe36b6c707dd"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": ""Tap"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle Zoom Mode"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1108,6 +1150,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_LoadVRMFile = m_Player.FindAction("LoadVRMFile", throwIfNotFound: true);
         m_Player_TogglePause = m_Player.FindAction("Toggle Pause", throwIfNotFound: true);
         m_Player_ToggleSlowMotion = m_Player.FindAction("Toggle SlowMotion", throwIfNotFound: true);
+        m_Player_ToggleZoomMode = m_Player.FindAction("Toggle Zoom Mode", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1211,6 +1254,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_LoadVRMFile;
     private readonly InputAction m_Player_TogglePause;
     private readonly InputAction m_Player_ToggleSlowMotion;
+    private readonly InputAction m_Player_ToggleZoomMode;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1262,6 +1306,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleSlowMotion".
         /// </summary>
         public InputAction @ToggleSlowMotion => m_Wrapper.m_Player_ToggleSlowMotion;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleZoomMode".
+        /// </summary>
+        public InputAction @ToggleZoomMode => m_Wrapper.m_Player_ToggleZoomMode;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1318,6 +1366,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ToggleSlowMotion.started += instance.OnToggleSlowMotion;
             @ToggleSlowMotion.performed += instance.OnToggleSlowMotion;
             @ToggleSlowMotion.canceled += instance.OnToggleSlowMotion;
+            @ToggleZoomMode.started += instance.OnToggleZoomMode;
+            @ToggleZoomMode.performed += instance.OnToggleZoomMode;
+            @ToggleZoomMode.canceled += instance.OnToggleZoomMode;
         }
 
         /// <summary>
@@ -1359,6 +1410,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ToggleSlowMotion.started -= instance.OnToggleSlowMotion;
             @ToggleSlowMotion.performed -= instance.OnToggleSlowMotion;
             @ToggleSlowMotion.canceled -= instance.OnToggleSlowMotion;
+            @ToggleZoomMode.started -= instance.OnToggleZoomMode;
+            @ToggleZoomMode.performed -= instance.OnToggleZoomMode;
+            @ToggleZoomMode.canceled -= instance.OnToggleZoomMode;
         }
 
         /// <summary>
@@ -1729,6 +1783,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleSlowMotion(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Toggle Zoom Mode" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleZoomMode(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

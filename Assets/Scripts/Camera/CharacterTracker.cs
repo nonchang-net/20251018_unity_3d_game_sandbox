@@ -9,32 +9,30 @@ public class CharacterTracker : MonoBehaviour
     [Header("ターゲット設定")]
     [SerializeField] private Transform targetTransform; // 追跡対象（プレイヤー）
 
-    [Header("カメラ設定")]
-    [SerializeField] private float cameraDistance = 6f;
-    [SerializeField] private float cameraHeight = 2f;
+    [Header("トラッキング設定")]
+    [Tooltip("カメラトラッキングの設定（ScriptableObject）")]
+    [SerializeField] private TrackingSetting trackingSetting;
+
+    [Header("プレイヤー設定（ポーズメニューから変更可能）")]
+    [Tooltip("上下カメラ操作方向反転")]
     [SerializeField] private bool invertVerticalAxis = false;
-    [SerializeField] private float mouseSensitivityMultiplier = 1f; // マウス感度倍率
+    [Tooltip("マウス感度倍率")]
+    [SerializeField] private float mouseSensitivityMultiplier = 1f;
 
-    [Header("カメラ制限")]
-    [SerializeField] private float minPitch = -30f;
-    [SerializeField] private float maxPitch = 70f;
-    [SerializeField] private float initialPitch = -40f; // 初期カメラ角度
-
-    [Header("障害物回避")]
-    [SerializeField] private bool enableCollisionAvoidance = true;
-    [SerializeField] private float cameraRadius = 0.3f;
-    [SerializeField] private LayerMask collisionLayers = -1;
-    [SerializeField] private float collisionSmoothSpeed = 10f;
-
-    [Header("カメラスムージング")]
-    [SerializeField] private float positionSmoothSpeed = 15f;
-    [SerializeField] private float minDistanceThreshold = 0.5f;
-
-    [Header("カメラリセット設定")]
-    [Tooltip("カメラリセット時にピッチ（上下角度）もリセットするか")]
-    [SerializeField] private bool resetPitchOnReset = true;
-    [Tooltip("カメラリセット時の目標ピッチ角度（resetPitchOnResetがtrueの場合のみ使用）")]
-    [SerializeField] private float resetPitchAngle = -40f;
+    // TrackingSettingから取得するプロパティ
+    private float cameraDistance => trackingSetting != null ? trackingSetting.CameraDistance : 6f;
+    private float cameraHeight => trackingSetting != null ? trackingSetting.CameraHeight : 2f;
+    private float minPitch => trackingSetting != null ? trackingSetting.MinPitch : -30f;
+    private float maxPitch => trackingSetting != null ? trackingSetting.MaxPitch : 70f;
+    private float initialPitch => trackingSetting != null ? trackingSetting.InitialPitch : -40f;
+    private bool enableCollisionAvoidance => trackingSetting != null ? trackingSetting.EnableCollisionAvoidance : true;
+    private float cameraRadius => trackingSetting != null ? trackingSetting.CameraRadius : 0.3f;
+    private LayerMask collisionLayers => trackingSetting != null ? trackingSetting.CollisionLayers : -1;
+    private float collisionSmoothSpeed => trackingSetting != null ? trackingSetting.CollisionSmoothSpeed : 10f;
+    private float positionSmoothSpeed => trackingSetting != null ? trackingSetting.PositionSmoothSpeed : 15f;
+    private float minDistanceThreshold => trackingSetting != null ? trackingSetting.MinDistanceThreshold : 0.5f;
+    private bool resetPitchOnReset => trackingSetting != null ? trackingSetting.ResetPitchOnReset : true;
+    private float resetPitchAngle => trackingSetting != null ? trackingSetting.ResetPitchAngle : -40f;
 
     // カメラ回転角度
     private float cameraYaw = 0f;
@@ -213,11 +211,26 @@ public class CharacterTracker : MonoBehaviour
     }
 
     /// <summary>
-    /// カメラの距離を設定
+    /// トラッキング設定を変更
     /// </summary>
-    public void SetCameraDistance(float distance)
+    /// <param name="newSetting">新しいトラッキング設定</param>
+    public void SetTrackingSetting(TrackingSetting newSetting)
     {
-        cameraDistance = Mathf.Max(1f, distance);
+        trackingSetting = newSetting;
+
+        // 設定変更時にカメラ距離を再初期化
+        if (trackingSetting != null)
+        {
+            currentCameraDistance = trackingSetting.CameraDistance;
+        }
+    }
+
+    /// <summary>
+    /// 現在のトラッキング設定を取得
+    /// </summary>
+    public TrackingSetting GetTrackingSetting()
+    {
+        return trackingSetting;
     }
 
     /// <summary>

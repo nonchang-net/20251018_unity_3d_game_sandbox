@@ -47,6 +47,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CharacterTracker characterTracker;
     public CharacterTracker CharacterTracker => characterTracker;
 
+    [Header("水面設定")]
+    [Tooltip("水面の高さを示すTransform（未設定の場合はY=0以下を水面とする）")]
+    [SerializeField] private Transform waterSurfaceTransform;
+
+    /// <summary>水面の高さを取得（未設定の場合は0を返す）</summary>
+    public float WaterSurfaceHeight => waterSurfaceTransform != null ? waterSurfaceTransform.position.y : 0f;
+
     [Header("リスポーン設定")]
     [Tooltip("レベルのチェックポイント管理（設定されている場合はこちらを優先使用）")]
     [SerializeField] private LevelCheckPointManager levelCheckPointManager;

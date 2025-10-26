@@ -62,6 +62,19 @@ public class GamePostProcessManager : MonoBehaviour
     [Tooltip("暗転アニメーションの長さ（秒）")]
     [SerializeField] private float deadFadeDuration = 1.0f;
 
+    [Header("水中効果設定")]
+    [SerializeField] private bool enableWaterEffect = true;
+    [Tooltip("水中時のカラーフィルター色（青緑色）")]
+    [SerializeField] private Color waterColor = new Color(0.01f, 0.9f, 0.28f, 1f);
+    [Tooltip("水中時のカラーフィルター強度")]
+    [SerializeField] private float waterColorIntensity = 0.6f;
+    [Tooltip("水中時のビネット強度")]
+    [SerializeField] private float waterVignetteIntensity = 0.8f;
+    [Tooltip("水中効果の揺らぎ周期（秒）")]
+    [SerializeField] private float waterWaveCycle = 5.0f;
+    [Tooltip("水中効果の揺らぎ強度")]
+    [SerializeField] private float waterWaveIntensity = 0.3f;
+
     // ポストプロセッシングコンポーネント
     private LensDistortion lensDistortion;
     private Vignette vignette;
@@ -87,10 +100,15 @@ public class GamePostProcessManager : MonoBehaviour
     private float deadFadeWaitTimer = 0f;       // 暗転開始までの待機タイマー
     private float deadFadeProgress = 0f;
 
+    // 水中効果制御
+    private bool isInWater = false;
+    private float waterEffectTime = 0f;
+
     // R3購読管理
     private IDisposable damageSubscription;
     private IDisposable cautionSubscription;
     private IDisposable deadSubscription;
+    private IDisposable cameraStateSubscription;
 
     void Start()
     {
@@ -98,6 +116,7 @@ public class GamePostProcessManager : MonoBehaviour
         SubscribeDamageEvents();
         SubscribeCautionEvents();
         SubscribeDeadEvents();
+        SubscribeCameraStateEvents();
     }
 
     /// <summary>
@@ -142,6 +161,30 @@ public class GamePostProcessManager : MonoBehaviour
             if (isDead && enableDeadFade)
             {
                 StartDeadFade();
+            }
+        });
+    }
+
+    /// <summary>
+    /// カメラ状態変更イベントを購読
+    /// </summary>
+    void SubscribeCameraStateEvents()
+    {
+        cameraStateSubscription = gameManager.StateManager.State.CurrentCameraState.Subscribe(cameraState =>
+        {
+            // 水中状態の更新
+            isInWater = (cameraState == CameraState.InWater);
+
+            // 水中状態から抜けた場合は、効果をリセット
+            if (!isInWater && enableWaterEffect && colorAdjustments != null && vignette != null)
+            {
+                // ダメージフラッシュや警告点滅中でない場合のみリセット
+                if (!isDamageFlashing && !isCautionMode && !isDeadFading)
+                {
+                    colorAdjustments.colorFilter.value = Color.white;
+                    vignette.intensity.value = normalVignetteIntensity;
+                }
+                waterEffectTime = 0f;
             }
         });
     }
@@ -213,6 +256,7 @@ public class GamePostProcessManager : MonoBehaviour
         UpdateDamageFlash();
         UpdateCautionBlink();
         UpdateDeadFade();
+        UpdateWaterEffect();
     }
 
     void OnDestroy()
@@ -221,6 +265,7 @@ public class GamePostProcessManager : MonoBehaviour
         damageSubscription?.Dispose();
         cautionSubscription?.Dispose();
         deadSubscription?.Dispose();
+        cameraStateSubscription?.Dispose();
     }
 
     /// <summary>
@@ -458,6 +503,34 @@ public class GamePostProcessManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 水中効果を更新
+    /// </summary>
+    void UpdateWaterEffect()
+    {
+        if (!enableWaterEffect || !isInWater || colorAdjustments == null || vignette == null) return;
+
+        // ダメージフラッシュ中、警告点滅中、死亡フェード中は水中効果を適用しない
+        if (isDamageFlashing || isCautionMode || isDeadFading) return;
+
+        // 時間を更新
+        waterEffectTime += Time.deltaTime;
+
+        // サイン波で揺らぎを作成（0〜1の範囲）
+        float wave = Mathf.Sin(waterEffectTime * Mathf.PI * 2f / waterWaveCycle);
+        wave = (wave + 1f) * 0.5f; // -1〜1 を 0〜1 に変換
+
+        // 揺らぎ強度を計算
+        float waveEffect = Mathf.Lerp(1f - waterWaveIntensity, 1f + waterWaveIntensity, wave);
+
+        // カラーフィルターを適用（水の色）
+        Color currentWaterColor = Color.Lerp(Color.white, waterColor, waterColorIntensity * waveEffect);
+        colorAdjustments.colorFilter.value = currentWaterColor;
+
+        // ビネット強度を適用（水中の暗さ）
+        vignette.intensity.value = Mathf.Lerp(normalVignetteIntensity, waterVignetteIntensity, waveEffect);
+    }
+
+    /// <summary>
     /// 特定のエフェクトのON/OFFを切り替え
     /// </summary>
     public void SetEffectEnabled(string effectName, bool enabled)
@@ -485,6 +558,9 @@ public class GamePostProcessManager : MonoBehaviour
                 break;
             case "cautionblink":
                 enableCautionBlink = enabled;
+                break;
+            case "watereffect":
+                enableWaterEffect = enabled;
                 break;
         }
     }

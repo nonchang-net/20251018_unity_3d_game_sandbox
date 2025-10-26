@@ -1,6 +1,21 @@
 using UnityEngine;
 using R3;
 
+/// <summary>
+/// カメラの状態を表すenum
+/// </summary>
+public enum CameraState
+{
+    /// <summary>通常状態</summary>
+    Normal,
+    /// <summary>【未実装】ホワイトアウト状態</summary>
+    // WhiteOut,
+    /// <summary>【未実装】ブラックアウト状態</summary>
+    // BlackOut,
+    /// <summary>水中状態</summary>
+    InWater
+}
+
 public class GameStateManager : MonoBehaviour
 {
 
@@ -165,6 +180,15 @@ public class GameStateManager : MonoBehaviour
     public void SetTimeScale(float timeScale)
     {
         state.CurrentTimeScale.Value = Mathf.Max(0f, timeScale);
+    }
+
+    /// <summary>
+    /// カメラの状態を設定する
+    /// </summary>
+    /// <param name="cameraState">設定するカメラ状態</param>
+    public void SetCameraState(CameraState cameraState)
+    {
+        state.CurrentCameraState.Value = cameraState;
     }
 }
 
@@ -340,6 +364,11 @@ public class GameState
     /// </summary>
     public ReactiveProperty<float> CurrentTimeScale { get; private set; }
 
+    /// <summary>
+    /// 現在のカメラ状態
+    /// </summary>
+    public ReactiveProperty<CameraState> CurrentCameraState { get; private set; }
+
     public GameState(int initialHp)
     {
         CurrentCoin = new ReactiveProperty<int>(0);
@@ -356,5 +385,6 @@ public class GameState
         ActivatedCheckPoints = new System.Collections.Generic.List<CheckPoint>();
         IsPaused = new ReactiveProperty<bool>(false);
         CurrentTimeScale = new ReactiveProperty<float>(1f);
+        CurrentCameraState = new ReactiveProperty<CameraState>(CameraState.Normal);
     }
 }

@@ -19,20 +19,36 @@ public class CharacterTracker : MonoBehaviour
     [Tooltip("マウス感度倍率")]
     [SerializeField] private float mouseSensitivityMultiplier = 1f;
 
-    // TrackingSettingから取得するプロパティ
-    private float cameraDistance => trackingSetting != null ? trackingSetting.CameraDistance : 6f;
-    private float cameraHeight => trackingSetting != null ? trackingSetting.CameraHeight : 2f;
-    private float minPitch => trackingSetting != null ? trackingSetting.MinPitch : -30f;
-    private float maxPitch => trackingSetting != null ? trackingSetting.MaxPitch : 70f;
-    private float initialPitch => trackingSetting != null ? trackingSetting.InitialPitch : -40f;
-    private bool enableCollisionAvoidance => trackingSetting != null ? trackingSetting.EnableCollisionAvoidance : true;
-    private float cameraRadius => trackingSetting != null ? trackingSetting.CameraRadius : 0.3f;
-    private LayerMask collisionLayers => trackingSetting != null ? trackingSetting.CollisionLayers : -1;
-    private float collisionSmoothSpeed => trackingSetting != null ? trackingSetting.CollisionSmoothSpeed : 10f;
-    private float positionSmoothSpeed => trackingSetting != null ? trackingSetting.PositionSmoothSpeed : 15f;
-    private float minDistanceThreshold => trackingSetting != null ? trackingSetting.MinDistanceThreshold : 0.5f;
-    private bool resetPitchOnReset => trackingSetting != null ? trackingSetting.ResetPitchOnReset : true;
-    private float resetPitchAngle => trackingSetting != null ? trackingSetting.ResetPitchAngle : -40f;
+    // トランジション用のオーバーライド値
+    private bool useOverrideValues = false;
+    private float overrideCameraDistance;
+    private float overrideCameraHeight;
+    private float overrideMinPitch;
+    private float overrideMaxPitch;
+    private float overrideInitialPitch;
+    private bool overrideEnableCollisionAvoidance;
+    private float overrideCameraRadius;
+    private LayerMask overrideCollisionLayers;
+    private float overrideCollisionSmoothSpeed;
+    private float overridePositionSmoothSpeed;
+    private float overrideMinDistanceThreshold;
+    private bool overrideResetPitchOnReset;
+    private float overrideResetPitchAngle;
+
+    // TrackingSettingから取得するプロパティ（オーバーライド対応）
+    private float cameraDistance => useOverrideValues ? overrideCameraDistance : (trackingSetting != null ? trackingSetting.CameraDistance : 6f);
+    private float cameraHeight => useOverrideValues ? overrideCameraHeight : (trackingSetting != null ? trackingSetting.CameraHeight : 2f);
+    private float minPitch => useOverrideValues ? overrideMinPitch : (trackingSetting != null ? trackingSetting.MinPitch : -30f);
+    private float maxPitch => useOverrideValues ? overrideMaxPitch : (trackingSetting != null ? trackingSetting.MaxPitch : 70f);
+    private float initialPitch => useOverrideValues ? overrideInitialPitch : (trackingSetting != null ? trackingSetting.InitialPitch : -40f);
+    private bool enableCollisionAvoidance => useOverrideValues ? overrideEnableCollisionAvoidance : (trackingSetting != null ? trackingSetting.EnableCollisionAvoidance : true);
+    private float cameraRadius => useOverrideValues ? overrideCameraRadius : (trackingSetting != null ? trackingSetting.CameraRadius : 0.3f);
+    private LayerMask collisionLayers => useOverrideValues ? overrideCollisionLayers : (trackingSetting != null ? trackingSetting.CollisionLayers : -1);
+    private float collisionSmoothSpeed => useOverrideValues ? overrideCollisionSmoothSpeed : (trackingSetting != null ? trackingSetting.CollisionSmoothSpeed : 10f);
+    private float positionSmoothSpeed => useOverrideValues ? overridePositionSmoothSpeed : (trackingSetting != null ? trackingSetting.PositionSmoothSpeed : 15f);
+    private float minDistanceThreshold => useOverrideValues ? overrideMinDistanceThreshold : (trackingSetting != null ? trackingSetting.MinDistanceThreshold : 0.5f);
+    private bool resetPitchOnReset => useOverrideValues ? overrideResetPitchOnReset : (trackingSetting != null ? trackingSetting.ResetPitchOnReset : true);
+    private float resetPitchAngle => useOverrideValues ? overrideResetPitchAngle : (trackingSetting != null ? trackingSetting.ResetPitchAngle : -40f);
 
     // カメラ回転角度
     private float cameraYaw = 0f;
@@ -218,6 +234,9 @@ public class CharacterTracker : MonoBehaviour
     {
         trackingSetting = newSetting;
 
+        // オーバーライドを解除
+        useOverrideValues = false;
+
         // 設定変更時にカメラ距離を再初期化
         if (trackingSetting != null)
         {
@@ -231,6 +250,51 @@ public class CharacterTracker : MonoBehaviour
     public TrackingSetting GetTrackingSetting()
     {
         return trackingSetting;
+    }
+
+    /// <summary>
+    /// トランジション用の一時的な設定値を適用
+    /// </summary>
+    public void SetTransitionValues(
+        float distance,
+        float height,
+        float minPitchValue,
+        float maxPitchValue,
+        float initialPitchValue,
+        bool collisionAvoidance,
+        float radius,
+        LayerMask layers,
+        float collisionSmooth,
+        float positionSmooth,
+        float minDistance,
+        bool resetPitch,
+        float resetPitchValue)
+    {
+        useOverrideValues = true;
+        overrideCameraDistance = distance;
+        overrideCameraHeight = height;
+        overrideMinPitch = minPitchValue;
+        overrideMaxPitch = maxPitchValue;
+        overrideInitialPitch = initialPitchValue;
+        overrideEnableCollisionAvoidance = collisionAvoidance;
+        overrideCameraRadius = radius;
+        overrideCollisionLayers = layers;
+        overrideCollisionSmoothSpeed = collisionSmooth;
+        overridePositionSmoothSpeed = positionSmooth;
+        overrideMinDistanceThreshold = minDistance;
+        overrideResetPitchOnReset = resetPitch;
+        overrideResetPitchAngle = resetPitchValue;
+
+        // カメラ距離の更新
+        currentCameraDistance = distance;
+    }
+
+    /// <summary>
+    /// トランジション用のオーバーライドを解除
+    /// </summary>
+    public void ClearTransitionOverride()
+    {
+        useOverrideValues = false;
     }
 
     /// <summary>

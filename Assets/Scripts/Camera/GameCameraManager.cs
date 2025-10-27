@@ -20,6 +20,12 @@ public class GameCameraManager : MonoBehaviour
     [Tooltip("切り替え可能なトラッキング設定の配列")]
     [SerializeField] private TrackingSetting[] togglableTrackingSettings;
 
+    [Header("Transition Settings")]
+    [Tooltip("設定切り替え時にスムージングを有効にする")]
+    [SerializeField] private bool enableTransitionAnimation = true;
+    [Tooltip("設定切り替えのアニメーション時間（秒）")]
+    [SerializeField] private float transitionDuration = 0.5f;
+
     /// <summary>前フレームのカメラ状態</summary>
     private CameraState previousCameraState = CameraState.Normal;
 
@@ -28,6 +34,12 @@ public class GameCameraManager : MonoBehaviour
 
     /// <summary>R3購読管理</summary>
     private IDisposable cameraViewChangeSubscription;
+
+    /// <summary>トランジション制御</summary>
+    private bool isTransitioning = false;
+    private TrackingSetting transitionFromSetting;
+    private TrackingSetting transitionToSetting;
+    private float transitionProgress = 0f;
 
     void Start()
     {
@@ -69,6 +81,12 @@ public class GameCameraManager : MonoBehaviour
     {
         // 水中判定を行い、カメラ状態を更新
         CheckWaterState();
+
+        // トランジション処理
+        if (isTransitioning)
+        {
+            UpdateTransition();
+        }
     }
 
     /// <summary>
@@ -120,11 +138,18 @@ public class GameCameraManager : MonoBehaviour
             return;
         }
 
+        // トランジション中の場合は、現在のトランジションをキャンセルして新しいトランジションを開始
+        if (isTransitioning && enableTransitionAnimation)
+        {
+            // 現在のトランジションを完了させる
+            CompleteTransition();
+        }
+
         // 次のインデックスに進む（ループ）
-        currentTrackingSettingIndex = (currentTrackingSettingIndex + 1) % togglableTrackingSettings.Length;
+        int nextIndex = (currentTrackingSettingIndex + 1) % togglableTrackingSettings.Length;
 
         // 新しい設定を適用
-        ApplyTrackingSetting(currentTrackingSettingIndex);
+        ApplyTrackingSetting(nextIndex);
     }
 
     /// <summary>
@@ -146,15 +171,113 @@ public class GameCameraManager : MonoBehaviour
             return;
         }
 
-        // CharacterTrackerに新しい設定を適用
-        if (gameManager.CharacterTracker != null)
+        if (gameManager.CharacterTracker == null)
         {
-            gameManager.CharacterTracker.SetTrackingSetting(newSetting);
-            Debug.Log($"GameCameraManager: トラッキング設定を '{newSetting.name}' に切り替えました。");
+            Debug.LogError("GameCameraManager: CharacterTracker が見つかりません。");
+            return;
+        }
+
+        // トランジションアニメーションが有効な場合
+        if (enableTransitionAnimation && transitionDuration > 0f)
+        {
+            // 現在の設定を取得
+            TrackingSetting currentSetting = togglableTrackingSettings[currentTrackingSettingIndex];
+            if (currentSetting == null)
+            {
+                // 現在の設定がnullの場合は即座に切り替え
+                gameManager.CharacterTracker.SetTrackingSetting(newSetting);
+                currentTrackingSettingIndex = index;
+                return;
+            }
+
+            // トランジション開始
+            StartTransition(currentSetting, newSetting);
+            currentTrackingSettingIndex = index;
         }
         else
         {
-            Debug.LogError("GameCameraManager: CharacterTracker が見つかりません。");
+            // トランジションなしで即座に切り替え
+            gameManager.CharacterTracker.SetTrackingSetting(newSetting);
+            currentTrackingSettingIndex = index;
+        }
+    }
+
+    /// <summary>
+    /// トランジションを開始
+    /// </summary>
+    private void StartTransition(TrackingSetting fromSetting, TrackingSetting toSetting)
+    {
+        isTransitioning = true;
+        transitionFromSetting = fromSetting;
+        transitionToSetting = toSetting;
+        transitionProgress = 0f;
+    }
+
+    /// <summary>
+    /// トランジションを更新
+    /// </summary>
+    private void UpdateTransition()
+    {
+        if (!isTransitioning) return;
+
+        // 進行度を更新
+        transitionProgress += Time.deltaTime / transitionDuration;
+
+        if (transitionProgress >= 1f)
+        {
+            // トランジション完了
+            CompleteTransition();
+            return;
+        }
+
+        // 設定値を補間
+        float lerpedDistance = Mathf.Lerp(transitionFromSetting.CameraDistance, transitionToSetting.CameraDistance, transitionProgress);
+        float lerpedHeight = Mathf.Lerp(transitionFromSetting.CameraHeight, transitionToSetting.CameraHeight, transitionProgress);
+        float lerpedMinPitch = Mathf.Lerp(transitionFromSetting.MinPitch, transitionToSetting.MinPitch, transitionProgress);
+        float lerpedMaxPitch = Mathf.Lerp(transitionFromSetting.MaxPitch, transitionToSetting.MaxPitch, transitionProgress);
+        float lerpedInitialPitch = Mathf.Lerp(transitionFromSetting.InitialPitch, transitionToSetting.InitialPitch, transitionProgress);
+        float lerpedCameraRadius = Mathf.Lerp(transitionFromSetting.CameraRadius, transitionToSetting.CameraRadius, transitionProgress);
+        float lerpedCollisionSmoothSpeed = Mathf.Lerp(transitionFromSetting.CollisionSmoothSpeed, transitionToSetting.CollisionSmoothSpeed, transitionProgress);
+        float lerpedPositionSmoothSpeed = Mathf.Lerp(transitionFromSetting.PositionSmoothSpeed, transitionToSetting.PositionSmoothSpeed, transitionProgress);
+        float lerpedMinDistanceThreshold = Mathf.Lerp(transitionFromSetting.MinDistanceThreshold, transitionToSetting.MinDistanceThreshold, transitionProgress);
+        float lerpedResetPitchAngle = Mathf.Lerp(transitionFromSetting.ResetPitchAngle, transitionToSetting.ResetPitchAngle, transitionProgress);
+
+        // bool値とLayerMaskは補間せず、中間点で切り替え
+        bool useToSettingBools = transitionProgress >= 0.5f;
+        bool lerpedEnableCollisionAvoidance = useToSettingBools ? transitionToSetting.EnableCollisionAvoidance : transitionFromSetting.EnableCollisionAvoidance;
+        LayerMask lerpedCollisionLayers = useToSettingBools ? transitionToSetting.CollisionLayers : transitionFromSetting.CollisionLayers;
+        bool lerpedResetPitchOnReset = useToSettingBools ? transitionToSetting.ResetPitchOnReset : transitionFromSetting.ResetPitchOnReset;
+
+        // CharacterTrackerに補間された値を適用
+        gameManager.CharacterTracker.SetTransitionValues(
+            lerpedDistance,
+            lerpedHeight,
+            lerpedMinPitch,
+            lerpedMaxPitch,
+            lerpedInitialPitch,
+            lerpedEnableCollisionAvoidance,
+            lerpedCameraRadius,
+            lerpedCollisionLayers,
+            lerpedCollisionSmoothSpeed,
+            lerpedPositionSmoothSpeed,
+            lerpedMinDistanceThreshold,
+            lerpedResetPitchOnReset,
+            lerpedResetPitchAngle
+        );
+    }
+
+    /// <summary>
+    /// トランジションを完了
+    /// </summary>
+    private void CompleteTransition()
+    {
+        isTransitioning = false;
+        transitionProgress = 1f;
+
+        // 最終的な設定を適用
+        if (gameManager.CharacterTracker != null && transitionToSetting != null)
+        {
+            gameManager.CharacterTracker.SetTrackingSetting(transitionToSetting);
         }
     }
 }

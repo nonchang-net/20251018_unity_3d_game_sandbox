@@ -47,6 +47,15 @@ public class GameCharacterManager : MonoBehaviour
     [Tooltip("ノックバック移動の速度")]
     [SerializeField] private float knockbackSpeed = 10f;
 
+
+    [Header("キャラクター生成時に必要なデータ")]
+
+    [Tooltip("操作キャラクター用アニメーションコントローラー")]
+    [SerializeField] private RuntimeAnimatorController characterAnimatorController;
+
+    [Tooltip("操作キャラクター用Physics Material")]
+    [SerializeField] private PhysicsMaterial characterPhysicsMaterial;
+
     /// <summary>
     /// 詳細ログを有効にするかどうか（GameManagerから設定される）
     /// </summary>
@@ -212,6 +221,8 @@ public class GameCharacterManager : MonoBehaviour
 
             // Rigidbodyの設定
             characterRigidbody.freezeRotation = true; // 回転を凍結
+            characterRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // 衝突検出精度を向上
+            characterRigidbody.interpolation = RigidbodyInterpolation.Interpolate; // 移動を滑らかに
             return;
         }
 

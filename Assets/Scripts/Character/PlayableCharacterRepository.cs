@@ -26,10 +26,6 @@ public class PlayableCharacterRepository : MonoBehaviour
     [Tooltip("StreamingAssets内のVRMファイル名")]
     [SerializeField] private string startupVrmFileName = "AliciaSolid.vrm";
 
-    [Header("VRM設定")]
-    [Tooltip("VRMキャラクターに適用するアニメーションコントローラー")]
-    [SerializeField] private RuntimeAnimatorController vrmAnimatorController;
-
     [Header("デバッグ設定")]
     [Tooltip("詳細ログを表示する")]
     [SerializeField] private bool enableVerboseLog = false;
@@ -114,11 +110,26 @@ public class PlayableCharacterRepository : MonoBehaviour
             Debug.Log($"PlayableCharacterRepository: 起動時VRM読み込み開始: {startupVrmFileName}");
         }
 
+        // GameCharacterManagerから設定を取得
+        RuntimeAnimatorController animatorController = gameManager?.CharacterManager?.CharacterAnimatorController;
+        PhysicsMaterial physicsMaterial = gameManager?.CharacterManager?.CharacterPhysicsMaterial;
+
+        if (animatorController == null)
+        {
+            Debug.LogError("PlayableCharacterRepository: GameCharacterManagerのCharacterAnimatorControllerが設定されていません。");
+        }
+
+        if (physicsMaterial == null)
+        {
+            Debug.LogError("PlayableCharacterRepository: GameCharacterManagerのCharacterPhysicsMaterialが設定されていません。");
+        }
+
         // VRMを読み込んでセットアップ
         yield return VRMUtility.LoadAndSetupVrmFromPath(
             vrmPath,
             spawnPosition,
-            vrmAnimatorController,
+            animatorController,
+            physicsMaterial,
             onComplete: (vrmCharacter) =>
             {
                 PrefabUtility.SetupGameManagedComponent(gameManager, vrmCharacter);

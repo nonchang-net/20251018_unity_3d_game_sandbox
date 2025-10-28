@@ -20,10 +20,6 @@ public class VRMLoadManager : MonoBehaviour
     [Tooltip("PlayableCharacterRepository")]
     [SerializeField] private PlayableCharacterRepository characterRepository;
 
-    [Header("VRM設定")]
-    [Tooltip("VRMキャラクターに適用するアニメーションコントローラー")]
-    [SerializeField] private RuntimeAnimatorController vrmAnimatorController;
-
     [Header("デバッグ設定")]
     [Tooltip("詳細ログを表示する")]
     [SerializeField] private bool enableVerboseLog = false;
@@ -139,11 +135,26 @@ public class VRMLoadManager : MonoBehaviour
             Debug.LogWarning("VRMLoadManager: GameManagerまたはDefaultSpawnPointが設定されていません。");
         }
 
+        // GameCharacterManagerから設定を取得
+        RuntimeAnimatorController animatorController = gameManager?.CharacterManager?.CharacterAnimatorController;
+        PhysicsMaterial physicsMaterial = gameManager?.CharacterManager?.CharacterPhysicsMaterial;
+
+        if (animatorController == null)
+        {
+            Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterAnimatorControllerが設定されていません。");
+        }
+
+        if (physicsMaterial == null)
+        {
+            Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterPhysicsMaterialが設定されていません。");
+        }
+
         // VRMを読み込んでセットアップ
         yield return VRMUtility.LoadAndSetupVrmFromPath(
             vrmPath,
             spawnPosition,
-            vrmAnimatorController,
+            animatorController,
+            physicsMaterial,
             onComplete: (vrmCharacter) =>
             {
                 OnVrmLoaded(vrmCharacter);
@@ -247,12 +258,27 @@ public class VRMLoadManager : MonoBehaviour
             Debug.LogWarning("VRMLoadManager: GameManagerまたはDefaultSpawnPointが設定されていません。");
         }
 
+        // GameCharacterManagerから設定を取得
+        RuntimeAnimatorController animatorController = gameManager?.CharacterManager?.CharacterAnimatorController;
+        PhysicsMaterial physicsMaterial = gameManager?.CharacterManager?.CharacterPhysicsMaterial;
+
+        if (animatorController == null)
+        {
+            Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterAnimatorControllerが設定されていません。");
+        }
+
+        if (physicsMaterial == null)
+        {
+            Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterPhysicsMaterialが設定されていません。");
+        }
+
         // バイトデータからVRMを読み込んでセットアップ
         yield return VRMUtility.LoadAndSetupVrmFromBytes(
             vrmData,
             "WebGL.vrm",
             spawnPosition,
-            vrmAnimatorController,
+            animatorController,
+            physicsMaterial,
             onComplete: (vrmCharacter) =>
             {
                 OnVrmLoaded(vrmCharacter);
@@ -332,11 +358,26 @@ public class VRMLoadManager : MonoBehaviour
             Debug.LogWarning("VRMLoadManager: GameManagerまたはDefaultSpawnPointが設定されていません。");
         }
 
+        // GameCharacterManagerから設定を取得
+        RuntimeAnimatorController animatorController = gameManager?.CharacterManager?.CharacterAnimatorController;
+        PhysicsMaterial physicsMaterial = gameManager?.CharacterManager?.CharacterPhysicsMaterial;
+
+        if (animatorController == null)
+        {
+            Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterAnimatorControllerが設定されていません。");
+        }
+
+        if (physicsMaterial == null)
+        {
+            Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterPhysicsMaterialが設定されていません。");
+        }
+
         // VRMを読み込んでセットアップ
         yield return VRMUtility.LoadAndSetupVrmFromPath(
             vrmPath,
             spawnPosition,
-            vrmAnimatorController,
+            animatorController,
+            physicsMaterial,
             onComplete: (vrmCharacter) =>
             {
                 OnVrmLoaded(vrmCharacter);

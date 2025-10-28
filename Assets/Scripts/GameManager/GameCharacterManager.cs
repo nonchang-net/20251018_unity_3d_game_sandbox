@@ -57,6 +57,16 @@ public class GameCharacterManager : MonoBehaviour
     [SerializeField] private PhysicsMaterial characterPhysicsMaterial;
 
     /// <summary>
+    /// 操作キャラクター用AnimatorControllerを取得
+    /// </summary>
+    public RuntimeAnimatorController CharacterAnimatorController => characterAnimatorController;
+
+    /// <summary>
+    /// 操作キャラクター用Physics Materialを取得
+    /// </summary>
+    public PhysicsMaterial CharacterPhysicsMaterial => characterPhysicsMaterial;
+
+    /// <summary>
     /// 詳細ログを有効にするかどうか（GameManagerから設定される）
     /// </summary>
     public static bool EnableVerboseLog { get; set; } = false;

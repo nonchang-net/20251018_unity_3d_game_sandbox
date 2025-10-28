@@ -9709,6 +9709,14 @@ PrefabInstance:
       propertyPath: levelCheckPointManager
       value: 
       objectReference: {fileID: 1012999669}
+    - target: {fileID: 4564789217582180564, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: characterPhysicsMaterial
+      value: 
+      objectReference: {fileID: 13400000, guid: c82d21123f7f44413b278dece4b4dd99, type: 2}
+    - target: {fileID: 4564789217582180564, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: characterAnimatorController
+      value: 
+      objectReference: {fileID: 9100000, guid: d11b4df1626314443a5f0b59bb0b43a6, type: 2}
     - target: {fileID: 5536239534079343053, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: debugCommands.Array.data[0].warpTarget
       value: 

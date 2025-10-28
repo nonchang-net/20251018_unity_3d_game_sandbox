@@ -21,12 +21,14 @@ public static class VRMUtility
     /// <param name="vrmPath">VRMファイルのパス</param>
     /// <param name="spawnPosition">スポーン位置</param>
     /// <param name="animatorController">アニメーションコントローラー</param>
+    /// <param name="physicsMaterial">Physics Material（CapsuleColliderに適用）</param>
     /// <param name="onComplete">完了時のコールバック（読み込まれたGameObjectを渡す）</param>
     /// <param name="onError">エラー時のコールバック（エラーメッセージを渡す）</param>
     public static IEnumerator LoadAndSetupVrmFromPath(
         string vrmPath,
         Vector3 spawnPosition,
         RuntimeAnimatorController animatorController = null,
+        PhysicsMaterial physicsMaterial = null,
         System.Action<GameObject> onComplete = null,
         System.Action<string> onError = null)
     {
@@ -66,7 +68,7 @@ public static class VRMUtility
         LogVrmDebugInfo(vrmCharacter, "LoadAndSetupVrmFromPath");
 
         // VRMキャラクターをセットアップ
-        SetupVrmCharacter(vrmCharacter, spawnPosition, animatorController);
+        SetupVrmCharacter(vrmCharacter, spawnPosition, animatorController, physicsMaterial);
 
         // コンポーネントの追加を確実に反映させるため、複数フレーム待機
         yield return null;
@@ -87,6 +89,7 @@ public static class VRMUtility
     /// <param name="fileName">一時ファイル名</param>
     /// <param name="spawnPosition">スポーン位置</param>
     /// <param name="animatorController">アニメーションコントローラー</param>
+    /// <param name="physicsMaterial">Physics Material（CapsuleColliderに適用）</param>
     /// <param name="onComplete">完了時のコールバック（読み込まれたGameObjectを渡す）</param>
     /// <param name="onError">エラー時のコールバック（エラーメッセージを渡す）</param>
     public static IEnumerator LoadAndSetupVrmFromBytes(
@@ -94,6 +97,7 @@ public static class VRMUtility
         string fileName,
         Vector3 spawnPosition,
         RuntimeAnimatorController animatorController = null,
+        PhysicsMaterial physicsMaterial = null,
         System.Action<GameObject> onComplete = null,
         System.Action<string> onError = null)
     {
@@ -118,7 +122,7 @@ public static class VRMUtility
         }
 
         // LoadAndSetupVrmFromPathを使用して読み込み
-        yield return LoadAndSetupVrmFromPath(tempPath, spawnPosition, animatorController, onComplete, onError);
+        yield return LoadAndSetupVrmFromPath(tempPath, spawnPosition, animatorController, physicsMaterial, onComplete, onError);
     }
 
     /// <summary>
@@ -269,10 +273,12 @@ public static class VRMUtility
     /// <param name="vrmCharacter">VRMキャラクターのGameObject</param>
     /// <param name="spawnPosition">初期位置</param>
     /// <param name="animatorController">適用するアニメーションコントローラー</param>
+    /// <param name="physicsMaterial">CapsuleColliderに適用するPhysics Material</param>
     public static void SetupVrmCharacter(
         GameObject vrmCharacter,
         Vector3 spawnPosition,
-        RuntimeAnimatorController animatorController = null)
+        RuntimeAnimatorController animatorController = null,
+        PhysicsMaterial physicsMaterial = null)
     {
         if (vrmCharacter == null)
         {
@@ -299,7 +305,7 @@ public static class VRMUtility
         SetupRigidbody(vrmCharacter);
 
         // CapsuleColliderを追加・設定（VRMキャラクター用）
-        SetupCapsuleCollider(vrmCharacter);
+        SetupCapsuleCollider(vrmCharacter, physicsMaterial);
 
         // Animatorを設定
         SetupAnimator(vrmCharacter, animatorController);
@@ -388,7 +394,9 @@ public static class VRMUtility
     /// CapsuleColliderを追加・設定（VRMキャラクター用）
     /// ヒューマノイドのボーン情報から適切なサイズを自動計算
     /// </summary>
-    private static void SetupCapsuleCollider(GameObject vrmCharacter)
+    /// <param name="vrmCharacter">VRMキャラクターのGameObject</param>
+    /// <param name="physicsMaterial">適用するPhysics Material</param>
+    private static void SetupCapsuleCollider(GameObject vrmCharacter, PhysicsMaterial physicsMaterial = null)
     {
         CapsuleCollider capsule = vrmCharacter.GetComponent<CapsuleCollider>();
         if (capsule == null)
@@ -440,6 +448,20 @@ public static class VRMUtility
             // デフォルト値
             SetDefaultCapsuleCollider(capsule);
             Debug.LogWarning("VRMUtility: Animatorが見つかりませんでした。デフォルト値を使用します。");
+        }
+
+        // Physics Materialを設定
+        if (physicsMaterial != null)
+        {
+            capsule.material = physicsMaterial;
+            if (EnableVerboseLog)
+            {
+                Debug.Log($"VRMUtility: Physics Material '{physicsMaterial.name}' をCapsuleColliderに適用しました。");
+            }
+        }
+        else
+        {
+            Debug.LogError("VRMUtility: Physics Materialが設定されていません。CapsuleColliderに摩擦が残るため、引っかかる可能性があります。");
         }
     }
 

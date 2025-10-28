@@ -129,22 +129,8 @@ public class DebugCommands : MonoBehaviour
             return;
         }
 
-        // CharacterControllerを取得
-        CharacterController characterController = activeCharacter.GetComponent<CharacterController>();
-        if (characterController != null)
-        {
-            // CharacterControllerの場合は無効化してから移動
-            characterController.enabled = false;
-            activeCharacter.transform.position = command.warpTarget.position;
-            activeCharacter.transform.rotation = command.warpTarget.rotation;
-            characterController.enabled = true;
-        }
-        else
-        {
-            // CharacterController以外の場合は直接移動
-            activeCharacter.transform.position = command.warpTarget.position;
-            activeCharacter.transform.rotation = command.warpTarget.rotation;
-        }
+        // GameCharacterManager.TeleportTo()を使用して物理状態も適切にリセット
+        gameManager.CharacterManager.TeleportTo(command.warpTarget.position, command.warpTarget.rotation);
 
         if (enableDebugLog)
         {

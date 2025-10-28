@@ -358,21 +358,8 @@ public class GameManager : MonoBehaviour
         // キャラクターをリスポーン地点に移動
         if (activeCharacter != null && defaultSpawnPoint != null)
         {
-            CharacterController controller = activeCharacter.GetComponent<CharacterController>();
-            if (controller != null)
-            {
-                // CharacterControllerの場合は無効化してから移動
-                controller.enabled = false;
-                activeCharacter.transform.position = defaultSpawnPoint.position;
-                activeCharacter.transform.rotation = defaultSpawnPoint.rotation;
-                controller.enabled = true;
-            }
-            else
-            {
-                // CharacterController以外の場合は直接移動
-                activeCharacter.transform.position = defaultSpawnPoint.position;
-                activeCharacter.transform.rotation = defaultSpawnPoint.rotation;
-            }
+            // GameCharacterManager.TeleportTo()を使用して物理状態も適切にリセット
+            characterManager.TeleportTo(defaultSpawnPoint.position, defaultSpawnPoint.rotation);
 
             if (enableVerboseLog)
             {

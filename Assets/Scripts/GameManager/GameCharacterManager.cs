@@ -847,4 +847,73 @@ public class GameCharacterManager : MonoBehaviour
         // 次フレーム用にプラットフォームの位置を記録
         previousPlatformPosition = currentPlatform.position;
     }
+
+    /// <summary>
+    /// Rigidbodyの物理状態をリセット（速度、角速度をゼロにする）
+    /// リスポーンやワープ時に使用
+    /// </summary>
+    public void ResetPhysicsState()
+    {
+        if (implementationType == CharacterImplementationType.RigidbodyAndCollider && characterRigidbody != null)
+        {
+            // 速度をゼロにする
+            characterRigidbody.linearVelocity = Vector3.zero;
+            characterRigidbody.angularVelocity = Vector3.zero;
+
+            // 物理エンジンの状態を即座に同期（Interpolation対策）
+            Physics.SyncTransforms();
+
+            if (EnableVerboseLog)
+            {
+                Debug.Log("GameCharacterManager: Rigidbodyの物理状態をリセットしました。");
+            }
+        }
+    }
+
+    /// <summary>
+    /// キャラクターを指定位置にテレポート
+    /// CharacterControllerとRigidbody両方に対応し、物理状態も適切にリセット
+    /// </summary>
+    /// <param name="position">テレポート先の位置</param>
+    /// <param name="rotation">テレポート先の回転</param>
+    public void TeleportTo(Vector3 position, Quaternion rotation)
+    {
+        if (targetCharacter == null)
+        {
+            Debug.LogWarning("GameCharacterManager: targetCharacterがnullです。テレポートできません。");
+            return;
+        }
+
+        if (implementationType == CharacterImplementationType.CharacterController && characterController != null)
+        {
+            // CharacterControllerの場合は無効化してから移動
+            characterController.enabled = false;
+            targetCharacter.transform.position = position;
+            targetCharacter.transform.rotation = rotation;
+            characterController.enabled = true;
+
+            if (EnableVerboseLog)
+            {
+                Debug.Log($"GameCharacterManager: CharacterControllerをテレポートしました。位置: {position}");
+            }
+        }
+        else if (implementationType == CharacterImplementationType.RigidbodyAndCollider && characterRigidbody != null)
+        {
+            // Rigidbodyの位置を直接設定（transform.positionではなくRigidbody.positionを使用）
+            characterRigidbody.position = position;
+            characterRigidbody.rotation = rotation;
+
+            // 物理状態をリセット
+            ResetPhysicsState();
+
+            if (EnableVerboseLog)
+            {
+                Debug.Log($"GameCharacterManager: Rigidbodyをテレポートしました。位置: {position}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("GameCharacterManager: 実装タイプが不明、またはコンポーネントがnullです。");
+        }
+    }
 }

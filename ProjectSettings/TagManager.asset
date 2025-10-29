@@ -12,6 +12,7 @@ TagManager:
   - StaticMessage
   - CheckPoint
   - HighJumper
+  - CameraLockArea
   layers:
   - Default
   - TransparentFX

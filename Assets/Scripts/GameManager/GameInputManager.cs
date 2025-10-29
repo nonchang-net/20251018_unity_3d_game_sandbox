@@ -127,7 +127,16 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        gameManager.CharacterManager.SetMovementInput(context.ReadValue<Vector2>());
+        Vector2 input = context.ReadValue<Vector2>();
+
+        // CharacterTrackerのDisableVerticalInputフラグを確認
+        if (gameManager.CharacterTracker != null && gameManager.CharacterTracker.DisableVerticalInput)
+        {
+            // 上下方向の入力を無効化（2Dゲーム風の操作）
+            input.y = 0f;
+        }
+
+        gameManager.CharacterManager.SetMovementInput(input);
     }
 
     public void OnLook(InputAction.CallbackContext context)

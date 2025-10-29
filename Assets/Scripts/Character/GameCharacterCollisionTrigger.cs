@@ -83,6 +83,11 @@ public class GameCharacterCollisionTrigger : MonoBehaviour, IGameManaged
         {
             TriggerHighJump(other.gameObject);
         }
+        // CameraLockAreaタグのオブジェクトに触れたかチェック
+        else if (other.CompareTag("CameraLockArea"))
+        {
+            EnterCameraLockArea(other.gameObject);
+        }
     }
 
     /// <summary>
@@ -94,6 +99,11 @@ public class GameCharacterCollisionTrigger : MonoBehaviour, IGameManaged
         if (other.CompareTag("StaticMessage"))
         {
             ExitStaticMessage(other.gameObject);
+        }
+        // CameraLockAreaタグのオブジェクトから離れたかチェック
+        else if (other.CompareTag("CameraLockArea"))
+        {
+            ExitCameraLockArea(other.gameObject);
         }
     }
 
@@ -241,5 +251,41 @@ public class GameCharacterCollisionTrigger : MonoBehaviour, IGameManaged
 
         // gameManager.StateManagerを通じてハイジャンプを発動
         gameManager.StateManager.TriggerHighJump(highJumper.JumpHeight, highJumper.JumpSpeed, highJumperObject);
+    }
+
+    /// <summary>
+    /// CameraLockAreaに入った時の処理
+    /// </summary>
+    /// <param name="cameraLockAreaObject">CameraLockAreaのGameObject</param>
+    void EnterCameraLockArea(GameObject cameraLockAreaObject)
+    {
+        // CameraLockerコンポーネントを取得
+        CameraLocker cameraLocker = cameraLockAreaObject.GetComponent<CameraLocker>();
+        if (cameraLocker == null)
+        {
+            Debug.LogError($"GameCharacterCollisionTrigger: CameraLockAreaタグのオブジェクト '{cameraLockAreaObject.name}' にCameraLockerコンポーネントがありません。", cameraLockAreaObject);
+            return;
+        }
+
+        // TrackingSetting配列を取得
+        TrackingSetting[] trackingSettings = cameraLocker.GetTrackingSettings();
+        if (trackingSettings == null || trackingSettings.Length == 0)
+        {
+            Debug.LogError($"GameCharacterCollisionTrigger: CameraLocker '{cameraLockAreaObject.name}' のTrackingSettingsが空です。", cameraLockAreaObject);
+            return;
+        }
+
+        // gameManager.StateManagerを通じてCameraLockAreaに進入したことを通知
+        gameManager.StateManager.EnterCameraLockArea(trackingSettings, cameraLockAreaObject.name, cameraLockAreaObject);
+    }
+
+    /// <summary>
+    /// CameraLockAreaから出た時の処理
+    /// </summary>
+    /// <param name="cameraLockAreaObject">CameraLockAreaのGameObject</param>
+    void ExitCameraLockArea(GameObject cameraLockAreaObject)
+    {
+        // gameManager.StateManagerを通じてCameraLockAreaから退出したことを通知
+        gameManager.StateManager.ExitCameraLockArea(cameraLockAreaObject.name, cameraLockAreaObject);
     }
 }

@@ -63,4 +63,17 @@ public class TrackingSetting : ScriptableObject
     [Tooltip("カメラリセット時の目標ピッチ角度")]
     [SerializeField] private float resetPitchAngle = -40f;
     public float ResetPitchAngle => resetPitchAngle;
+
+    [Header("カメラロック設定")]
+    [Tooltip("カメラの向きを固定する（2Dゲーム風の操作）")]
+    [SerializeField] private bool lockCameraRotation = false;
+    public bool LockCameraRotation => lockCameraRotation;
+
+    [Tooltip("カメラ固定時の角度（Euler Angles）\nLockCameraRotationがtrueの場合に適用されます")]
+    [SerializeField] private Vector3 lockedCameraRotation = new Vector3(0f, 0f, 0f);
+    public Vector3 LockedCameraRotation => lockedCameraRotation;
+
+    [Tooltip("カメラ固定時に上下方向の入力を無効化する（2Dゲーム風の操作）")]
+    [SerializeField] private bool disableVerticalInput = false;
+    public bool DisableVerticalInput => disableVerticalInput;
 }

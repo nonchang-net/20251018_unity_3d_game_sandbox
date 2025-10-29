@@ -46,6 +46,9 @@ public class GameManager : MonoBehaviour
     [Tooltip("メインカメラのCharacterTracker")]
     [SerializeField] private CharacterTracker characterTracker;
     public CharacterTracker CharacterTracker => characterTracker;
+    [Tooltip("カメラ管理マネージャー")]
+    [SerializeField] private GameCameraManager cameraManager;
+    public GameCameraManager CameraManager => cameraManager;
 
     [Header("水面設定")]
     [Tooltip("水面の高さを示すTransform（未設定の場合はY=0以下を水面とする）")]

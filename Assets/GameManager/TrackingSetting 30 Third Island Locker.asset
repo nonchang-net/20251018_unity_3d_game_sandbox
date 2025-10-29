@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e298b26d0c4a741e7b054ffad2026204, type: 3}
-  m_Name: TrackingSetting 3 Long
+  m_Name: TrackingSetting 30 Third Island Locker
   m_EditorClassIdentifier: Assembly-CSharp::TrackingSetting
   cameraDistance: 6
   cameraHeight: 2

@@ -8,4 +8,5 @@
   <Project Path="VRM10.Samples.VRM10Viewer.csproj" />
   <Project Path="VRM10.Samples.VRM10FirstPersonSample.csproj" />
   <Project Path="ClothWarp.Editor.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

@@ -49,6 +49,9 @@ public class CharacterTracker : MonoBehaviour
     private float minDistanceThreshold => useOverrideValues ? overrideMinDistanceThreshold : (trackingSetting != null ? trackingSetting.MinDistanceThreshold : 0.5f);
     private bool resetPitchOnReset => useOverrideValues ? overrideResetPitchOnReset : (trackingSetting != null ? trackingSetting.ResetPitchOnReset : true);
     private float resetPitchAngle => useOverrideValues ? overrideResetPitchAngle : (trackingSetting != null ? trackingSetting.ResetPitchAngle : -40f);
+    private bool lockCameraRotation => trackingSetting != null ? trackingSetting.LockCameraRotation : false;
+    private Vector3 lockedCameraRotation => trackingSetting != null ? trackingSetting.LockedCameraRotation : Vector3.zero;
+    private bool disableVerticalInput => trackingSetting != null ? trackingSetting.DisableVerticalInput : false;
 
     // カメラ回転角度
     private float cameraYaw = 0f;
@@ -60,6 +63,11 @@ public class CharacterTracker : MonoBehaviour
 
     // 外部から入力を受け取る
     private Vector2 lookInput = Vector2.zero;
+
+    /// <summary>
+    /// 垂直方向の入力を無効化するかどうかを取得
+    /// </summary>
+    public bool DisableVerticalInput => disableVerticalInput;
 
     void Start()
     {
@@ -97,6 +105,12 @@ public class CharacterTracker : MonoBehaviour
     /// </summary>
     void HandleCameraRotation()
     {
+        // カメラ回転がロックされている場合は入力を無視
+        if (lockCameraRotation)
+        {
+            return;
+        }
+
         float lookX = lookInput.x * mouseSensitivityMultiplier;
         float lookY = lookInput.y * mouseSensitivityMultiplier;
 
@@ -119,9 +133,24 @@ public class CharacterTracker : MonoBehaviour
         // プレイヤーの位置からオフセット
         Vector3 targetPosition = targetTransform.position + Vector3.up * cameraHeight;
 
+        // カメラの角度を決定（ロック時は固定角度、通常時は入力ベース）
+        float yaw, pitch;
+        if (lockCameraRotation)
+        {
+            // 固定カメラの場合、lockedCameraRotationから角度を取得
+            yaw = lockedCameraRotation.y;
+            pitch = lockedCameraRotation.x;
+        }
+        else
+        {
+            // 通常の場合、入力ベースの角度を使用
+            yaw = cameraYaw;
+            pitch = cameraPitch;
+        }
+
         // カメラの理想的な位置を計算
-        float yawRad = cameraYaw * Mathf.Deg2Rad;
-        float pitchRad = cameraPitch * Mathf.Deg2Rad;
+        float yawRad = yaw * Mathf.Deg2Rad;
+        float pitchRad = pitch * Mathf.Deg2Rad;
 
         Vector3 offset = new Vector3(
             Mathf.Sin(yawRad) * Mathf.Cos(pitchRad),
@@ -192,6 +221,7 @@ public class CharacterTracker : MonoBehaviour
         // カメラの位置と向きを設定
         transform.position = currentCameraPosition;
 
+        // カメラの回転を設定（lockCameraRotation有効時でもキャラクターを見る）
         // カメラの回転をスムージング（旧実装: transform.LookAt(targetPosition);）
         Quaternion targetRotation = Quaternion.LookRotation(targetPosition - transform.position);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,

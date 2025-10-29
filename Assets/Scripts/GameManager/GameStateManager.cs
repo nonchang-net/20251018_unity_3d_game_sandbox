@@ -198,6 +198,27 @@ public class GameStateManager : MonoBehaviour
     {
         state.OnCameraViewChangeRequested.OnNext(Unit.Default);
     }
+
+    /// <summary>
+    /// CameraLockAreaに進入したことを通知する
+    /// </summary>
+    /// <param name="trackingSettings">TrackingSetting配列</param>
+    /// <param name="areaName">エリア名</param>
+    /// <param name="areaObject">エリアのGameObject</param>
+    public void EnterCameraLockArea(TrackingSetting[] trackingSettings, string areaName, GameObject areaObject)
+    {
+        state.OnCameraLockAreaEnter.OnNext(new CameraLockAreaEnterInfo(trackingSettings, areaName, areaObject));
+    }
+
+    /// <summary>
+    /// CameraLockAreaから退出したことを通知する
+    /// </summary>
+    /// <param name="areaName">エリア名</param>
+    /// <param name="areaObject">エリアのGameObject</param>
+    public void ExitCameraLockArea(string areaName, GameObject areaObject)
+    {
+        state.OnCameraLockAreaExit.OnNext(new CameraLockAreaExitInfo(areaName, areaObject));
+    }
 }
 
 
@@ -308,6 +329,46 @@ public readonly struct CoinGeneratedInfo
 }
 
 /// <summary>
+/// CameraLockArea進入情報
+/// </summary>
+public readonly struct CameraLockAreaEnterInfo
+{
+    /// <summary>TrackingSetting配列</summary>
+    public readonly TrackingSetting[] TrackingSettings;
+
+    /// <summary>エリア名</summary>
+    public readonly string AreaName;
+
+    /// <summary>エリアのGameObject</summary>
+    public readonly GameObject AreaObject;
+
+    public CameraLockAreaEnterInfo(TrackingSetting[] trackingSettings, string areaName, GameObject areaObject)
+    {
+        TrackingSettings = trackingSettings;
+        AreaName = areaName;
+        AreaObject = areaObject;
+    }
+}
+
+/// <summary>
+/// CameraLockArea退出情報
+/// </summary>
+public readonly struct CameraLockAreaExitInfo
+{
+    /// <summary>エリア名</summary>
+    public readonly string AreaName;
+
+    /// <summary>エリアのGameObject</summary>
+    public readonly GameObject AreaObject;
+
+    public CameraLockAreaExitInfo(string areaName, GameObject areaObject)
+    {
+        AreaName = areaName;
+        AreaObject = areaObject;
+    }
+}
+
+/// <summary>
 /// ゲーム状態のReactivePropertyソース
 /// </summary>
 public class GameState
@@ -382,6 +443,18 @@ public class GameState
     /// </summary>
     public Subject<Unit> OnCameraViewChangeRequested { get; private set; }
 
+    /// <summary>
+    /// CameraLockAreaに進入したときに発火するSubject
+    /// CameraLockerコンポーネント、TrackingSetting配列、エリア名を通知
+    /// </summary>
+    public Subject<CameraLockAreaEnterInfo> OnCameraLockAreaEnter { get; private set; }
+
+    /// <summary>
+    /// CameraLockAreaから退出したときに発火するSubject
+    /// エリア名を通知
+    /// </summary>
+    public Subject<CameraLockAreaExitInfo> OnCameraLockAreaExit { get; private set; }
+
     public GameState(int initialHp)
     {
         CurrentCoin = new ReactiveProperty<int>(0);
@@ -396,6 +469,8 @@ public class GameState
         OnCheckPointActivated = new Subject<CheckPointActivatedInfo>();
         OnHighJump = new Subject<HighJumpInfo>();
         OnCameraViewChangeRequested = new Subject<Unit>();
+        OnCameraLockAreaEnter = new Subject<CameraLockAreaEnterInfo>();
+        OnCameraLockAreaExit = new Subject<CameraLockAreaExitInfo>();
         ActivatedCheckPoints = new System.Collections.Generic.List<CheckPoint>();
         IsPaused = new ReactiveProperty<bool>(false);
         CurrentTimeScale = new ReactiveProperty<float>(1f);

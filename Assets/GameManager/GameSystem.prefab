@@ -1,5 +1,58 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2338727091884488596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3452756719773966114}
+  - component: {fileID: 8580862627021547449}
+  m_Layer: 0
+  m_Name: GameCameraManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3452756719773966114
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2338727091884488596}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1163183428484965454}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8580862627021547449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2338727091884488596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56edfaf2c0264f36a11f0d64e0defe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  gameManager: {fileID: 4406867628601610656}
+  currentCamera: {fileID: 0}
+  togglableTrackingSettings:
+  - {fileID: 11400000, guid: 7a4cedd195242458899c3e0fc8869303, type: 2}
+  - {fileID: 11400000, guid: d5b58ca9ee6eb4b1f87062871ba73b6c, type: 2}
+  - {fileID: 11400000, guid: 7a4cedd195242458899c3e0fc8869303, type: 2}
+  - {fileID: 11400000, guid: 334054f1944634ead8f1ee3d6052e41d, type: 2}
+  enableTransitionAnimation: 1
+  transitionDuration: 0.5
 --- !u!1 &2665631582245257686
 GameObject:
   m_ObjectHideFlags: 0
@@ -57,6 +110,19 @@ MonoBehaviour:
   staticMessageTMP: {fileID: 0}
   staticMessageFadeInDuration: 0.3
   staticMessageFadeOutDuration: 0.3
+  pauseMenu: {fileID: 0}
+  pauseMenuCanvasGroup: {fileID: 0}
+  pauseMenuFadeInDuration: 0.2
+  pauseMenuFadeOutDuration: 0.2
+  cameraInvertYToggle: {fileID: 0}
+  mouseSensitivitySlider: {fileID: 0}
+  mouseSensitivityText: {fileID: 0}
+  bgmVolumeSlider: {fileID: 0}
+  bgmVolumeText: {fileID: 0}
+  seVolumeSlider: {fileID: 0}
+  seVolumeText: {fileID: 0}
+  resetToDefaultButton: {fileID: 0}
+  resumeButton: {fileID: 0}
 --- !u!1 &2715921987604968038
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,6 +185,8 @@ MonoBehaviour:
   enableKnockbackMovement: 1
   knockbackDistance: 2
   knockbackSpeed: 10
+  characterAnimatorController: {fileID: 9100000, guid: d11b4df1626314443a5f0b59bb0b43a6, type: 2}
+  characterPhysicsMaterial: {fileID: 13400000, guid: c82d21123f7f44413b278dece4b4dd99, type: 2}
 --- !u!1 &2808328784366468482
 GameObject:
   m_ObjectHideFlags: 0
@@ -251,7 +319,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2898528193157309858}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: c82d21123f7f44413b278dece4b4dd99, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -379,6 +447,7 @@ Transform:
   - {fileID: 3146327697624874619}
   - {fileID: 6382480958882054056}
   - {fileID: 44713379673457332}
+  - {fileID: 3452756719773966114}
   m_Father: {fileID: 6495682116857349641}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4406867628601610656
@@ -400,8 +469,11 @@ MonoBehaviour:
   characterManager: {fileID: 4564789217582180564}
   postProcessingManager: {fileID: 7203813829266587389}
   timeManager: {fileID: 8472876554526270209}
+  soundManager: {fileID: 8133719991256797029}
   characterRepository: {fileID: 8739791108814853656}
   characterTracker: {fileID: 0}
+  cameraManager: {fileID: 0}
+  waterSurfaceTransform: {fileID: 0}
   levelCheckPointManager: {fileID: 0}
   defaultSpawnPoint: {fileID: 0}
   respawnDelay: 3
@@ -545,7 +617,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VRMLoadManager
   gameManager: {fileID: 4406867628601610656}
   characterRepository: {fileID: 8739791108814853656}
-  vrmAnimatorController: {fileID: 9100000, guid: d11b4df1626314443a5f0b59bb0b43a6, type: 2}
   enableVerboseLog: 0
 --- !u!1 &5318421489682998248
 GameObject:
@@ -642,9 +713,8 @@ MonoBehaviour:
   initialCharacters:
   - {fileID: 1580536519028277664}
   - {fileID: 2898528193157309858}
-  loadStartupVrmCharacter: 1
+  loadStartupVrmCharacter: 0
   startupVrmFileName: model4.vrm
-  vrmAnimatorController: {fileID: 9100000, guid: d11b4df1626314443a5f0b59bb0b43a6, type: 2}
   enableVerboseLog: 0
 --- !u!1 &8034359250182224272
 GameObject:
@@ -820,6 +890,12 @@ MonoBehaviour:
   enableDeadFade: 1
   deadFadeDelay: 1.5
   deadFadeDuration: 3
+  enableWaterEffect: 1
+  waterColor: {r: 0.04579032, g: 0.16911376, b: 0.46226418, a: 1}
+  waterColorIntensity: 0.6
+  waterVignetteIntensity: 0.8
+  waterWaveCycle: 5
+  waterWaveIntensity: 0.3
 --- !u!1 &8694230433373200836
 GameObject:
   m_ObjectHideFlags: 0
@@ -1049,7 +1125,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1580536519028277664}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: c82d21123f7f44413b278dece4b4dd99, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

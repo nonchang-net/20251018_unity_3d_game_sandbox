@@ -52,6 +52,7 @@ public class CharacterTracker : MonoBehaviour
     private bool lockCameraRotation => trackingSetting != null ? trackingSetting.LockCameraRotation : false;
     private Vector3 lockedCameraRotation => trackingSetting != null ? trackingSetting.LockedCameraRotation : Vector3.zero;
     private bool disableVerticalInput => trackingSetting != null ? trackingSetting.DisableVerticalInput : false;
+    private bool maintainYawOnUnlock => trackingSetting != null ? trackingSetting.MaintainYawOnUnlock : true;
 
     // カメラ回転角度
     private float cameraYaw = 0f;
@@ -221,30 +222,53 @@ public class CharacterTracker : MonoBehaviour
         // カメラの位置と向きを設定
         transform.position = currentCameraPosition;
 
-        // カメラの回転を設定（lockCameraRotation有効時でもキャラクターを見る）
-        // カメラの回転をスムージング（旧実装: transform.LookAt(targetPosition);）
-        Quaternion targetRotation = Quaternion.LookRotation(targetPosition - transform.position);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
-            Time.deltaTime * positionSmoothSpeed);
+        // カメラの回転を設定
+        if (lockCameraRotation)
+        {
+            // カメラ回転が固定されている場合、指定された角度を使用してスムーズに回転
+            Quaternion targetRotation = Quaternion.Euler(lockedCameraRotation);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
+                Time.deltaTime * positionSmoothSpeed);
+        }
+        else
+        {
+            // 通常時は即座にキャラクターを見る方向に回転（遅延なし）
+            // Slerpで遅延させるとキャラクターの移動方向計算が不正確になり、
+            // カメラ距離が大きい場合にキャラクターが画面外になる問題が発生する
+            Quaternion targetRotation = Quaternion.LookRotation(targetPosition - transform.position);
+            transform.rotation = targetRotation;
+        }
     }
 
     /// <summary>
     /// カメラの前方向ベクトルを取得（Y成分を除く）
+    /// カメラの実際の回転ではなく、cameraYawから直接計算することで、
+    /// カメラ回転の遅延に影響されない正確な移動方向を提供
     /// </summary>
     public Vector3 GetCameraForward()
     {
-        Vector3 forward = transform.forward;
-        forward.y = 0f;
+        // lockCameraRotationの場合は固定角度、通常時はcameraYawを使用
+        float yaw = lockCameraRotation ? lockedCameraRotation.y : cameraYaw;
+
+        // yaw角度から前方向ベクトルを計算
+        float yawRad = yaw * Mathf.Deg2Rad;
+        Vector3 forward = new Vector3(Mathf.Sin(yawRad), 0f, Mathf.Cos(yawRad));
         return forward.normalized;
     }
 
     /// <summary>
     /// カメラの右方向ベクトルを取得（Y成分を除く）
+    /// カメラの実際の回転ではなく、cameraYawから直接計算することで、
+    /// カメラ回転の遅延に影響されない正確な移動方向を提供
     /// </summary>
     public Vector3 GetCameraRight()
     {
-        Vector3 right = transform.right;
-        right.y = 0f;
+        // lockCameraRotationの場合は固定角度、通常時はcameraYawを使用
+        float yaw = lockCameraRotation ? lockedCameraRotation.y : cameraYaw;
+
+        // yaw角度から右方向ベクトルを計算
+        float yawRad = yaw * Mathf.Deg2Rad;
+        Vector3 right = new Vector3(Mathf.Cos(yawRad), 0f, -Mathf.Sin(yawRad));
         return right.normalized;
     }
 
@@ -262,6 +286,9 @@ public class CharacterTracker : MonoBehaviour
     /// <param name="newSetting">新しいトラッキング設定</param>
     public void SetTrackingSetting(TrackingSetting newSetting)
     {
+        // 旧設定を保存
+        TrackingSetting oldSetting = trackingSetting;
+
         trackingSetting = newSetting;
 
         // オーバーライドを解除
@@ -272,6 +299,22 @@ public class CharacterTracker : MonoBehaviour
         {
             currentCameraDistance = trackingSetting.CameraDistance;
         }
+
+        // ロック解除時にyaw角度を維持する処理
+        if (oldSetting != null && newSetting != null)
+        {
+            bool wasLocked = oldSetting.LockCameraRotation;
+            bool isNowUnlocked = !newSetting.LockCameraRotation;
+            bool shouldMaintainYaw = newSetting.MaintainYawOnUnlock;
+
+            if (wasLocked && isNowUnlocked && shouldMaintainYaw)
+            {
+                // 現在のカメラのyaw角度をcameraYawに設定（移動方向を維持）
+                cameraYaw = transform.rotation.eulerAngles.y;
+
+                Debug.Log($"CharacterTracker: カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+            }
+        }
     }
 
     /// <summary>
@@ -280,6 +323,42 @@ public class CharacterTracker : MonoBehaviour
     public TrackingSetting GetTrackingSetting()
     {
         return trackingSetting;
+    }
+
+    /// <summary>
+    /// トラッキング設定を変更（旧設定を明示的に指定）
+    /// トランジション完了時など、旧設定情報を保持したい場合に使用
+    /// </summary>
+    /// <param name="oldSetting">変更前の設定</param>
+    /// <param name="newSetting">変更後の設定</param>
+    public void SetTrackingSettingWithOldSetting(TrackingSetting oldSetting, TrackingSetting newSetting)
+    {
+        trackingSetting = newSetting;
+
+        // オーバーライドを解除
+        useOverrideValues = false;
+
+        // 設定変更時にカメラ距離を再初期化
+        if (trackingSetting != null)
+        {
+            currentCameraDistance = trackingSetting.CameraDistance;
+        }
+
+        // ロック解除時にyaw角度を維持する処理
+        if (oldSetting != null && newSetting != null)
+        {
+            bool wasLocked = oldSetting.LockCameraRotation;
+            bool isNowUnlocked = !newSetting.LockCameraRotation;
+            bool shouldMaintainYaw = newSetting.MaintainYawOnUnlock;
+
+            if (wasLocked && isNowUnlocked && shouldMaintainYaw)
+            {
+                // 現在のカメラのyaw角度をcameraYawに設定（移動方向を維持）
+                cameraYaw = transform.rotation.eulerAngles.y;
+
+                Debug.Log($"CharacterTracker: カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+            }
+        }
     }
 
     /// <summary>

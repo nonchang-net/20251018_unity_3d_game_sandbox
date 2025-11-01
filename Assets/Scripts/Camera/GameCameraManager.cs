@@ -237,11 +237,12 @@ public class GameCameraManager : MonoBehaviour
             duration = transitionDuration;
         }
 
+        // 現在CharacterTrackerに適用されている設定を取得
+        TrackingSetting currentSetting = gameManager.CharacterTracker.GetTrackingSetting();
+
         // トランジションアニメーションが有効な場合
         if (shouldTransition && duration > 0f)
         {
-            // 現在の設定を取得
-            TrackingSetting currentSetting = activeSettings[currentTrackingSettingIndex];
             if (currentSetting == null)
             {
                 // 現在の設定がnullの場合は即座に切り替え
@@ -257,7 +258,7 @@ public class GameCameraManager : MonoBehaviour
         else
         {
             // トランジションなしで即座に切り替え
-            gameManager.CharacterTracker.SetTrackingSetting(newSetting);
+            gameManager.CharacterTracker.SetTrackingSettingWithOldSetting(currentSetting, newSetting);
             currentTrackingSettingIndex = index;
         }
     }
@@ -338,7 +339,8 @@ public class GameCameraManager : MonoBehaviour
         // 最終的な設定を適用
         if (gameManager.CharacterTracker != null && transitionToSetting != null)
         {
-            gameManager.CharacterTracker.SetTrackingSetting(transitionToSetting);
+            // トランジション開始設定を明示的に渡す
+            gameManager.CharacterTracker.SetTrackingSettingWithOldSetting(transitionFromSetting, transitionToSetting);
         }
     }
 

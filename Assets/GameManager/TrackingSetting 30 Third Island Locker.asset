@@ -17,7 +17,7 @@ MonoBehaviour:
   minPitch: -89
   maxPitch: 70
   initialPitch: -40
-  enableCollisionAvoidance: 1
+  enableCollisionAvoidance: 0
   cameraRadius: 0.3
   collisionLayers:
     serializedVersion: 2
@@ -27,3 +27,7 @@ MonoBehaviour:
   minDistanceThreshold: 0.5
   resetPitchOnReset: 1
   resetPitchAngle: -40
+  lockCameraRotation: 1
+  lockedCameraRotation: {x: -70, y: 0, z: 0}
+  disableVerticalInput: 0
+  maintainYawOnUnlock: 1

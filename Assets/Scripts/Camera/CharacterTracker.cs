@@ -298,6 +298,12 @@ public class CharacterTracker : MonoBehaviour
         if (trackingSetting != null)
         {
             currentCameraDistance = trackingSetting.CameraDistance;
+
+            // カメラロック時に障害物回避が有効な場合は警告
+            if (trackingSetting.LockCameraRotation && trackingSetting.EnableCollisionAvoidance)
+            {
+                Debug.LogError($"CharacterTracker: TrackingSetting '{trackingSetting.name}' でカメラロック(LockCameraRotation)と障害物回避(EnableCollisionAvoidance)が両方有効になっています。カメラロック時は障害物回避を無効にすることを推奨します。", trackingSetting);
+            }
         }
 
         // ロック解除時にyaw角度を維持する処理
@@ -342,6 +348,12 @@ public class CharacterTracker : MonoBehaviour
         if (trackingSetting != null)
         {
             currentCameraDistance = trackingSetting.CameraDistance;
+
+            // カメラロック時に障害物回避が有効な場合は警告
+            if (trackingSetting.LockCameraRotation && trackingSetting.EnableCollisionAvoidance)
+            {
+                Debug.LogError($"CharacterTracker: TrackingSetting '{trackingSetting.name}' でカメラロック(LockCameraRotation)と障害物回避(EnableCollisionAvoidance)が両方有効になっています。カメラロック時は障害物回避を無効にすることを推奨します。", trackingSetting);
+            }
         }
 
         // ロック解除時にyaw角度を維持する処理

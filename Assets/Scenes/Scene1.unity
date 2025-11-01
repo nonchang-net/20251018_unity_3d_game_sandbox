@@ -9901,11 +9901,11 @@ PrefabInstance:
       objectReference: {fileID: 961739752}
     - target: {fileID: 8580862627021547449, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: enableTransitionAnimation
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8580862627021547449, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: enableCameraLockAreaTransition
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8580862627021547449, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: 'togglableTrackingSettings.Array.data[1]'

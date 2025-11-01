@@ -62,6 +62,19 @@ public class GameCameraManager : MonoBehaviour
 
     void Start()
     {
+        // カメラビュー切り替えイベントを購読
+        SubscribeCameraViewChangeEvents();
+
+        // CameraLockAreaイベントを購読
+        SubscribeCameraLockAreaEvents();
+    }
+
+    /// <summary>
+    /// GameManagerから呼び出される初期化メソッド
+    /// シリアライゼーション完了後に確実に呼び出されることを保証
+    /// </summary>
+    public void Initialize()
+    {
         // 参照確認
         if (gameManager == null)
         {
@@ -85,12 +98,6 @@ public class GameCameraManager : MonoBehaviour
             // 初期設定を適用
             ApplyTrackingSetting(0);
         }
-
-        // カメラビュー切り替えイベントを購読
-        SubscribeCameraViewChangeEvents();
-
-        // CameraLockAreaイベントを購読
-        SubscribeCameraLockAreaEvents();
     }
 
     void OnDestroy()
@@ -209,9 +216,15 @@ public class GameCameraManager : MonoBehaviour
         // 一時設定があればそれを優先使用
         TrackingSetting[] activeSettings = temporaryTrackingSettings != null ? temporaryTrackingSettings : togglableTrackingSettings;
 
-        if (activeSettings == null || index < 0 || index >= activeSettings.Length)
+        if (activeSettings == null || activeSettings.Length == 0)
         {
-            Debug.LogError($"GameCameraManager: 無効なトラッキング設定インデックス {index}");
+            Debug.LogWarning($"GameCameraManager: トラッキング設定が設定されていません。初期化をスキップします。");
+            return;
+        }
+
+        if (index < 0 || index >= activeSettings.Length)
+        {
+            Debug.LogError($"GameCameraManager: 無効なトラッキング設定インデックス {index} (設定数: {activeSettings.Length})");
             return;
         }
 

@@ -30,4 +30,4 @@ MonoBehaviour:
   lockCameraRotation: 1
   lockedCameraRotation: {x: 23.8, y: 0, z: 0}
   disableVerticalInput: 0
-  maintainYawOnUnlock: 0
+  maintainYawOnUnlock: 1

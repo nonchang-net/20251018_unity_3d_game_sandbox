@@ -60,8 +60,20 @@ public class GameCameraManager : MonoBehaviour
     private float transitionProgress = 0f;
     private float currentTransitionDuration = 0f; // 現在のトランジション時間
 
-    void Start()
+    /// <summary>
+    /// GameManagerから呼び出される初期化メソッド
+    /// シリアライゼーション完了後に確実に呼び出されることを保証
+    /// </summary>
+    public void Initialize()
     {
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log("[GameCameraManager] Initialize() が呼び出されました。");
+        }
+
+        // note: コンパイル直後などでなぜかnullじゃなくなって動作不良に陥る症状を確認したので、初期化時にnull代入しておく。正確な原因を追求できていないので要注意。ドメインリロードオフ周りなどの可能性？
+        temporaryTrackingSettings = null;
+
         // 参照確認
         if (gameManager == null)
         {
@@ -82,15 +94,28 @@ public class GameCameraManager : MonoBehaviour
         }
         else
         {
+            if (EnableCameraVerboseLog)
+            {
+                Debug.Log($"[GameCameraManager] トラッキング設定が {togglableTrackingSettings.Length} 個見つかりました。初期設定を適用します。");
+            }
+
             // 初期設定を適用
             ApplyTrackingSetting(0);
         }
 
-        // カメラビュー切り替えイベントを購読
-        SubscribeCameraViewChangeEvents();
+        // イベント購読（トラッキング設定の準備が完了した後に開始）
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log("[GameCameraManager] カメライベントを購読します。");
+        }
 
-        // CameraLockAreaイベントを購読
+        SubscribeCameraViewChangeEvents();
         SubscribeCameraLockAreaEvents();
+
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log("[GameCameraManager] Initialize() が完了しました。");
+        }
     }
 
     void OnDestroy()
@@ -147,8 +172,18 @@ public class GameCameraManager : MonoBehaviour
     {
         cameraViewChangeSubscription = gameManager.StateManager.State.OnCameraViewChangeRequested.Subscribe(_ =>
         {
+            if (EnableCameraVerboseLog)
+            {
+                Debug.Log("[GameCameraManager] カメラビュー切り替えイベントを受信しました。");
+            }
+
             SwitchToNextTrackingSetting();
         });
+
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log("[GameCameraManager] カメラビュー切り替えイベントの購読が完了しました。");
+        }
     }
 
     /// <summary>
@@ -167,6 +202,11 @@ public class GameCameraManager : MonoBehaviour
         {
             ClearTemporaryTrackingSettings();
         });
+
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log("[GameCameraManager] CameraLockAreaイベントの購読が完了しました。");
+        }
     }
 
     /// <summary>
@@ -174,6 +214,11 @@ public class GameCameraManager : MonoBehaviour
     /// </summary>
     private void SwitchToNextTrackingSetting()
     {
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log("[GameCameraManager] SwitchToNextTrackingSetting() が呼び出されました。");
+        }
+
         // 一時設定があればそれを優先使用
         TrackingSetting[] activeSettings = temporaryTrackingSettings != null ? temporaryTrackingSettings : togglableTrackingSettings;
 
@@ -181,6 +226,11 @@ public class GameCameraManager : MonoBehaviour
         {
             Debug.LogWarning("GameCameraManager: トラッキング設定が設定されていないため、カメラ切り替えできません。");
             return;
+        }
+
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log($"[GameCameraManager] アクティブな設定数: {activeSettings.Length}, 現在のインデックス: {currentTrackingSettingIndex}");
         }
 
         // トランジション中の場合は、現在のトランジションをキャンセルして新しいトランジションを開始
@@ -192,6 +242,11 @@ public class GameCameraManager : MonoBehaviour
 
         // 次のインデックスに進む（ループ）
         int nextIndex = (currentTrackingSettingIndex + 1) % activeSettings.Length;
+
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log($"[GameCameraManager] 次のインデックス {nextIndex} の設定に切り替えます。");
+        }
 
         // 新しい設定を適用
         ApplyTrackingSetting(nextIndex);
@@ -209,9 +264,25 @@ public class GameCameraManager : MonoBehaviour
         // 一時設定があればそれを優先使用
         TrackingSetting[] activeSettings = temporaryTrackingSettings != null ? temporaryTrackingSettings : togglableTrackingSettings;
 
-        if (activeSettings == null || index < 0 || index >= activeSettings.Length)
+        if (activeSettings == null || activeSettings.Length == 0)
         {
-            Debug.LogError($"GameCameraManager: 無効なトラッキング設定インデックス {index}");
+            Debug.LogWarning($"GameCameraManager: トラッキング設定が設定されていません。初期化をスキップします。");
+            if (EnableCameraVerboseLog)
+            {
+                // バグ調査時の深追いメモ
+                Debug.Log($"temporaryTrackingSettings is null? {temporaryTrackingSettings == null}");
+                Debug.Log($"activeSettings is null? {activeSettings == null}"); // コンパイル直後時はなぜかこれがnullじゃなくなって評価がおかしくなっていた
+                if(activeSettings != null)
+                {
+                    Debug.Log($"activeSettings length: {activeSettings.Length}");                
+                }
+            }
+            return;
+        }
+
+        if (index < 0 || index >= activeSettings.Length)
+        {
+            Debug.LogError($"GameCameraManager: 無効なトラッキング設定インデックス {index} (設定数: {activeSettings.Length})");
             return;
         }
 

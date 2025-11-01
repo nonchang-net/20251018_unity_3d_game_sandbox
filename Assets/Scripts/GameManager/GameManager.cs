@@ -203,6 +203,9 @@ public class GameManager : MonoBehaviour
         // 初期キャラクター設定（StartではなくStartCoroutineで次フレームに遅延）
         StartCoroutine(InitializeCharacter());
 
+        // マネージャー初期化（シリアライゼーション完了後に確実に呼び出す）
+        StartCoroutine(InitializeManagers());
+
         // 死亡イベントを購読
         SubscribeDeadEvents();
 
@@ -247,6 +250,48 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 各マネージャーの初期化
+    /// シリアライゼーション完了後に確実に呼び出すためコルーチンで実装
+    /// </summary>
+    private System.Collections.IEnumerator InitializeManagers()
+    {
+        if (enableVerboseLog)
+        {
+            Debug.Log("GameManager: InitializeManagers() コルーチンを開始しました。");
+        }
+
+        // 1フレーム待機してシリアライゼーションを確実に完了させる
+        yield return null;
+
+        if (enableVerboseLog)
+        {
+            Debug.Log("GameManager: シリアライゼーション待機完了。各マネージャーの初期化を開始します。");
+        }
+
+        // GameCameraManagerの初期化
+        if (cameraManager == null)
+        {
+            Debug.LogError("GameManager: GameCameraManager が設定されていません。カメラ機能が正常に動作しません。");
+        }
+        else
+        {
+            if (enableVerboseLog)
+            {
+                Debug.Log("GameManager: GameCameraManager.Initialize() を呼び出します。");
+            }
+
+            cameraManager.Initialize();
+
+            if (enableVerboseLog)
+            {
+                Debug.Log("GameManager: GameCameraManagerの初期化が完了しました。");
+            }
+        }
+
+        // 将来的に他のマネージャーの初期化もここで行う
     }
 
     /// <summary>

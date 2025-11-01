@@ -15,6 +15,11 @@
 - R3を導入していますが、こちらは明示的に指示しない限り利用しないでください。一部、ユーザデータ変動に応じてUIやゲーム処理を交通整理する目的で検討中です。
 - C#のリフレクションは極力使わないでください。必要な際は確認してください。
 
+- 以下について、Scripts/docsに実装した内容と一致する仕様の説明を日本語でまとめてください。
+	- 「Scripts/docs/カメラ仕様.md」 - CharacterTracker.cs、GameCameraManager.cs、TrackingSettings.csについての処理内容を記載してください。変数の説明はコード上のコメントで担保されているので含めなくて構いません。
+	- 「Scripts/docs/キャラクター動作仕様.md」 - 同様にGameCharacterManager.csとGameInputManager.cs、GameCharacterCollisionTrigger.csを中心としたキャラクターの動作制御についてまとめてください。
+	- 「Scripts/docs/キャラクター管理仕様.md」 - 同様にPlayableCharacterRepository.csを中心にまとめてください。
+
 ## Repository Status
 
 This is currently an empty Git repository. When code is added, update this file with:

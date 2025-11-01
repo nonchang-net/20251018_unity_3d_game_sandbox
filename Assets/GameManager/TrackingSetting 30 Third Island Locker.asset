@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TrackingSetting 30 Third Island Locker
   m_EditorClassIdentifier: Assembly-CSharp::TrackingSetting
   cameraDistance: 6
-  cameraHeight: 2
+  targetHeightOffset: 0.8
   minPitch: -89
   maxPitch: 70
   initialPitch: -40
@@ -25,9 +25,9 @@ MonoBehaviour:
   collisionSmoothSpeed: 10
   positionSmoothSpeed: 15
   minDistanceThreshold: 0.5
-  resetPitchOnReset: 1
+  resetPitchOnReset: 0
   resetPitchAngle: -40
   lockCameraRotation: 1
-  lockedCameraRotation: {x: -70, y: 0, z: 0}
+  lockedCameraRotation: {x: 23.8, y: 0, z: 0}
   disableVerticalInput: 0
-  maintainYawOnUnlock: 1
+  maintainYawOnUnlock: 0

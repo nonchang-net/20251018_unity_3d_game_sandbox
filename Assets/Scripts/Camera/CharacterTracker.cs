@@ -140,7 +140,9 @@ public class CharacterTracker : MonoBehaviour
         {
             // 固定カメラの場合、lockedCameraRotationから角度を取得
             yaw = lockedCameraRotation.y;
-            pitch = lockedCameraRotation.x;
+            // 注: カメラ位置計算用には符号を反転
+            // UnityのEuler角（正=下向き）と三角関数での位置計算（正=上オフセット）で符号が逆のため
+            pitch = -lockedCameraRotation.x;
         }
         else
         {
@@ -216,11 +218,27 @@ public class CharacterTracker : MonoBehaviour
             Time.deltaTime * collisionSmoothSpeed);
 
         // カメラ位置のスムージング
-        currentCameraPosition = Vector3.Lerp(currentCameraPosition, desiredPosition,
-            Time.deltaTime * positionSmoothSpeed);
+        // Lock Camera Rotation時は即座に位置を更新（スムージング無効）
+        if (lockCameraRotation)
+        {
+            // 固定カメラモードでは、角度も位置も即座に正しい値に設定
+            currentCameraPosition = desiredPosition;
+        }
+        else
+        {
+            // 通常モードでは、スムーズに位置を変更
+            currentCameraPosition = Vector3.Lerp(currentCameraPosition, desiredPosition,
+                Time.deltaTime * positionSmoothSpeed);
+        }
 
         // カメラの位置と向きを設定
         transform.position = currentCameraPosition;
+
+        // デバッグ: Lock Camera Rotation時のカメラ位置計算を確認
+        if (lockCameraRotation && Time.frameCount % 60 == 0)
+        {
+            Debug.Log($"[Lock Camera Debug] targetPos={targetPosition:F2}, offset={offset:F2}, desiredPos={desiredPosition:F2}, currentPos={currentCameraPosition:F2}, cameraDistance={cameraDistance:F2}, yaw={yaw:F2}, pitch={pitch:F2}");
+        }
 
         // カメラの回転を設定
         if (lockCameraRotation)

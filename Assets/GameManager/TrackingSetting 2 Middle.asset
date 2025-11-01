@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TrackingSetting 2 Middle
   m_EditorClassIdentifier: Assembly-CSharp::TrackingSetting
   cameraDistance: 3
-  cameraHeight: 0.8
+  targetHeightOffset: 0.8
   minPitch: -89
   maxPitch: 70
   initialPitch: -40
@@ -27,3 +27,7 @@ MonoBehaviour:
   minDistanceThreshold: 0.5
   resetPitchOnReset: 1
   resetPitchAngle: -40
+  lockCameraRotation: 0
+  lockedCameraRotation: {x: 0, y: 0, z: 0}
+  disableVerticalInput: 0
+  maintainYawOnUnlock: 1

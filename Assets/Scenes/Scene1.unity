@@ -9899,6 +9899,18 @@ PrefabInstance:
       propertyPath: currentCamera
       value: 
       objectReference: {fileID: 961739752}
+    - target: {fileID: 8580862627021547449, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: enableTransitionAnimation
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8580862627021547449, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: enableCameraLockAreaTransition
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8580862627021547449, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: 'togglableTrackingSettings.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f9b2bfd9265fe4081b9ed6377ec74078, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

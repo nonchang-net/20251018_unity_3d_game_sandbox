@@ -12,9 +12,9 @@ public class TrackingSetting : ScriptableObject
     [SerializeField] private float cameraDistance = 6f;
     public float CameraDistance => cameraDistance;
 
-    [Tooltip("カメラの高さオフセット")]
-    [SerializeField] private float cameraHeight = 2f;
-    public float CameraHeight => cameraHeight;
+    [Tooltip("カメラがターゲットのどの高さを見るか（注視点の高さオフセット）")]
+    [SerializeField] private float targetHeightOffset = 2f;
+    public float TargetHeightOffset => targetHeightOffset;
 
     [Header("カメラ制限")]
     [Tooltip("最小ピッチ角度（下向き制限）")]

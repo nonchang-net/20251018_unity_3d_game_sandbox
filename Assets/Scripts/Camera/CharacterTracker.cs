@@ -37,7 +37,7 @@ public class CharacterTracker : MonoBehaviour
 
     // TrackingSettingから取得するプロパティ（オーバーライド対応）
     private float cameraDistance => useOverrideValues ? overrideCameraDistance : (trackingSetting != null ? trackingSetting.CameraDistance : 6f);
-    private float cameraHeight => useOverrideValues ? overrideCameraHeight : (trackingSetting != null ? trackingSetting.CameraHeight : 2f);
+    private float targetHeightOffset => useOverrideValues ? overrideCameraHeight : (trackingSetting != null ? trackingSetting.TargetHeightOffset : 2f);
     private float minPitch => useOverrideValues ? overrideMinPitch : (trackingSetting != null ? trackingSetting.MinPitch : -30f);
     private float maxPitch => useOverrideValues ? overrideMaxPitch : (trackingSetting != null ? trackingSetting.MaxPitch : 70f);
     private float initialPitch => useOverrideValues ? overrideInitialPitch : (trackingSetting != null ? trackingSetting.InitialPitch : -40f);
@@ -131,8 +131,8 @@ public class CharacterTracker : MonoBehaviour
     /// </summary>
     void UpdateCameraPosition()
     {
-        // プレイヤーの位置からオフセット
-        Vector3 targetPosition = targetTransform.position + Vector3.up * cameraHeight;
+        // カメラが注視する位置（ターゲット位置 + 高さオフセット）
+        Vector3 targetPosition = targetTransform.position + Vector3.up * targetHeightOffset;
 
         // カメラの角度を決定（ロック時は固定角度、通常時は入力ベース）
         float yaw, pitch;
@@ -366,7 +366,7 @@ public class CharacterTracker : MonoBehaviour
     /// </summary>
     public void SetTransitionValues(
         float distance,
-        float height,
+        float targetHeight,
         float minPitchValue,
         float maxPitchValue,
         float initialPitchValue,
@@ -381,7 +381,7 @@ public class CharacterTracker : MonoBehaviour
     {
         useOverrideValues = true;
         overrideCameraDistance = distance;
-        overrideCameraHeight = height;
+        overrideCameraHeight = targetHeight;
         overrideMinPitch = minPitchValue;
         overrideMaxPitch = maxPitchValue;
         overrideInitialPitch = initialPitchValue;

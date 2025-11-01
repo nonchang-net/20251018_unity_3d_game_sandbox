@@ -294,7 +294,7 @@ public class GameCameraManager : MonoBehaviour
 
         // 設定値を補間
         float lerpedDistance = Mathf.Lerp(transitionFromSetting.CameraDistance, transitionToSetting.CameraDistance, transitionProgress);
-        float lerpedHeight = Mathf.Lerp(transitionFromSetting.CameraHeight, transitionToSetting.CameraHeight, transitionProgress);
+        float lerpedTargetHeight = Mathf.Lerp(transitionFromSetting.TargetHeightOffset, transitionToSetting.TargetHeightOffset, transitionProgress);
         float lerpedMinPitch = Mathf.Lerp(transitionFromSetting.MinPitch, transitionToSetting.MinPitch, transitionProgress);
         float lerpedMaxPitch = Mathf.Lerp(transitionFromSetting.MaxPitch, transitionToSetting.MaxPitch, transitionProgress);
         float lerpedInitialPitch = Mathf.Lerp(transitionFromSetting.InitialPitch, transitionToSetting.InitialPitch, transitionProgress);
@@ -313,7 +313,7 @@ public class GameCameraManager : MonoBehaviour
         // CharacterTrackerに補間された値を適用
         gameManager.CharacterTracker.SetTransitionValues(
             lerpedDistance,
-            lerpedHeight,
+            lerpedTargetHeight,
             lerpedMinPitch,
             lerpedMaxPitch,
             lerpedInitialPitch,

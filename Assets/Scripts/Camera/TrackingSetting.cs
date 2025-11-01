@@ -76,4 +76,8 @@ public class TrackingSetting : ScriptableObject
     [Tooltip("カメラ固定時に上下方向の入力を無効化する（2Dゲーム風の操作）")]
     [SerializeField] private bool disableVerticalInput = false;
     public bool DisableVerticalInput => disableVerticalInput;
+
+    [Tooltip("カメラロック解除時に、奥行き方向（yaw角度）を維持する\n有効にすると、ロック解除時に移動方向が急変しない")]
+    [SerializeField] private bool maintainYawOnUnlock = true;
+    public bool MaintainYawOnUnlock => maintainYawOnUnlock;
 }

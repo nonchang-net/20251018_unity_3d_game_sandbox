@@ -866,6 +866,74 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighJumper
   jumpHeight: 10
   jumpSpeed: 15
+--- !u!1 &130898945
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 130898946}
+  - component: {fileID: 130898948}
+  - component: {fileID: 130898947}
+  m_Layer: 0
+  m_Name: Third Island Camera Locker
+  m_TagString: CameraLockArea
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &130898946
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130898945}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 25.118675, y: 3, z: 122.49987}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1338976255}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &130898947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130898945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e028d8a292e47444993b93e3c87f9fb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraLocker
+  trackingSettings:
+  - {fileID: 11400000, guid: d5b58ca9ee6eb4b1f87062871ba73b6c, type: 2}
+--- !u!65 &130898948
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130898945}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 20, y: 20, z: 20}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &155872050
 GameObject:
   m_ObjectHideFlags: 0
@@ -4796,17 +4864,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2132435545253609505, guid: ef93f302a0e13420c997be259a01b0bb, type: 3}
   m_PrefabInstance: {fileID: 745771169}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &746708958 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8133719991256797029, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-  m_PrefabInstance: {fileID: 1607662224}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d0806673e7314fdb9cf6590bd68fc48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
 --- !u!1 &794308410
 GameObject:
   m_ObjectHideFlags: 0
@@ -7977,6 +8034,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 130898946}
   - {fileID: 353582457}
   - {fileID: 2003718002}
   - {fileID: 686183270}
@@ -9681,22 +9739,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 154598762264068486, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 13400000, guid: c82d21123f7f44413b278dece4b4dd99, type: 2}
     - target: {fileID: 3262289321702987522, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: m_Name
       value: GameSystem
       objectReference: {fileID: 0}
-    - target: {fileID: 3460882660153505441, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 13400000, guid: c82d21123f7f44413b278dece4b4dd99, type: 2}
-    - target: {fileID: 4406867628601610656, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: soundManager
-      value: 
-      objectReference: {fileID: 746708958}
     - target: {fileID: 4406867628601610656, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: characterTracker
       value: 
@@ -9709,14 +9755,6 @@ PrefabInstance:
       propertyPath: levelCheckPointManager
       value: 
       objectReference: {fileID: 1012999669}
-    - target: {fileID: 4564789217582180564, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: characterPhysicsMaterial
-      value: 
-      objectReference: {fileID: 13400000, guid: c82d21123f7f44413b278dece4b4dd99, type: 2}
-    - target: {fileID: 4564789217582180564, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: characterAnimatorController
-      value: 
-      objectReference: {fileID: 9100000, guid: d11b4df1626314443a5f0b59bb0b43a6, type: 2}
     - target: {fileID: 5536239534079343053, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: debugCommands.Array.data[0].warpTarget
       value: 
@@ -9774,37 +9812,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: waterColor.b
-      value: 0.46226418
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: waterColor.g
-      value: 0.16911376
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: waterColor.r
-      value: 0.04579032
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: waterWaveCycle
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: postProcessVolume
       value: 
       objectReference: {fileID: 1160234426}
-    - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: waterWaveIntensity
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: waterColorIntensity
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203813829266587389, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: waterVignetteIntensity
-      value: 0.8
-      objectReference: {fileID: 0}
     - target: {fileID: 7735405747927799303, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: fpsText
       value: 
@@ -9881,16 +9891,13 @@ PrefabInstance:
       propertyPath: staticMessageCanvasGroup
       value: 
       objectReference: {fileID: 857029095}
-    - target: {fileID: 8739791108814853656, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      propertyPath: loadStartupVrmCharacter
-      value: 0
-      objectReference: {fileID: 0}
+    - target: {fileID: 8580862627021547449, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: currentCamera
+      value: 
+      objectReference: {fileID: 961739752}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 1163183428484965454, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2002169532}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
 --- !u!1 &1623117765
@@ -10832,11 +10839,6 @@ MonoBehaviour:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6bf4705b95c744a81964257c80b5c202, type: 3}
   m_PrefabInstance: {fileID: 339402194}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1767231047 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1163183428484965454, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
-  m_PrefabInstance: {fileID: 1607662224}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1776087135
 GameObject:
@@ -11869,59 +11871,6 @@ MonoBehaviour:
   closedLoop: 0
   showGizmos: 1
   gizmoSegments: 50
---- !u!1 &2002169531
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2002169532}
-  - component: {fileID: 2002169533}
-  m_Layer: 0
-  m_Name: GameCameraManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2002169532
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2002169531}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1767231047}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2002169533
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2002169531}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e56edfaf2c0264f36a11f0d64e0defe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  gameManager: {fileID: 336688785}
-  currentCamera: {fileID: 961739752}
-  togglableTrackingSettings:
-  - {fileID: 11400000, guid: 7a4cedd195242458899c3e0fc8869303, type: 2}
-  - {fileID: 11400000, guid: d5b58ca9ee6eb4b1f87062871ba73b6c, type: 2}
-  - {fileID: 11400000, guid: 7a4cedd195242458899c3e0fc8869303, type: 2}
-  - {fileID: 11400000, guid: 334054f1944634ead8f1ee3d6052e41d, type: 2}
-  enableTransitionAnimation: 1
-  transitionDuration: 0.5
 --- !u!1001 &2003142919
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -52,6 +52,7 @@ public class CharacterTracker : MonoBehaviour
     private bool lockCameraRotation => trackingSetting != null ? trackingSetting.LockCameraRotation : false;
     private Vector3 lockedCameraRotation => trackingSetting != null ? trackingSetting.LockedCameraRotation : Vector3.zero;
     private bool disableVerticalInput => trackingSetting != null ? trackingSetting.DisableVerticalInput : false;
+    private bool maintainYawOnUnlock => trackingSetting != null ? trackingSetting.MaintainYawOnUnlock : true;
 
     // カメラ回転角度
     private float cameraYaw = 0f;
@@ -262,6 +263,9 @@ public class CharacterTracker : MonoBehaviour
     /// <param name="newSetting">新しいトラッキング設定</param>
     public void SetTrackingSetting(TrackingSetting newSetting)
     {
+        // 旧設定を保存
+        TrackingSetting oldSetting = trackingSetting;
+
         trackingSetting = newSetting;
 
         // オーバーライドを解除
@@ -272,6 +276,22 @@ public class CharacterTracker : MonoBehaviour
         {
             currentCameraDistance = trackingSetting.CameraDistance;
         }
+
+        // ロック解除時にyaw角度を維持する処理
+        if (oldSetting != null && newSetting != null)
+        {
+            bool wasLocked = oldSetting.LockCameraRotation;
+            bool isNowUnlocked = !newSetting.LockCameraRotation;
+            bool shouldMaintainYaw = newSetting.MaintainYawOnUnlock;
+
+            if (wasLocked && isNowUnlocked && shouldMaintainYaw)
+            {
+                // 現在のカメラのyaw角度をcameraYawに設定（移動方向を維持）
+                cameraYaw = transform.rotation.eulerAngles.y;
+
+                Debug.Log($"CharacterTracker: カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+            }
+        }
     }
 
     /// <summary>
@@ -280,6 +300,42 @@ public class CharacterTracker : MonoBehaviour
     public TrackingSetting GetTrackingSetting()
     {
         return trackingSetting;
+    }
+
+    /// <summary>
+    /// トラッキング設定を変更（旧設定を明示的に指定）
+    /// トランジション完了時など、旧設定情報を保持したい場合に使用
+    /// </summary>
+    /// <param name="oldSetting">変更前の設定</param>
+    /// <param name="newSetting">変更後の設定</param>
+    public void SetTrackingSettingWithOldSetting(TrackingSetting oldSetting, TrackingSetting newSetting)
+    {
+        trackingSetting = newSetting;
+
+        // オーバーライドを解除
+        useOverrideValues = false;
+
+        // 設定変更時にカメラ距離を再初期化
+        if (trackingSetting != null)
+        {
+            currentCameraDistance = trackingSetting.CameraDistance;
+        }
+
+        // ロック解除時にyaw角度を維持する処理
+        if (oldSetting != null && newSetting != null)
+        {
+            bool wasLocked = oldSetting.LockCameraRotation;
+            bool isNowUnlocked = !newSetting.LockCameraRotation;
+            bool shouldMaintainYaw = newSetting.MaintainYawOnUnlock;
+
+            if (wasLocked && isNowUnlocked && shouldMaintainYaw)
+            {
+                // 現在のカメラのyaw角度をcameraYawに設定（移動方向を維持）
+                cameraYaw = transform.rotation.eulerAngles.y;
+
+                Debug.Log($"CharacterTracker: カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+            }
+        }
     }
 
     /// <summary>

@@ -27,7 +27,8 @@ public class GameCharacterManager : MonoBehaviour
     [SerializeField] private string animatorSpeedKey = "Speed";
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float runSpeed = 10f;
-    [SerializeField] private float rotationSpeed = 10f;
+    [Tooltip("キャラクターの回転速度（度/秒）。0以下で即座に回転（推奨）")]
+    [SerializeField] private float rotationSpeed = 0f;
     [SerializeField] private string animatorIsCrouchedKey = "isCrouched";
     [SerializeField] private string animatorInAirKey = "inAir";
     [SerializeField] private string animatorIsDeadKey = "isDead";
@@ -350,12 +351,21 @@ public class GameCharacterManager : MonoBehaviour
             // キャラクターを移動方向に向ける
             float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
             Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
-            float dynamicRotationSpeed = rotationSpeed * Mathf.Max(1f, currentMoveSpeed / 5f);
-            targetCharacter.transform.rotation = Quaternion.Slerp(
-                targetCharacter.transform.rotation,
-                targetRotation,
-                dynamicRotationSpeed * Time.deltaTime
-            );
+
+            // rotationSpeed <= 0の場合は即座に回転（カニ歩き防止、推奨）
+            // rotationSpeed > 0の場合はQuaternion.RotateTowardsで徐々に回転
+            if (rotationSpeed <= 0f)
+            {
+                targetCharacter.transform.rotation = targetRotation;
+            }
+            else
+            {
+                targetCharacter.transform.rotation = Quaternion.RotateTowards(
+                    targetCharacter.transform.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.deltaTime
+                );
+            }
 
             // 移動を適用
             Vector3 move = moveDirection * currentMoveSpeed * Time.deltaTime;
@@ -439,12 +449,21 @@ public class GameCharacterManager : MonoBehaviour
             // キャラクターを移動方向に向ける
             float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
             Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
-            float dynamicRotationSpeed = rotationSpeed * Mathf.Max(1f, currentMoveSpeed / 5f);
-            targetCharacter.transform.rotation = Quaternion.Slerp(
-                targetCharacter.transform.rotation,
-                targetRotation,
-                dynamicRotationSpeed * Time.deltaTime
-            );
+
+            // rotationSpeed <= 0の場合は即座に回転（カニ歩き防止、推奨）
+            // rotationSpeed > 0の場合はQuaternion.RotateTowardsで徐々に回転
+            if (rotationSpeed <= 0f)
+            {
+                targetCharacter.transform.rotation = targetRotation;
+            }
+            else
+            {
+                targetCharacter.transform.rotation = Quaternion.RotateTowards(
+                    targetCharacter.transform.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.deltaTime
+                );
+            }
 
             // 移動を適用（Rigidbodyの速度を直接設定）
             Vector3 targetVelocity = moveDirection * currentMoveSpeed;

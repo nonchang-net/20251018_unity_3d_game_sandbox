@@ -9755,6 +9755,10 @@ PrefabInstance:
       propertyPath: levelCheckPointManager
       value: 
       objectReference: {fileID: 1012999669}
+    - target: {fileID: 4564789217582180564, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
+      propertyPath: rotationSpeed
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 5536239534079343053, guid: 8d8ad4e65ca6e45f796a2365bb90d91a, type: 3}
       propertyPath: debugCommands.Array.data[0].warpTarget
       value: 

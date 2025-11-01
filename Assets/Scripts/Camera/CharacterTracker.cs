@@ -222,30 +222,53 @@ public class CharacterTracker : MonoBehaviour
         // カメラの位置と向きを設定
         transform.position = currentCameraPosition;
 
-        // カメラの回転を設定（lockCameraRotation有効時でもキャラクターを見る）
-        // カメラの回転をスムージング（旧実装: transform.LookAt(targetPosition);）
-        Quaternion targetRotation = Quaternion.LookRotation(targetPosition - transform.position);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
-            Time.deltaTime * positionSmoothSpeed);
+        // カメラの回転を設定
+        if (lockCameraRotation)
+        {
+            // カメラ回転が固定されている場合、指定された角度を使用してスムーズに回転
+            Quaternion targetRotation = Quaternion.Euler(lockedCameraRotation);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
+                Time.deltaTime * positionSmoothSpeed);
+        }
+        else
+        {
+            // 通常時は即座にキャラクターを見る方向に回転（遅延なし）
+            // Slerpで遅延させるとキャラクターの移動方向計算が不正確になり、
+            // カメラ距離が大きい場合にキャラクターが画面外になる問題が発生する
+            Quaternion targetRotation = Quaternion.LookRotation(targetPosition - transform.position);
+            transform.rotation = targetRotation;
+        }
     }
 
     /// <summary>
     /// カメラの前方向ベクトルを取得（Y成分を除く）
+    /// カメラの実際の回転ではなく、cameraYawから直接計算することで、
+    /// カメラ回転の遅延に影響されない正確な移動方向を提供
     /// </summary>
     public Vector3 GetCameraForward()
     {
-        Vector3 forward = transform.forward;
-        forward.y = 0f;
+        // lockCameraRotationの場合は固定角度、通常時はcameraYawを使用
+        float yaw = lockCameraRotation ? lockedCameraRotation.y : cameraYaw;
+
+        // yaw角度から前方向ベクトルを計算
+        float yawRad = yaw * Mathf.Deg2Rad;
+        Vector3 forward = new Vector3(Mathf.Sin(yawRad), 0f, Mathf.Cos(yawRad));
         return forward.normalized;
     }
 
     /// <summary>
     /// カメラの右方向ベクトルを取得（Y成分を除く）
+    /// カメラの実際の回転ではなく、cameraYawから直接計算することで、
+    /// カメラ回転の遅延に影響されない正確な移動方向を提供
     /// </summary>
     public Vector3 GetCameraRight()
     {
-        Vector3 right = transform.right;
-        right.y = 0f;
+        // lockCameraRotationの場合は固定角度、通常時はcameraYawを使用
+        float yaw = lockCameraRotation ? lockedCameraRotation.y : cameraYaw;
+
+        // yaw角度から右方向ベクトルを計算
+        float yawRad = yaw * Mathf.Deg2Rad;
+        Vector3 right = new Vector3(Mathf.Cos(yawRad), 0f, -Mathf.Sin(yawRad));
         return right.normalized;
     }
 

@@ -6,6 +6,11 @@ using UnityEngine;
 /// </summary>
 public class CharacterTracker : MonoBehaviour
 {
+    /// <summary>
+    /// カメラ系の詳細ログを有効にするかどうか（GameManagerから設定される）
+    /// </summary>
+    public static bool EnableCameraVerboseLog { get; set; } = false;
+
     [Header("ターゲット設定")]
     [SerializeField] private Transform targetTransform; // 追跡対象（プレイヤー）
 
@@ -235,9 +240,9 @@ public class CharacterTracker : MonoBehaviour
         transform.position = currentCameraPosition;
 
         // デバッグ: Lock Camera Rotation時のカメラ位置計算を確認
-        if (lockCameraRotation && Time.frameCount % 60 == 0)
+        if (EnableCameraVerboseLog && lockCameraRotation && Time.frameCount % 60 == 0)
         {
-            Debug.Log($"[Lock Camera Debug] targetPos={targetPosition:F2}, offset={offset:F2}, desiredPos={desiredPosition:F2}, currentPos={currentCameraPosition:F2}, cameraDistance={cameraDistance:F2}, yaw={yaw:F2}, pitch={pitch:F2}");
+            Debug.Log($"[CharacterTracker] Lock Camera Debug - targetPos={targetPosition:F2}, offset={offset:F2}, desiredPos={desiredPosition:F2}, currentPos={currentCameraPosition:F2}, cameraDistance={cameraDistance:F2}, yaw={yaw:F2}, pitch={pitch:F2}");
         }
 
         // カメラの回転を設定
@@ -336,7 +341,10 @@ public class CharacterTracker : MonoBehaviour
                 // 現在のカメラのyaw角度をcameraYawに設定（移動方向を維持）
                 cameraYaw = transform.rotation.eulerAngles.y;
 
-                Debug.Log($"CharacterTracker: カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+                if (EnableCameraVerboseLog)
+                {
+                    Debug.Log($"[CharacterTracker] カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+                }
             }
         }
     }
@@ -386,7 +394,10 @@ public class CharacterTracker : MonoBehaviour
                 // 現在のカメラのyaw角度をcameraYawに設定（移動方向を維持）
                 cameraYaw = transform.rotation.eulerAngles.y;
 
-                Debug.Log($"CharacterTracker: カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+                if (EnableCameraVerboseLog)
+                {
+                    Debug.Log($"[CharacterTracker] カメラロック解除時にyaw角度を維持しました。cameraYaw={cameraYaw:F1}");
+                }
             }
         }
     }

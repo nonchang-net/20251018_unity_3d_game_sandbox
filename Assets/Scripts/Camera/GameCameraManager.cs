@@ -10,6 +10,11 @@ using System;
 /// </summary>
 public class GameCameraManager : MonoBehaviour
 {
+    /// <summary>
+    /// カメラ系の詳細ログを有効にするかどうか（GameManagerから設定される）
+    /// </summary>
+    public static bool EnableCameraVerboseLog { get; set; } = false;
+
     [Header("GameManager")]
     [SerializeField] private GameManager gameManager;
 
@@ -367,7 +372,10 @@ public class GameCameraManager : MonoBehaviour
         currentTrackingSettingIndex = 0;
         ApplyTrackingSetting(0, useCustomTransition: true, customTransitionEnabled: enableCameraLockAreaTransition, customTransitionDuration: cameraLockAreaTransitionDuration);
 
-        Debug.Log($"GameCameraManager: CameraLockArea用の一時トラッキング設定を適用しました（{settings.Length}個）。");
+        if (EnableCameraVerboseLog)
+        {
+            Debug.Log($"[GameCameraManager] CameraLockArea用の一時トラッキング設定を適用しました（{settings.Length}個）。");
+        }
     }
 
     /// <summary>
@@ -392,7 +400,11 @@ public class GameCameraManager : MonoBehaviour
         if (togglableTrackingSettings != null && togglableTrackingSettings.Length > 0)
         {
             ApplyTrackingSetting(currentTrackingSettingIndex, useCustomTransition: true, customTransitionEnabled: enableCameraLockAreaTransition, customTransitionDuration: cameraLockAreaTransitionDuration);
-            Debug.Log("GameCameraManager: 一時トラッキング設定をクリアし、元の設定に戻しました。");
+
+            if (EnableCameraVerboseLog)
+            {
+                Debug.Log("[GameCameraManager] 一時トラッキング設定をクリアし、元の設定に戻しました。");
+            }
         }
     }
 }

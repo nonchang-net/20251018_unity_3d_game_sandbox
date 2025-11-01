@@ -16,11 +16,11 @@ public class GameManager : MonoBehaviour
 
 
     [Header("ログ制御")]
-    [Tooltip("詳細ログを表示する")]
+    [Tooltip("詳細ログを表示する（マスタースイッチ）")]
     [SerializeField] private bool enableVerboseLog = false;
 
-    // [Tooltip("GameInputManagerの詳細ログを表示する")]
-    // [SerializeField] private bool enableInputManagerVerboseLog = false;
+    [Tooltip("カメラ系の詳細ログを表示する")]
+    [SerializeField] private bool enableCameraVerboseLog = false;
 
     [Header("参照")]
     [SerializeField] private GameStateManager stateManager;
@@ -88,8 +88,9 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        // ログ設定を初期化: 20251020: InputManagerが特にverbose logが必要なくなったので一旦コメントアウト。TODO: 後日ログ設定周りを見直す
-        // GameInputManager.EnableVerboseLog = enableVerboseLog && enableInputManagerVerboseLog;
+        // ログ設定を初期化
+        CharacterTracker.EnableCameraVerboseLog = enableVerboseLog && enableCameraVerboseLog;
+        GameCameraManager.EnableCameraVerboseLog = enableVerboseLog && enableCameraVerboseLog;
 
         // 参照確認
         if (inputManager == null)

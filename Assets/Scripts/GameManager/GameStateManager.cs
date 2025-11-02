@@ -219,6 +219,15 @@ public class GameStateManager : MonoBehaviour
     {
         state.OnCameraLockAreaExit.OnNext(new CameraLockAreaExitInfo(areaName, areaObject));
     }
+
+    /// <summary>
+    /// ゲームの初期化が完了したことを通知する
+    /// ローディングが終わり、入力受付を開始するタイミング
+    /// </summary>
+    public void NotifyInitializeFinished()
+    {
+        state.OnInitializeFinished.OnNext(Unit.Default);
+    }
 }
 
 
@@ -455,6 +464,12 @@ public class GameState
     /// </summary>
     public Subject<CameraLockAreaExitInfo> OnCameraLockAreaExit { get; private set; }
 
+    /// <summary>
+    /// ゲームの初期化が完了したときに発火するSubject
+    /// ローディングが終わり、入力受付を開始するタイミングを通知
+    /// </summary>
+    public Subject<Unit> OnInitializeFinished { get; private set; }
+
     public GameState(int initialHp)
     {
         CurrentCoin = new ReactiveProperty<int>(0);
@@ -471,6 +486,7 @@ public class GameState
         OnCameraViewChangeRequested = new Subject<Unit>();
         OnCameraLockAreaEnter = new Subject<CameraLockAreaEnterInfo>();
         OnCameraLockAreaExit = new Subject<CameraLockAreaExitInfo>();
+        OnInitializeFinished = new Subject<Unit>();
         ActivatedCheckPoints = new System.Collections.Generic.List<CheckPoint>();
         IsPaused = new ReactiveProperty<bool>(false);
         CurrentTimeScale = new ReactiveProperty<float>(1f);

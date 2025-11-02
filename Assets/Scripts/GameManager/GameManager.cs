@@ -6,6 +6,7 @@ using UnityEngine;
 using R3;
 using UnityDebugSheet.Runtime.Core.Scripts;
 using NaughtyAttributes;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// ゲーム全体を管理するマネージャークラス
@@ -202,17 +203,101 @@ public class GameManager : MonoBehaviour
     {
         //Screen.SetResolution(640, 480, false);
 
-        // 初期キャラクター設定（StartではなくStartCoroutineで次フレームに遅延）
-        StartCoroutine(InitializeCharacter());
-
-        // マネージャー初期化（シリアライゼーション完了後に確実に呼び出す）
-        StartCoroutine(InitializeManagers());
+        // ゲーム初期化（UniTaskで非同期実行）
+        Initialize().Forget();
 
         // 死亡イベントを購読
         SubscribeDeadEvents();
 
         // チェックポイントアクティブ化イベントを購読
         SubscribeCheckPointEvents();
+    }
+
+    /// <summary>
+    /// ゲーム初期化処理
+    /// ローディング画面の表示・非表示、各種マネージャーの初期化を行う
+    /// </summary>
+    private async UniTask Initialize()
+    {
+        if (enableVerboseLog)
+        {
+            Debug.Log("GameManager: Initialize() を開始しました。");
+        }
+
+        // ローディング画面を表示
+        if (gameUIManager != null && gameUIManager.LoadingView != null && gameUIManager.LoadingViewCanvasGroup != null)
+        {
+            gameUIManager.LoadingView.SetActive(true);
+            gameUIManager.LoadingViewCanvasGroup.alpha = 1.0f;
+
+            if (enableVerboseLog)
+            {
+                Debug.Log("GameManager: ローディング画面を表示しました。");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: LoadingViewまたはLoadingViewCanvasGroupが設定されていません。ローディング画面をスキップします。");
+        }
+
+        // キャラクター初期化
+        await InitializeCharacterAsync();
+
+        // マネージャー初期化
+        await InitializeManagersAsync();
+
+        // 1秒待機
+        await UniTask.Delay(TimeSpan.FromSeconds(1));
+
+        // ローディング画面をフェードアウト
+        await FadeOutLoadingView();
+
+        // 初期化完了を通知
+        if (stateManager != null)
+        {
+            stateManager.NotifyInitializeFinished();
+
+            if (enableVerboseLog)
+            {
+                Debug.Log("GameManager: 初期化完了イベントを通知しました。");
+            }
+        }
+
+        if (enableVerboseLog)
+        {
+            Debug.Log("GameManager: Initialize() が完了しました。");
+        }
+    }
+
+    /// <summary>
+    /// ローディング画面をフェードアウト
+    /// </summary>
+    private async UniTask FadeOutLoadingView()
+    {
+        if (gameUIManager == null || gameUIManager.LoadingView == null || gameUIManager.LoadingViewCanvasGroup == null)
+        {
+            return;
+        }
+
+        float fadeDuration = 0.5f; // フェード時間
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1.0f, 0f, elapsed / fadeDuration);
+            gameUIManager.LoadingViewCanvasGroup.alpha = alpha;
+            await UniTask.Yield();
+        }
+
+        // 完全に透明にしてから非表示
+        gameUIManager.LoadingViewCanvasGroup.alpha = 0f;
+        gameUIManager.LoadingView.SetActive(false);
+
+        if (enableVerboseLog)
+        {
+            Debug.Log("GameManager: ローディング画面をフェードアウトしました。");
+        }
     }
 
     void OnDestroy()
@@ -228,17 +313,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator InitializeCharacter()
+    /// <summary>
+    /// キャラクター初期化処理
+    /// </summary>
+    private async UniTask InitializeCharacterAsync()
     {
         // 1フレーム待機してキャラクターの初期化を確実に完了させる
-        yield return null;
+        await UniTask.Yield();
 
         // PlayableCharacterRepositoryの初期化完了を待つ
         if (characterRepository != null)
         {
             while (!characterRepository.IsInitialized())
             {
-                yield return null;
+                await UniTask.Yield();
             }
 
             // リポジトリから最初のキャラクターを取得してアクティブに設定
@@ -257,26 +345,19 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// ゲーム開始時に初期化順序に依存する物たちの初期化処理
     /// </summary>
-    private System.Collections.IEnumerator InitializeManagers()
+    private async UniTask InitializeManagersAsync()
     {
         if (enableVerboseLog)
         {
-            Debug.Log("GameManager: InitializeManagers() コルーチンを開始しました。");
+            Debug.Log("GameManager: InitializeManagersAsync() を開始しました。");
         }
 
         // DebugSheet初期化
-
-        // note: 作業中は非表示にしたい……SetActive trueして一フレーム待機で……と言うことはできない？
-        // var debugSheet = FindFirstObjectByType<DebugSheet>();
-        // debugSheet.gameObject.SetActive(true);
-        // yield return null;
-
         var rootPage = DebugSheet.Instance.GetOrCreateInitialPage();
         // Example Page追加
         rootPage.AddPageLinkButton<ExampleDebugPage>(nameof(ExampleDebugPage));
-        
+
         // カメラマネージャー初期化
-        // note: これ順序依存調査の結果不要になってそうなのでStart()での自動実行に戻してもいいかもしれない？
         if (cameraManager == null)
         {
             Debug.LogError("GameManager: GameCameraManager が設定されていません。カメラ機能が正常に動作しません。");
@@ -286,7 +367,7 @@ public class GameManager : MonoBehaviour
             cameraManager.Initialize();
         }
 
-        yield return null; // 仮置き TODO: UniTaskに置き換えて整えたい
+        await UniTask.Yield();
     }
 
     /// <summary>

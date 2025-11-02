@@ -15,6 +15,7 @@ using System.Threading;
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using R3;
+using NaughtyAttributes;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -26,6 +27,15 @@ public class GameUIManager : MonoBehaviour
 
     [Header("GameManager")]
     [SerializeField] private GameManager gameManager;
+
+    [Header("Loading View")]
+    [Required("ローディング画面のGameObjectが必要です")]
+    [SerializeField] private GameObject loadingView;
+    public GameObject LoadingView => loadingView;
+
+    [Required("ローディング画面のCanvasGroupが必要です")]
+    [SerializeField] private CanvasGroup loadingViewCanvasGroup;
+    public CanvasGroup LoadingViewCanvasGroup => loadingViewCanvasGroup;
 
     [Header("UI")]
 

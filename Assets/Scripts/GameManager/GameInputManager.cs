@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
+using R3;
+using NaughtyAttributes;
 
 /// <summary>
 /// ゲーム全体の入力管理
@@ -9,6 +12,7 @@ using UnityEngine.InputSystem;
 public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerActions
 {
     [Header("GameManager")]
+    [Required("GameManagerの参照が必要です")]
     [SerializeField] private GameManager gameManager;
 
     [Header("参照")]
@@ -27,6 +31,12 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     /// <summary>前フレームのカーソルロック状態</summary>
     private CursorLockMode previousCursorLockMode;
 
+    /// <summary>ゲーム初期化が完了したかどうか</summary>
+    private bool isInitialized = false;
+
+    /// <summary>R3イベント購読管理</summary>
+    private IDisposable initializeFinishedSubscription;
+
     void Awake()
     {
         // Input SystemはIME有効状態でプレイ開始するとshiftキーが反応しない
@@ -37,11 +47,18 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
         inputSystemActions = new InputSystem_Actions();
         inputSystemActionMap = inputSystemActions.Player;
         inputSystemActionMap.AddCallbacks(this);
+
+        // 初期化完了まで入力を無効化
+        inputSystemActions?.Disable();
     }
 
     void OnEnable()
     {
-        inputSystemActions?.Enable();
+        // 初期化完了後のみ入力を有効化
+        if (isInitialized)
+        {
+            inputSystemActions?.Enable();
+        }
     }
 
     void OnDisable()
@@ -52,6 +69,7 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     void OnDestroy()
     {
         inputSystemActions?.Dispose();
+        initializeFinishedSubscription?.Dispose();
     }
 
     void Start()
@@ -76,6 +94,21 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
 
         // 初期カーソル状態を記録
         previousCursorLockMode = Cursor.lockState;
+
+        // 初期化完了イベントを購読
+        if (gameManager.StateManager != null)
+        {
+            initializeFinishedSubscription = gameManager.StateManager.State.OnInitializeFinished.Subscribe(_ =>
+            {
+                isInitialized = true;
+                inputSystemActions?.Enable();
+                Debug.Log("GameInputManager: ゲーム初期化完了。入力を有効化しました。");
+            });
+        }
+        else
+        {
+            Debug.LogWarning("GameInputManager: GameStateManagerが設定されていません。入力制御が正常に動作しない可能性があります。");
+        }
     }
 
     void Update()

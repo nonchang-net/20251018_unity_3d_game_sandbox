@@ -17,6 +17,7 @@ using UnityEngine;
 using R3;
 using System;
 using System.Collections.Generic;
+using NaughtyAttributes;
 
 /// <summary>
 /// サウンドのカテゴリー分類
@@ -32,6 +33,7 @@ public enum SoundCategory
 public class GameSoundManager : MonoBehaviour
 {
     [Header("GameManager")]
+    [Required("GameManagerの参照が必要です")]
     [SerializeField] private GameManager gameManager;
 
     [Header("ボリューム設定")]
@@ -61,6 +63,7 @@ public class GameSoundManager : MonoBehaviour
     private IDisposable coinGetSubscription;
     private IDisposable checkPointActivatedSubscription;
     private IDisposable highJumpSubscription;
+    private IDisposable initializeFinishedSubscription;
 
     private void Awake()
     {
@@ -74,10 +77,10 @@ public class GameSoundManager : MonoBehaviour
         bgmAudioSource.volume = bgmVolume * masterVolume;
         RegisterAudioSource(bgmAudioSource, SoundCategory.BGM);
 
+        // BGMクリップを設定（再生はInitializeFinishedイベントで開始）
         if (bgms != null && bgms.Length > 0)
         {
             bgmAudioSource.clip = bgms[0];
-            bgmAudioSource.Play();
         }
         else
         {
@@ -134,6 +137,16 @@ public class GameSoundManager : MonoBehaviour
         highJumpSubscription = gameManager.StateManager.State.OnHighJump.Subscribe(highJumpInfo =>
         {
             PlayHighJumpSound();
+        });
+
+        // 初期化完了イベントを購読してBGM再生を開始
+        initializeFinishedSubscription = gameManager.StateManager.State.OnInitializeFinished.Subscribe(_ =>
+        {
+            if (bgmAudioSource != null && bgmAudioSource.clip != null)
+            {
+                bgmAudioSource.Play();
+                Debug.Log("GameSoundManager: ゲーム初期化完了。BGMを再生開始しました。");
+            }
         });
     }
 
@@ -311,5 +324,6 @@ public class GameSoundManager : MonoBehaviour
         coinGetSubscription?.Dispose();
         checkPointActivatedSubscription?.Dispose();
         highJumpSubscription?.Dispose();
+        initializeFinishedSubscription?.Dispose();
     }
 }

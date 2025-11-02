@@ -40,6 +40,15 @@ public class CharacterTracker : MonoBehaviour
     private bool overrideResetPitchOnReset;
     private float overrideResetPitchAngle;
 
+    /// <summary>トランジション用のカメラ回転オーバーライド</summary>
+    private bool useOverrideRotation = false;
+    private Quaternion overrideRotation;
+
+    /// <summary>トランジション用のカメラ角度オーバーライド（位置計算用）</summary>
+    private bool useOverrideAngles = false;
+    private float overrideYaw;
+    private float overridePitch;
+
     // TrackingSettingから取得するプロパティ（オーバーライド対応）
     private float cameraDistance => useOverrideValues ? overrideCameraDistance : (trackingSetting != null ? trackingSetting.CameraDistance : 6f);
     private float targetHeightOffset => useOverrideValues ? overrideCameraHeight : (trackingSetting != null ? trackingSetting.TargetHeightOffset : 2f);
@@ -139,9 +148,15 @@ public class CharacterTracker : MonoBehaviour
         // カメラが注視する位置（ターゲット位置 + 高さオフセット）
         Vector3 targetPosition = targetTransform.position + Vector3.up * targetHeightOffset;
 
-        // カメラの角度を決定（ロック時は固定角度、通常時は入力ベース）
+        // カメラの角度を決定（オーバーライド > ロック > 通常の順で優先）
         float yaw, pitch;
-        if (lockCameraRotation)
+        if (useOverrideAngles)
+        {
+            // トランジション中はオーバーライド角度を使用
+            yaw = overrideYaw;
+            pitch = overridePitch;
+        }
+        else if (lockCameraRotation)
         {
             // 固定カメラの場合、lockedCameraRotationから角度を取得
             yaw = lockedCameraRotation.y;
@@ -246,7 +261,12 @@ public class CharacterTracker : MonoBehaviour
         }
 
         // カメラの回転を設定
-        if (lockCameraRotation)
+        if (useOverrideRotation)
+        {
+            // トランジション中はオーバーライド回転を使用（即座に適用）
+            transform.rotation = overrideRotation;
+        }
+        else if (lockCameraRotation)
         {
             // カメラ回転が固定されている場合、指定された角度を使用してスムーズに回転
             Quaternion targetRotation = Quaternion.Euler(lockedCameraRotation);
@@ -445,6 +465,42 @@ public class CharacterTracker : MonoBehaviour
     public void ClearTransitionOverride()
     {
         useOverrideValues = false;
+    }
+
+    /// <summary>
+    /// トランジション用のカメラ回転と角度を設定
+    /// </summary>
+    /// <param name="rotation">設定する回転</param>
+    /// <param name="yaw">位置計算用のyaw角度</param>
+    /// <param name="pitch">位置計算用のpitch角度</param>
+    public void SetTransitionRotation(Quaternion rotation, float yaw, float pitch)
+    {
+        useOverrideRotation = true;
+        overrideRotation = rotation;
+        useOverrideAngles = true;
+        overrideYaw = yaw;
+        overridePitch = pitch;
+    }
+
+    /// <summary>
+    /// トランジション用のカメラ回転オーバーライドを解除
+    /// </summary>
+    public void ClearTransitionRotationOverride()
+    {
+        useOverrideRotation = false;
+        useOverrideAngles = false;
+    }
+
+    /// <summary>
+    /// カメラの注視点を取得（ターゲット位置 + 高さオフセット）
+    /// </summary>
+    public Vector3 GetTargetPosition()
+    {
+        if (targetTransform == null)
+        {
+            return Vector3.zero;
+        }
+        return targetTransform.position + Vector3.up * targetHeightOffset;
     }
 
     /// <summary>

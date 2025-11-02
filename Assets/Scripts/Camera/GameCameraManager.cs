@@ -60,6 +60,9 @@ public class GameCameraManager : MonoBehaviour
     private float transitionProgress = 0f;
     private float currentTransitionDuration = 0f; // 現在のトランジション時間
 
+    /// <summary>トランジション用のカメラ回転目標</summary>
+    private Quaternion transitionToRotation;
+
     /// <summary>
     /// GameManagerから呼び出される初期化メソッド
     /// シリアライゼーション完了後に確実に呼び出されることを保証
@@ -271,7 +274,7 @@ public class GameCameraManager : MonoBehaviour
             {
                 // バグ調査時の深追いメモ
                 Debug.Log($"temporaryTrackingSettings is null? {temporaryTrackingSettings == null}");
-                Debug.Log($"activeSettings is null? {activeSettings == null}"); // コンパイル直後時はなぜかこれがnullじゃなくなって評価がおかしくなっていた
+                Debug.Log($"activeSettings is null? {activeSettings == null}"); // コンパイル直後時はなぜかこれがnullじゃなくなって評価がおかしくなっていた → Initialize時にnull代入することで改善
                 if(activeSettings != null)
                 {
                     Debug.Log($"activeSettings length: {activeSettings.Length}");                
@@ -349,6 +352,12 @@ public class GameCameraManager : MonoBehaviour
         transitionToSetting = toSetting;
         transitionProgress = 0f;
         currentTransitionDuration = duration;
+
+        // 目標回転を計算（LockCameraRotationの場合のみ固定角度）
+        if (toSetting != null && toSetting.LockCameraRotation)
+        {
+            transitionToRotation = Quaternion.Euler(toSetting.LockedCameraRotation);
+        }
     }
 
     /// <summary>
@@ -402,6 +411,44 @@ public class GameCameraManager : MonoBehaviour
             lerpedResetPitchOnReset,
             lerpedResetPitchAngle
         );
+
+        // カメラ回転と位置計算用の角度を補間してCharacterTrackerに適用
+        // 毎フレーム、現在のキャラクター注視点を基準に回転を計算
+        Vector3 targetPosition = gameManager.CharacterTracker.GetTargetPosition();
+        Vector3 cameraPosition = gameManager.CharacterTracker.transform.position;
+        Quaternion currentLookRotation = Quaternion.LookRotation(targetPosition - cameraPosition);
+
+        // 現在の注視角度（yaw/pitch）を計算
+        Vector3 currentEuler = currentLookRotation.eulerAngles;
+        float currentYaw = currentEuler.y;
+        float currentPitch = -currentEuler.x; // 位置計算用に符号反転
+
+        // 目標回転と目標角度を決定
+        Quaternion targetRotation;
+        float targetYaw, targetPitch;
+        if (transitionToSetting != null && transitionToSetting.LockCameraRotation)
+        {
+            // ロック有効の場合は固定角度
+            targetRotation = transitionToRotation;
+            Vector3 targetEuler = transitionToSetting.LockedCameraRotation;
+            targetYaw = targetEuler.y;
+            targetPitch = -targetEuler.x; // 位置計算用に符号反転
+        }
+        else
+        {
+            // ロック無効の場合はキャラクター注視
+            targetRotation = currentLookRotation;
+            targetYaw = currentYaw;
+            targetPitch = currentPitch;
+        }
+
+        // 回転と角度を補間
+        Quaternion lerpedRotation = Quaternion.Slerp(currentLookRotation, targetRotation, transitionProgress);
+        float lerpedYaw = Mathf.LerpAngle(currentYaw, targetYaw, transitionProgress);
+        float lerpedPitch = Mathf.Lerp(currentPitch, targetPitch, transitionProgress);
+
+        // CharacterTrackerに適用
+        gameManager.CharacterTracker.SetTransitionRotation(lerpedRotation, lerpedYaw, lerpedPitch);
     }
 
     /// <summary>
@@ -411,6 +458,12 @@ public class GameCameraManager : MonoBehaviour
     {
         isTransitioning = false;
         transitionProgress = 1f;
+
+        // カメラ回転のオーバーライドをクリア
+        if (gameManager.CharacterTracker != null)
+        {
+            gameManager.CharacterTracker.ClearTransitionRotationOverride();
+        }
 
         // 最終的な設定を適用
         if (gameManager.CharacterTracker != null && transitionToSetting != null)

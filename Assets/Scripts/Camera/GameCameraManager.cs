@@ -223,7 +223,7 @@ public class GameCameraManager : MonoBehaviour
         }
 
         // 一時設定があればそれを優先使用
-        TrackingSetting[] activeSettings = temporaryTrackingSettings != null ? temporaryTrackingSettings : togglableTrackingSettings;
+        TrackingSetting[] activeSettings = temporaryTrackingSettings ?? togglableTrackingSettings;
 
         if (activeSettings == null || activeSettings.Length == 0)
         {
@@ -265,7 +265,7 @@ public class GameCameraManager : MonoBehaviour
     private void ApplyTrackingSetting(int index, bool useCustomTransition = false, bool customTransitionEnabled = false, float customTransitionDuration = 0f)
     {
         // 一時設定があればそれを優先使用
-        TrackingSetting[] activeSettings = temporaryTrackingSettings != null ? temporaryTrackingSettings : togglableTrackingSettings;
+        TrackingSetting[] activeSettings = temporaryTrackingSettings ?? togglableTrackingSettings;
 
         if (activeSettings == null || activeSettings.Length == 0)
         {
@@ -419,9 +419,7 @@ public class GameCameraManager : MonoBehaviour
         Quaternion currentLookRotation = Quaternion.LookRotation(targetPosition - cameraPosition);
 
         // 現在の注視角度（yaw/pitch）を計算
-        Vector3 currentEuler = currentLookRotation.eulerAngles;
-        float currentYaw = currentEuler.y;
-        float currentPitch = -currentEuler.x; // 位置計算用に符号反転
+        CameraUtility.ExtractYawPitchFromRotation(currentLookRotation, out float currentYaw, out float currentPitch);
 
         // 目標回転と目標角度を決定
         Quaternion targetRotation;
@@ -430,9 +428,7 @@ public class GameCameraManager : MonoBehaviour
         {
             // ロック有効の場合は固定角度
             targetRotation = transitionToRotation;
-            Vector3 targetEuler = transitionToSetting.LockedCameraRotation;
-            targetYaw = targetEuler.y;
-            targetPitch = -targetEuler.x; // 位置計算用に符号反転
+            CameraUtility.ExtractYawPitchFromEuler(transitionToSetting.LockedCameraRotation, out targetYaw, out targetPitch);
         }
         else
         {
@@ -443,9 +439,8 @@ public class GameCameraManager : MonoBehaviour
         }
 
         // 回転と角度を補間
-        Quaternion lerpedRotation = Quaternion.Slerp(currentLookRotation, targetRotation, transitionProgress);
-        float lerpedYaw = Mathf.LerpAngle(currentYaw, targetYaw, transitionProgress);
-        float lerpedPitch = Mathf.Lerp(currentPitch, targetPitch, transitionProgress);
+        Quaternion lerpedRotation = CameraUtility.LerpRotation(currentLookRotation, targetRotation, transitionProgress);
+        CameraUtility.LerpYawPitch(currentYaw, targetYaw, currentPitch, targetPitch, transitionProgress, out float lerpedYaw, out float lerpedPitch);
 
         // CharacterTrackerに適用
         gameManager.CharacterTracker.SetTransitionRotation(lerpedRotation, lerpedYaw, lerpedPitch);
@@ -460,10 +455,7 @@ public class GameCameraManager : MonoBehaviour
         transitionProgress = 1f;
 
         // カメラ回転のオーバーライドをクリア
-        if (gameManager.CharacterTracker != null)
-        {
-            gameManager.CharacterTracker.ClearTransitionRotationOverride();
-        }
+        gameManager.CharacterTracker?.ClearTransitionRotationOverride();
 
         // 最終的な設定を適用
         if (gameManager.CharacterTracker != null && transitionToSetting != null)

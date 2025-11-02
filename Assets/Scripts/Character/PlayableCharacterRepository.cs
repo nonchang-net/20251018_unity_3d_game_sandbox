@@ -138,10 +138,7 @@ public class PlayableCharacterRepository : MonoBehaviour
                 RegisterCharacterAtFront(vrmCharacter);
 
                 // GameManagerのアクティブキャラクターに設定
-                if (gameManager != null)
-                {
-                    gameManager.SetActiveCharacter(vrmCharacter);
-                }
+                gameManager?.SetActiveCharacter(vrmCharacter);
 
                 if (enableVerboseLog)
                 {

@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using R3;
 using UnityDebugSheet.Runtime.Core.Scripts;
+using NaughtyAttributes;
 
 /// <summary>
 /// ゲーム全体を管理するマネージャークラス
@@ -24,31 +25,31 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool enableCameraVerboseLog = false;
 
     [Header("参照")]
-    [SerializeField] private GameStateManager stateManager;
+    [Required, SerializeField] private GameStateManager stateManager;
     public GameStateManager StateManager => stateManager;
-    [SerializeField] private GameInputManager inputManager;
+    [Required, SerializeField] private GameInputManager inputManager;
     public GameInputManager InputManager => inputManager;
-    [SerializeField] private GameUIManager gameUIManager;
+    [Required, SerializeField] private GameUIManager gameUIManager;
     public GameUIManager UIManager => gameUIManager;
-    [SerializeField] private GameCharacterManager characterManager;
+    [Required, SerializeField] private GameCharacterManager characterManager;
     public GameCharacterManager CharacterManager => characterManager;
-    [SerializeField] private GamePostProcessManager postProcessingManager;
+    [Required, SerializeField] private GamePostProcessManager postProcessingManager;
     public GamePostProcessManager PostProcessingManager => postProcessingManager;
-    [SerializeField] private GameTimeManager timeManager;
+    [Required, SerializeField] private GameTimeManager timeManager;
     public GameTimeManager TimeManager => timeManager;
-    [SerializeField] private GameSoundManager soundManager;
+    [Required, SerializeField] private GameSoundManager soundManager;
     public GameSoundManager SoundManager => soundManager;
 
     [Header("キャラクター管理")]
     [Tooltip("プレイ可能なキャラクターを管理するリポジトリ")]
-    [SerializeField] private PlayableCharacterRepository characterRepository;
+    [Required, SerializeField] private PlayableCharacterRepository characterRepository;
 
     [Header("カメラ設定")]
     [Tooltip("メインカメラのCharacterTracker")]
-    [SerializeField] private CharacterTracker characterTracker;
+    [Required, SerializeField] private CharacterTracker characterTracker;
     public CharacterTracker CharacterTracker => characterTracker;
     [Tooltip("カメラ管理マネージャー")]
-    [SerializeField] private GameCameraManager cameraManager;
+    [Required, SerializeField] private GameCameraManager cameraManager;
     public GameCameraManager CameraManager => cameraManager;
 
     [Header("水面設定")]
@@ -254,8 +255,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 各マネージャーの初期化
-    /// シリアライゼーション完了後に確実に呼び出すためコルーチンで実装
+    /// ゲーム開始時に初期化順序に依存する物たちの初期化処理
     /// </summary>
     private System.Collections.IEnumerator InitializeManagers()
     {
@@ -265,37 +265,18 @@ public class GameManager : MonoBehaviour
         }
 
         // DebugSheet初期化
-        var rootPage = DebugSheet.Instance.GetOrCreateInitialPage();
-        rootPage.AddPageLinkButton<ExampleDebugPage>(nameof(ExampleDebugPage));
 
-        // note: 以下の待機処理は別バグ起因だった様子なので保留中
-        // // 1フレーム待機してシリアライゼーションを確実に完了させる
+        // note: 作業中は非表示にしたい……SetActive trueして一フレーム待機で……と言うことはできない？
+        // var debugSheet = FindFirstObjectByType<DebugSheet>();
+        // debugSheet.gameObject.SetActive(true);
         // yield return null;
 
-        // if (enableVerboseLog)
-        // {
-        //     Debug.Log("GameManager: シリアライゼーション待機完了。各マネージャーの初期化を開始します。");
-        // }
-
-        // // GameCameraManagerの初期化
-        // if (cameraManager == null)
-        // {
-        //     Debug.LogError("GameManager: GameCameraManager が設定されていません。カメラ機能が正常に動作しません。");
-        // }
-        // else
-        // {
-        //     if (enableVerboseLog)
-        //     {
-        //         Debug.Log("GameManager: GameCameraManager.Initialize() を呼び出します。");
-        //     }
-
-        //     cameraManager.Initialize();
-
-        //     if (enableVerboseLog)
-        //     {
-        //         Debug.Log("GameManager: GameCameraManagerの初期化が完了しました。");
-        //     }
-        // }
+        var rootPage = DebugSheet.Instance.GetOrCreateInitialPage();
+        // Example Page追加
+        rootPage.AddPageLinkButton<ExampleDebugPage>(nameof(ExampleDebugPage));
+        
+        // カメラマネージャー初期化
+        // note: これ順序依存調査の結果不要になってそうなのでStart()での自動実行に戻してもいいかもしれない？
         if (cameraManager == null)
         {
             Debug.LogError("GameManager: GameCameraManager が設定されていません。カメラ機能が正常に動作しません。");

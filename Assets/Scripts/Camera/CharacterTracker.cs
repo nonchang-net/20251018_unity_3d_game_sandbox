@@ -1,4 +1,5 @@
 using UnityEngine;
+using NaughtyAttributes;
 
 /// <summary>
 /// キャラクターを追跡するサードパーソンカメラ
@@ -12,9 +13,11 @@ public class CharacterTracker : MonoBehaviour
     public static bool EnableCameraVerboseLog { get; set; } = false;
 
     [Header("ターゲット設定")]
+    [Required("追跡対象のTransformが必要です")]
     [SerializeField] private Transform targetTransform; // 追跡対象（プレイヤー）
 
     [Header("トラッキング設定")]
+    [Required("トラッキング設定のScriptableObjectが必要です")]
     [Tooltip("カメラトラッキングの設定（ScriptableObject）")]
     [SerializeField] private TrackingSetting trackingSetting;
 

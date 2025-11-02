@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using NaughtyAttributes;
 
 /// <summary>
 /// プレイ可能なキャラクターを管理するリポジトリ
@@ -13,6 +14,7 @@ using UnityEngine;
 public class PlayableCharacterRepository : MonoBehaviour
 {
     [Header("GameManager")]
+    [Required("GameManagerの参照が必要です")]
     [SerializeField] private GameManager gameManager;
 
     [Header("初期キャラクター設定")]

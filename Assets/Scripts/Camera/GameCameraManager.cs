@@ -1,6 +1,7 @@
 using UnityEngine;
 using R3;
 using System;
+using NaughtyAttributes;
 
 /// <summary>
 /// ゲーム中のカメラを管理するクラス
@@ -16,12 +17,15 @@ public class GameCameraManager : MonoBehaviour
     public static bool EnableCameraVerboseLog { get; set; } = false;
 
     [Header("GameManager")]
+    [Required("GameManagerの参照が必要です")]
     [SerializeField] private GameManager gameManager;
 
     [Header("Camera Management")]
+    [Required("メインカメラの参照が必要です")]
     [SerializeField] private Camera currentCamera;
 
     [Header("Tracking Settings")]
+    [Required("少なくとも1つのトラッキング設定が必要です")]
     [Tooltip("切り替え可能なトラッキング設定の配列")]
     [SerializeField] private TrackingSetting[] togglableTrackingSettings;
 

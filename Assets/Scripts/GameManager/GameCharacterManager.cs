@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using R3;
+using NaughtyAttributes;
 
 /// <summary>
 /// キャラクターの移動・アニメーション・状態管理を担当
@@ -18,9 +19,11 @@ using R3;
 public class GameCharacterManager : MonoBehaviour
 {
     [Header("GameManager")]
+    [Required("GameManagerの参照が必要です")]
     [SerializeField] private GameManager gameManager;
 
     [Header("制御対象")]
+    [Required("制御対象のキャラクターが必要です")]
     [SerializeField] private GameObject targetCharacter;
 
     [Header("移動設定")]

@@ -1,4 +1,5 @@
 using UnityEngine;
+using NaughtyAttributes;
 
 /// <summary>
 /// カメラトラッキングの設定を保持するScriptableObject
@@ -30,18 +31,23 @@ public class TrackingSetting : ScriptableObject
     public float InitialPitch => initialPitch;
 
     [Header("障害物回避")]
+
+    [HideIf("lockCameraRotation")]
     [Tooltip("障害物回避を有効にするか")]
     [SerializeField] private bool enableCollisionAvoidance = true;
     public bool EnableCollisionAvoidance => enableCollisionAvoidance;
 
+    [HideIf("lockCameraRotation")]
     [Tooltip("カメラの半径（障害物判定用）")]
     [SerializeField] private float cameraRadius = 0.3f;
     public float CameraRadius => cameraRadius;
 
+    [HideIf("lockCameraRotation")]
     [Tooltip("障害物判定に使用するレイヤーマスク")]
     [SerializeField] private LayerMask collisionLayers = -1;
     public LayerMask CollisionLayers => collisionLayers;
 
+    [HideIf("lockCameraRotation")]
     [Tooltip("障害物回避時のスムージング速度")]
     [SerializeField] private float collisionSmoothSpeed = 10f;
     public float CollisionSmoothSpeed => collisionSmoothSpeed;
@@ -69,14 +75,18 @@ public class TrackingSetting : ScriptableObject
     [SerializeField] private bool lockCameraRotation = false;
     public bool LockCameraRotation => lockCameraRotation;
 
-    [Tooltip("カメラ固定時の角度（Euler Angles）\nLockCameraRotationがtrueの場合に適用されます")]
+    [ShowIf("lockCameraRotation")]
+    [Tooltip("カメラ固定時の角度（Euler Angles）")]
+    [InfoBox("カメラロック設定時は障害物回避機能は設定できません", EInfoBoxType.Normal)]
     [SerializeField] private Vector3 lockedCameraRotation = new Vector3(0f, 0f, 0f);
     public Vector3 LockedCameraRotation => lockedCameraRotation;
 
+    [ShowIf("lockCameraRotation")]
     [Tooltip("カメラ固定時に上下方向の入力を無効化する（2Dゲーム風の操作）")]
     [SerializeField] private bool disableVerticalInput = false;
     public bool DisableVerticalInput => disableVerticalInput;
 
+    [ShowIf("lockCameraRotation")]
     [Tooltip("カメラロック解除時に、奥行き方向（yaw角度）を維持する\n有効にすると、ロック解除時に移動方向が急変しない")]
     [SerializeField] private bool maintainYawOnUnlock = true;
     public bool MaintainYawOnUnlock => maintainYawOnUnlock;

@@ -23,7 +23,6 @@ public class GameCharacterManager : MonoBehaviour
     [SerializeField] private GameManager gameManager;
 
     [Header("制御対象")]
-    [Required("制御対象のキャラクターが必要です")]
     [SerializeField] private GameObject targetCharacter;
 
     [Header("移動設定")]

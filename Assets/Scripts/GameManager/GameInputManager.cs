@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System;
 using R3;
 using NaughtyAttributes;
 
@@ -22,7 +22,7 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
     /// <summary>
     /// 詳細ログを有効にするかどうか（GameManagerから設定される）
     /// </summary>
-    // public static bool EnableVerboseLog { get; set; } = false;
+    public static bool EnableVerboseLog { get; set; } = false;
 
     // Input System
     private InputSystem_Actions inputSystemActions;
@@ -102,7 +102,11 @@ public class GameInputManager : MonoBehaviour, InputSystem_Actions.IPlayerAction
             {
                 isInitialized = true;
                 inputSystemActions?.Enable();
-                Debug.Log("GameInputManager: ゲーム初期化完了。入力を有効化しました。");
+
+                if (EnableVerboseLog)
+                {
+                    Debug.Log("GameInputManager: ゲーム初期化完了。入力を有効化しました。");
+                }
             });
         }
         else

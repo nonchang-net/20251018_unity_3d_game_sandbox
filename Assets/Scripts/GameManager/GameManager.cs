@@ -94,6 +94,8 @@ public class GameManager : MonoBehaviour
         // ログ設定を初期化
         CharacterTracker.EnableCameraVerboseLog = enableVerboseLog && enableCameraVerboseLog;
         GameCameraManager.EnableCameraVerboseLog = enableVerboseLog && enableCameraVerboseLog;
+        GameInputManager.EnableVerboseLog = enableVerboseLog;
+        GameSoundManager.EnableVerboseLog = enableVerboseLog;
 
         // 参照確認
         if (inputManager == null)

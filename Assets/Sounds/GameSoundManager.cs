@@ -12,7 +12,6 @@
 
 */
 
-using Unity.Collections;
 using UnityEngine;
 using R3;
 using System;
@@ -35,6 +34,11 @@ public class GameSoundManager : MonoBehaviour
     [Header("GameManager")]
     [Required("GameManagerの参照が必要です")]
     [SerializeField] private GameManager gameManager;
+
+    /// <summary>
+    /// 詳細ログを有効にするかどうか（GameManagerから設定される）
+    /// </summary>
+    public static bool EnableVerboseLog { get; set; } = false;
 
     [Header("ボリューム設定")]
     private float masterVolume = 1.0f;
@@ -145,7 +149,11 @@ public class GameSoundManager : MonoBehaviour
             if (bgmAudioSource != null && bgmAudioSource.clip != null)
             {
                 bgmAudioSource.Play();
-                Debug.Log("GameSoundManager: ゲーム初期化完了。BGMを再生開始しました。");
+
+                if (EnableVerboseLog)
+                {
+                    Debug.Log("GameSoundManager: ゲーム初期化完了。BGMを再生開始しました。");
+                }
             }
         });
     }

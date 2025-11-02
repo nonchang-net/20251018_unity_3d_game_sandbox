@@ -1,9 +1,10 @@
+using System;
 using System.Collections;
 using Cysharp.Text;
 using TMPro;
 using UnityEngine;
 using R3;
-using System;
+using UnityDebugSheet.Runtime.Core.Scripts;
 
 /// <summary>
 /// ゲーム全体を管理するマネージャークラス
@@ -263,35 +264,48 @@ public class GameManager : MonoBehaviour
             Debug.Log("GameManager: InitializeManagers() コルーチンを開始しました。");
         }
 
-        // 1フレーム待機してシリアライゼーションを確実に完了させる
-        yield return null;
+        // DebugSheet初期化
+        var rootPage = DebugSheet.Instance.GetOrCreateInitialPage();
+        rootPage.AddPageLinkButton<ExampleDebugPage>(nameof(ExampleDebugPage));
 
-        if (enableVerboseLog)
-        {
-            Debug.Log("GameManager: シリアライゼーション待機完了。各マネージャーの初期化を開始します。");
-        }
+        // note: 以下の待機処理は別バグ起因だった様子なので保留中
+        // // 1フレーム待機してシリアライゼーションを確実に完了させる
+        // yield return null;
 
-        // GameCameraManagerの初期化
+        // if (enableVerboseLog)
+        // {
+        //     Debug.Log("GameManager: シリアライゼーション待機完了。各マネージャーの初期化を開始します。");
+        // }
+
+        // // GameCameraManagerの初期化
+        // if (cameraManager == null)
+        // {
+        //     Debug.LogError("GameManager: GameCameraManager が設定されていません。カメラ機能が正常に動作しません。");
+        // }
+        // else
+        // {
+        //     if (enableVerboseLog)
+        //     {
+        //         Debug.Log("GameManager: GameCameraManager.Initialize() を呼び出します。");
+        //     }
+
+        //     cameraManager.Initialize();
+
+        //     if (enableVerboseLog)
+        //     {
+        //         Debug.Log("GameManager: GameCameraManagerの初期化が完了しました。");
+        //     }
+        // }
         if (cameraManager == null)
         {
             Debug.LogError("GameManager: GameCameraManager が設定されていません。カメラ機能が正常に動作しません。");
         }
         else
         {
-            if (enableVerboseLog)
-            {
-                Debug.Log("GameManager: GameCameraManager.Initialize() を呼び出します。");
-            }
-
             cameraManager.Initialize();
-
-            if (enableVerboseLog)
-            {
-                Debug.Log("GameManager: GameCameraManagerの初期化が完了しました。");
-            }
         }
 
-        // 将来的に他のマネージャーの初期化もここで行う
+        yield return null; // 仮置き TODO: UniTaskに置き換えて整えたい
     }
 
     /// <summary>

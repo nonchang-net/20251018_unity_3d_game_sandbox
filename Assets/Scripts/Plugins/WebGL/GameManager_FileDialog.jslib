@@ -17,6 +17,10 @@ mergeInto(LibraryManager.library, {
                 console.log('SendMessage', target, message);
                 SendMessage(target, message, URL.createObjectURL(event.target.files[0]));
             }
+            file_input.oncancel = function (event) {
+                console.log('SendMessage (cancel)', target, message);
+                SendMessage(target, message, "");
+            }
             document.body.appendChild(file_input);
         }
         file_input.click();

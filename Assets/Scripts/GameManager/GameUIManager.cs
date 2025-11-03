@@ -449,7 +449,7 @@ public class GameUIManager : MonoBehaviour
 
             while (elapsedTime < pauseMenuFadeInDuration)
             {
-                elapsedTime += Time.deltaTime;
+                elapsedTime += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsedTime / pauseMenuFadeInDuration);
                 pauseMenuCanvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
                 await UniTask.Yield(ct);
@@ -476,7 +476,7 @@ public class GameUIManager : MonoBehaviour
 
             while (elapsedTime < pauseMenuFadeOutDuration)
             {
-                elapsedTime += Time.deltaTime;
+                elapsedTime += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsedTime / pauseMenuFadeOutDuration);
                 pauseMenuCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
                 await UniTask.Yield(ct);

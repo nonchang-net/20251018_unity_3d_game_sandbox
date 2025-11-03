@@ -228,6 +228,24 @@ public class GameStateManager : MonoBehaviour
     {
         state.OnInitializeFinished.OnNext(Unit.Default);
     }
+
+    /// <summary>
+    /// ローディング開始を通知する
+    /// VRM読み込みなど、時間のかかる処理の開始時に呼び出す
+    /// </summary>
+    public void StartLoading()
+    {
+        state.IsLoading.Value = true;
+    }
+
+    /// <summary>
+    /// ローディング終了を通知する
+    /// VRM読み込みなど、時間のかかる処理の完了時に呼び出す
+    /// </summary>
+    public void EndLoading()
+    {
+        state.IsLoading.Value = false;
+    }
 }
 
 
@@ -438,6 +456,11 @@ public class GameState
     public ReactiveProperty<bool> IsPaused { get; private set; }
 
     /// <summary>
+    /// ローディング中かどうか（VRM読み込みなど）
+    /// </summary>
+    public ReactiveProperty<bool> IsLoading { get; private set; }
+
+    /// <summary>
     /// 現在のタイムスケール（Time.timeScale）
     /// </summary>
     public ReactiveProperty<float> CurrentTimeScale { get; private set; }
@@ -489,6 +512,7 @@ public class GameState
         OnInitializeFinished = new Subject<Unit>();
         ActivatedCheckPoints = new System.Collections.Generic.List<CheckPoint>();
         IsPaused = new ReactiveProperty<bool>(false);
+        IsLoading = new ReactiveProperty<bool>(false);
         CurrentTimeScale = new ReactiveProperty<float>(1f);
         CurrentCameraState = new ReactiveProperty<CameraState>(CameraState.Normal);
     }

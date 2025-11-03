@@ -135,6 +135,16 @@ public class GameUIManager : MonoBehaviour
             pauseMenu.SetActive(false);
         }
 
+        // VRMローディングパネルを初期状態で非表示
+        if (loadingView != null)
+        {
+            loadingView.SetActive(false);
+        }
+        if (loadingViewCanvasGroup != null)
+        {
+            loadingViewCanvasGroup.alpha = 0f;
+        }
+
         // ゲーム設定の初期化とロード
         gameSettings = new GameSettings();
         InitializePauseMenuUI();
@@ -187,13 +197,27 @@ public class GameUIManager : MonoBehaviour
             }
         });
 
+        // ローディング状態変動購読（ローディングパネル表示制御）
+        var loadingSubscriber = gameManager.StateManager.State.IsLoading.Subscribe(isLoading =>
+        {
+            if (isLoading)
+            {
+                ShowLoadingPanel();
+            }
+            else
+            {
+                HideLoadingPanel();
+            }
+        });
+
         // disposable登録
         disposable = Disposable.Combine(
             coinSubscriber,
             totalCoinSubscriber,
             hitpointSubscriber,
             damageSubscriber,
-            pauseSubscriber
+            pauseSubscriber,
+            loadingSubscriber
         );
     }
 
@@ -379,6 +403,37 @@ public class GameUIManager : MonoBehaviour
     public void TogglePauseMenu()
     {
         gameManager.StateManager.TogglePause();
+    }
+
+    /// <summary>
+    /// ローディングパネルを表示する
+    /// </summary>
+    private void ShowLoadingPanel()
+    {
+        if (loadingView == null || loadingViewCanvasGroup == null)
+        {
+            Debug.LogWarning("GameUIManager: loadingViewまたはloadingViewCanvasGroupが設定されていません。");
+            return;
+        }
+
+        // ローディングパネルを即座に表示
+        loadingView.SetActive(true);
+        loadingViewCanvasGroup.alpha = 1f;
+    }
+
+    /// <summary>
+    /// ローディングパネルを非表示にする
+    /// </summary>
+    private void HideLoadingPanel()
+    {
+        if (loadingView == null || loadingViewCanvasGroup == null)
+        {
+            return;
+        }
+
+        // ローディングパネルを即座に非表示
+        loadingViewCanvasGroup.alpha = 0f;
+        loadingView.SetActive(false);
     }
 
     /// <summary>

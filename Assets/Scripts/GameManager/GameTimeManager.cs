@@ -51,6 +51,12 @@ public class GameTimeManager : MonoBehaviour
             OnPauseChanged(isPaused);
         });
 
+        // ローディング状態の購読
+        var loadingSubscription = gameManager.StateManager.State.IsLoading.Subscribe(isLoading =>
+        {
+            OnLoadingChanged(isLoading);
+        });
+
         // タイムスケール変更の購読
         var timeScaleSubscription = gameManager.StateManager.State.CurrentTimeScale.Subscribe(timeScale =>
         {
@@ -60,6 +66,7 @@ public class GameTimeManager : MonoBehaviour
         // disposable登録
         disposable = Disposable.Combine(
             pauseSubscription,
+            loadingSubscription,
             timeScaleSubscription
         );
     }
@@ -105,12 +112,45 @@ public class GameTimeManager : MonoBehaviour
     }
 
     /// <summary>
+    /// ローディング状態が変化したときの処理
+    /// </summary>
+    void OnLoadingChanged(bool isLoading)
+    {
+        if (isLoading)
+        {
+            // ローディング前のタイムスケールを保存
+            timeScaleBeforePause = Time.timeScale;
+
+            // ローディング時はゲームを停止
+            Time.timeScale = pausedTimeScale;
+            gameManager.StateManager.SetTimeScale(pausedTimeScale);
+
+            if (EnableVerboseLog)
+            {
+                Debug.Log($"GameTimeManager: ローディング開始。ゲームを停止しました。TimeScale: {Time.timeScale}");
+            }
+        }
+        else
+        {
+            // ローディング解除時は保存していたタイムスケールを復元
+            Time.timeScale = timeScaleBeforePause;
+            gameManager.StateManager.SetTimeScale(timeScaleBeforePause);
+
+            if (EnableVerboseLog)
+            {
+                Debug.Log($"GameTimeManager: ローディング完了。ゲームを再開しました。TimeScale: {Time.timeScale}");
+            }
+        }
+    }
+
+    /// <summary>
     /// タイムスケールが変化したときの処理
     /// </summary>
     void OnTimeScaleChanged(float timeScale)
     {
-        // ポーズ中はタイムスケールを変更しない
-        if (gameManager.StateManager.State.IsPaused.CurrentValue)
+        // ポーズ中またはローディング中はタイムスケールを変更しない
+        if (gameManager.StateManager.State.IsPaused.CurrentValue ||
+            gameManager.StateManager.State.IsLoading.CurrentValue)
         {
             return;
         }

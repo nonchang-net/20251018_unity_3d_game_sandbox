@@ -27,6 +27,20 @@ public class VRMLoadManager : MonoBehaviour
     /// <summary>VRMロード中フラグ</summary>
     private bool isLoadingVrm = false;
 
+    /// <summary>
+    /// ローディングを終了する（フラグリセットとイベント通知）
+    /// </summary>
+    private void FinishLoading()
+    {
+        isLoadingVrm = false;
+
+        // ローディング終了を通知
+        if (gameManager != null && gameManager.StateManager != null)
+        {
+            gameManager.StateManager.EndLoading();
+        }
+    }
+
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void WebGL_GameManager_FileDialog(string target, string message);
@@ -76,6 +90,12 @@ public class VRMLoadManager : MonoBehaviour
 
         isLoadingVrm = true;
 
+        // ローディング開始を通知
+        if (gameManager != null && gameManager.StateManager != null)
+        {
+            gameManager.StateManager.StartLoading();
+        }
+
         // ファイル選択ダイアログを開く
         string vrmPath = OpenFileDialog();
 
@@ -96,7 +116,7 @@ public class VRMLoadManager : MonoBehaviour
             {
                 Debug.Log("VRMLoadManager: ファイル選択がキャンセルされました、またはサポートされていないプラットフォームです。");
             }
-            isLoadingVrm = false;
+            FinishLoading();
             yield break;
 #endif
         }
@@ -108,21 +128,21 @@ public class VRMLoadManager : MonoBehaviour
             {
                 Debug.Log("VRMLoadManager: ファイル選択がキャンセルされました。");
             }
-            isLoadingVrm = false;
+            FinishLoading();
             yield break;
         }
 
         if (!File.Exists(vrmPath))
         {
             Debug.LogError($"VRMLoadManager: 選択されたファイルが見つかりません: {vrmPath}");
-            isLoadingVrm = false;
+            FinishLoading();
             yield break;
         }
 
         if (!vrmPath.EndsWith(".vrm", System.StringComparison.OrdinalIgnoreCase))
         {
             Debug.LogError($"VRMLoadManager: VRMファイルではありません: {vrmPath}");
-            isLoadingVrm = false;
+            FinishLoading();
             yield break;
         }
 
@@ -163,12 +183,12 @@ public class VRMLoadManager : MonoBehaviour
             onComplete: (vrmCharacter) =>
             {
                 OnVrmLoaded(vrmCharacter);
-                isLoadingVrm = false;
+                FinishLoading();
             },
             onError: (errorMessage) =>
             {
                 Debug.LogError($"VRMLoadManager: {errorMessage}");
-                isLoadingVrm = false;
+                FinishLoading();
             }
         );
     }
@@ -205,7 +225,7 @@ public class VRMLoadManager : MonoBehaviour
         if (string.IsNullOrEmpty(url))
         {
             Debug.Log("VRMLoadManager: ファイル選択がキャンセルされました（URLが空）。");
-            isLoadingVrm = false;
+            FinishLoading();
             return;
         }
 
@@ -233,7 +253,7 @@ public class VRMLoadManager : MonoBehaviour
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"VRMLoadManager: ファイルのダウンロードに失敗しました: {www.error}");
-            isLoadingVrm = false;
+            FinishLoading();
             yield break;
         }
 
@@ -242,7 +262,7 @@ public class VRMLoadManager : MonoBehaviour
         if (vrmData == null || vrmData.Length == 0)
         {
             Debug.LogError("VRMLoadManager: ダウンロードしたデータが空です。");
-            isLoadingVrm = false;
+            FinishLoading();
             yield break;
         }
 
@@ -299,12 +319,12 @@ public class VRMLoadManager : MonoBehaviour
             {
                 Debug.Log($"VRMLoadManager: VRM読み込み完了コールバック: {vrmCharacter?.name ?? "null"}");
                 OnVrmLoaded(vrmCharacter);
-                isLoadingVrm = false;
+                FinishLoading();
             },
             onError: (errorMessage) =>
             {
                 Debug.LogError($"VRMLoadManager: VRM読み込みエラーコールバック: {errorMessage}");
-                isLoadingVrm = false;
+                FinishLoading();
             }
         );
 
@@ -343,6 +363,17 @@ public class VRMLoadManager : MonoBehaviour
     /// <param name="vrmPath">VRMファイルのパス</param>
     public void LoadVrmFromPath(string vrmPath)
     {
+        if (!isLoadingVrm)
+        {
+            isLoadingVrm = true;
+
+            // ローディング開始を通知
+            if (gameManager != null && gameManager.StateManager != null)
+            {
+                gameManager.StateManager.StartLoading();
+            }
+        }
+
         StartCoroutine(LoadVrmFromPathCoroutine(vrmPath));
     }
 
@@ -400,10 +431,12 @@ public class VRMLoadManager : MonoBehaviour
             onComplete: (vrmCharacter) =>
             {
                 OnVrmLoaded(vrmCharacter);
+                FinishLoading();
             },
             onError: (errorMessage) =>
             {
                 Debug.LogError($"VRMLoadManager: {errorMessage}");
+                FinishLoading();
             }
         );
     }

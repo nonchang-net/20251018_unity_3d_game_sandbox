@@ -84,6 +84,11 @@ public class VRMLoadManager : MonoBehaviour
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             // WebGLの場合、OnFileSelectedコールバックで処理される
+            // isLoadingVrmはOnFileSelected内で管理されるため、ここではリセットしない
+            if (enableVerboseLog)
+            {
+                Debug.Log("VRMLoadManager: WebGLファイルダイアログを開きました。OnFileSelectedコールバックを待機中...");
+            }
             yield break;
 #else
             // その他のプラットフォームでnullの場合はキャンセルまたはエラー
@@ -195,20 +200,16 @@ public class VRMLoadManager : MonoBehaviour
     /// <param name="url">選択されたファイルのblob URL</param>
     public void OnFileSelected(string url)
     {
+        Debug.Log($"VRMLoadManager: OnFileSelected呼び出し: url={url}, isLoadingVrm={isLoadingVrm}");
+
         if (string.IsNullOrEmpty(url))
         {
-            if (enableVerboseLog)
-            {
-                Debug.Log("VRMLoadManager: ファイル選択がキャンセルされました。");
-            }
+            Debug.Log("VRMLoadManager: ファイル選択がキャンセルされました（URLが空）。");
             isLoadingVrm = false;
             return;
         }
 
-        if (enableVerboseLog)
-        {
-            Debug.Log($"VRMLoadManager: WebGLファイル選択: {url}");
-        }
+        Debug.Log($"VRMLoadManager: WebGLファイル選択成功。URLからVRMをダウンロード開始: {url}");
 
         // コルーチンでファイルをダウンロードして読み込む
         StartCoroutine(LoadVrmFromUrl(url));
@@ -220,8 +221,14 @@ public class VRMLoadManager : MonoBehaviour
     /// <param name="url">VRMファイルのURL</param>
     public IEnumerator LoadVrmFromUrl(string url)
     {
+        Debug.Log($"VRMLoadManager: LoadVrmFromUrl開始: {url}");
+
         UnityWebRequest www = UnityWebRequest.Get(url);
+        Debug.Log($"VRMLoadManager: UnityWebRequest送信中...");
+
         yield return www.SendWebRequest();
+
+        Debug.Log($"VRMLoadManager: UnityWebRequest完了. result={www.result}");
 
         if (www.result != UnityWebRequest.Result.Success)
         {
@@ -239,19 +246,18 @@ public class VRMLoadManager : MonoBehaviour
             yield break;
         }
 
-        if (enableVerboseLog)
-        {
-            Debug.Log($"VRMLoadManager: VRMデータのダウンロードが完了しました。サイズ: {vrmData.Length} bytes");
-        }
+        Debug.Log($"VRMLoadManager: VRMデータのダウンロードが完了しました。サイズ: {vrmData.Length} bytes");
 
-        // VRMUtilityの詳細ログを設定
-        VRMUtility.EnableVerboseLog = enableVerboseLog;
+        // VRMUtilityの詳細ログを設定（WebGLでのデバッグのため常に有効化）
+        VRMUtility.EnableVerboseLog = true;
+        Debug.Log("VRMLoadManager: VRMUtility.EnableVerboseLog = true に設定しました");
 
         // スポーン位置を決定（GameManagerから取得）
         Vector3 spawnPosition = Vector3.zero;
         if (gameManager != null && gameManager.DefaultSpawnPoint != null)
         {
             spawnPosition = gameManager.DefaultSpawnPoint.position;
+            Debug.Log($"VRMLoadManager: スポーン位置を設定: {spawnPosition}");
         }
         else
         {
@@ -266,11 +272,21 @@ public class VRMLoadManager : MonoBehaviour
         {
             Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterAnimatorControllerが設定されていません。");
         }
+        else
+        {
+            Debug.Log($"VRMLoadManager: AnimatorController取得成功: {animatorController.name}");
+        }
 
         if (physicsMaterial == null)
         {
             Debug.LogError("VRMLoadManager: GameCharacterManagerのCharacterPhysicsMaterialが設定されていません。");
         }
+        else
+        {
+            Debug.Log($"VRMLoadManager: PhysicsMaterial取得成功: {physicsMaterial.name}");
+        }
+
+        Debug.Log("VRMLoadManager: VRMUtility.LoadAndSetupVrmFromBytes呼び出し開始");
 
         // バイトデータからVRMを読み込んでセットアップ
         yield return VRMUtility.LoadAndSetupVrmFromBytes(
@@ -281,15 +297,18 @@ public class VRMLoadManager : MonoBehaviour
             physicsMaterial,
             onComplete: (vrmCharacter) =>
             {
+                Debug.Log($"VRMLoadManager: VRM読み込み完了コールバック: {vrmCharacter?.name ?? "null"}");
                 OnVrmLoaded(vrmCharacter);
                 isLoadingVrm = false;
             },
             onError: (errorMessage) =>
             {
-                Debug.LogError($"VRMLoadManager: {errorMessage}");
+                Debug.LogError($"VRMLoadManager: VRM読み込みエラーコールバック: {errorMessage}");
                 isLoadingVrm = false;
             }
         );
+
+        Debug.Log("VRMLoadManager: LoadVrmFromUrl完了");
     }
 
     /// <summary>

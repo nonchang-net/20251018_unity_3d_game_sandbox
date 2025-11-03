@@ -86,7 +86,7 @@ public static class VRMUtility
     /// バイトデータからVRMを読み込んでセットアップするコルーチン
     /// </summary>
     /// <param name="vrmData">VRMファイルのバイトデータ</param>
-    /// <param name="fileName">一時ファイル名</param>
+    /// <param name="fileName">ファイル名（デバッグ用）</param>
     /// <param name="spawnPosition">スポーン位置</param>
     /// <param name="animatorController">アニメーションコントローラー</param>
     /// <param name="physicsMaterial">Physics Material（CapsuleColliderに適用）</param>
@@ -101,28 +101,54 @@ public static class VRMUtility
         System.Action<GameObject> onComplete = null,
         System.Action<string> onError = null)
     {
-        // 一時ファイルに保存
-        string tempPath = Path.Combine(Application.temporaryCachePath, fileName);
-
-        try
+        if (EnableVerboseLog)
         {
-            File.WriteAllBytes(tempPath, vrmData);
-
-            if (EnableVerboseLog)
-            {
-                Debug.Log($"VRMUtility: 一時ファイルに保存しました: {tempPath}");
-            }
+            Debug.Log($"VRMUtility: バイトデータからVRM読み込みを開始します: {fileName} (サイズ: {vrmData.Length} bytes)");
         }
-        catch (System.Exception ex)
+
+        // VRMを非同期で読み込み
+        Task<GameObject> loadTask = LoadVrmFromBytesAsync(vrmData, fileName);
+
+        // Taskが完了するまで待機
+        while (!loadTask.IsCompleted)
         {
-            string errorMessage = $"一時ファイルの保存に失敗しました: {ex.Message}";
+            yield return null;
+        }
+
+        if (loadTask.Exception != null)
+        {
+            string errorMessage = $"VRM読み込み中にエラーが発生しました: {loadTask.Exception}";
             Debug.LogError($"VRMUtility: {errorMessage}");
             onError?.Invoke(errorMessage);
             yield break;
         }
 
-        // LoadAndSetupVrmFromPathを使用して読み込み
-        yield return LoadAndSetupVrmFromPath(tempPath, spawnPosition, animatorController, physicsMaterial, onComplete, onError);
+        GameObject vrmCharacter = loadTask.Result;
+
+        if (vrmCharacter == null)
+        {
+            string errorMessage = "VRMキャラクターの読み込みに失敗しました。";
+            Debug.LogError($"VRMUtility: {errorMessage}");
+            onError?.Invoke(errorMessage);
+            yield break;
+        }
+
+        // デバッグログ出力
+        LogVrmDebugInfo(vrmCharacter, "LoadAndSetupVrmFromBytes");
+
+        // VRMキャラクターをセットアップ
+        SetupVrmCharacter(vrmCharacter, spawnPosition, animatorController, physicsMaterial);
+
+        // コンポーネントの追加を確実に反映させるため、複数フレーム待機
+        yield return null;
+        yield return null;
+
+        if (EnableVerboseLog)
+        {
+            Debug.Log($"VRMUtility: VRMキャラクター '{vrmCharacter.name}' のロードとセットアップが完了しました。");
+        }
+
+        onComplete?.Invoke(vrmCharacter);
     }
 
     /// <summary>
@@ -157,14 +183,63 @@ public static class VRMUtility
         try
         {
             // VRMファイルをバイト配列として読み込み
-            byte[] vrmBytes = await Task.Run(() => File.ReadAllBytes(path));
+            byte[] vrmBytes;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGLではTask.Runが使えないため、同期的に読み込む
+            vrmBytes = File.ReadAllBytes(path);
+#else
+            vrmBytes = await Task.Run(() => File.ReadAllBytes(path));
+#endif
+
+            return await LoadVrmFromBytesAsync(vrmBytes, Path.GetFileName(path));
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"VRMUtility: VRM読み込みエラー: {e.Message}\n{e.StackTrace}");
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// バイトデータからVRMを非同期で読み込む（WebGL対応）
+    /// </summary>
+    /// <param name="vrmBytes">VRMファイルのバイトデータ</param>
+    /// <param name="fileName">ファイル名（デバッグ用）</param>
+    /// <returns>読み込まれたVRMキャラクターのGameObject（失敗時はnull）</returns>
+    public static async Task<GameObject> LoadVrmFromBytesAsync(byte[] vrmBytes, string fileName)
+    {
+        try
+        {
+            if (EnableVerboseLog)
+            {
+                Debug.Log($"VRMUtility: バイトデータからVRM読み込み開始: {fileName} (サイズ: {vrmBytes.Length} bytes)");
+            }
+
+            // WebGL対応のAwaitCallerを選択
+            IAwaitCaller awaitCaller;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGLではスレッドが使えないため、RuntimeOnlyNoThreadAwaitCallerを使用
+            awaitCaller = new RuntimeOnlyNoThreadAwaitCaller();
+            if (EnableVerboseLog)
+            {
+                Debug.Log("VRMUtility: WebGLモード - RuntimeOnlyNoThreadAwaitCallerを使用");
+            }
+#else
+            // その他のプラットフォームではRuntimeOnlyAwaitCallerを使用
+            awaitCaller = new RuntimeOnlyAwaitCaller();
+            if (EnableVerboseLog)
+            {
+                Debug.Log("VRMUtility: 通常モード - RuntimeOnlyAwaitCallerを使用");
+            }
+#endif
 
             // VRM10をインポート
             Vrm10Instance vrm10Instance = await Vrm10.LoadBytesAsync(
                 vrmBytes,
                 canLoadVrm0X: true,
                 showMeshes: false,
-                awaitCaller: new ImmediateCaller()
+                awaitCaller: awaitCaller
             );
 
             if (vrm10Instance != null)
@@ -180,12 +255,21 @@ public static class VRMUtility
                     runtimeInstance.EnableUpdateWhenOffscreen();
                 }
 
+                if (EnableVerboseLog)
+                {
+                    Debug.Log($"VRMUtility: VRM読み込み完了: {vrm10Instance.gameObject.name}");
+                }
+
                 return vrm10Instance.gameObject;
+            }
+            else
+            {
+                Debug.LogError($"VRMUtility: Vrm10.LoadBytesAsyncがnullを返しました: {fileName}");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"VRMUtility: VRM読み込みエラー: {e.Message}\n{e.StackTrace}");
+            Debug.LogError($"VRMUtility: VRM読み込みエラー ({fileName}): {e.Message}\n{e.StackTrace}");
         }
 
         return null;
